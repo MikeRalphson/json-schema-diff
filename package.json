@@ -1,0 +1,25 @@
+{
+  "name": "json-schema-diff",
+  "version": "0.0.0",
+  "description": "A CLI tool and nodejs api to identify differences between two json schema files.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo todo"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org/atlassian/json-schema-diff.git"
+  },
+  "keywords": [
+    "diff",
+    "difference",
+    "json",
+    "schema",
+    "json-schema"
+  ],
+  "author": {
+      "name": "Ben Sayers (Atlassian)",
+      "email": "bsayers@atlassian.com"
+  },
+  "license": "Apache-2.0"
+}
