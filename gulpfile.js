@@ -128,8 +128,6 @@ gulp.task('test:unit', () => gulp.src([unitTestHelpers, unitTests]).pipe(jasmine
 
 gulp.task('test:e2e', () => gulp.src([e2eTests]).pipe(jasmine()));
 
-gulp.task('test:contract', () => exec('./bin/contract-testing validate'));
-
 gulp.task('watch', ['clean-copy-and-compile-build-output'], () => {
     gulp.watch(['lib/**/*.ts', 'test/**/*.ts'], ['compile-build-output']);
     gulp.watch(['build-output/lib/**/*', 'build-output/test/unit/**/*'], ['test:unit']);
