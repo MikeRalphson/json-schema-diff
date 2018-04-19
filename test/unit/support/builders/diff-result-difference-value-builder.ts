@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {DiffResultDifferenceValue} from '../../../../lib/differ';
+import {DiffResultDifferenceValue} from '../../../../lib/json-schema-diff/differ';
 
 export class DiffResultDifferenceValueBuilder {
     public static create(): DiffResultDifferenceValueBuilder {
@@ -11,7 +11,7 @@ export class DiffResultDifferenceValueBuilder {
     public build(): DiffResultDifferenceValue {
         return {
             location: this.location,
-            value: _.clone(this.value)
+            value: _.cloneDeep(this.value)
         };
     }
 
@@ -20,7 +20,7 @@ export class DiffResultDifferenceValueBuilder {
     }
 
     public withValue(newValue: any): DiffResultDifferenceValueBuilder {
-        const copyOfNewValue = _.clone(newValue);
+        const copyOfNewValue = _.cloneDeep(newValue);
         return new DiffResultDifferenceValueBuilder(this.location, copyOfNewValue);
     }
 }

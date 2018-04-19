@@ -1,5 +1,5 @@
-import {JsonSchema} from '../../lib/json-schema';
 import {JsonSchemaDiff} from '../../lib/json-schema-diff';
+import {JsonSchema} from '../../lib/json-schema-diff/differ/diff-schemas/json-schema';
 import {expectToFail} from '../support/expect-to-fail';
 import {
     diffResultDifferenceBuilder} from './support/builders/diff-result-difference-builder';

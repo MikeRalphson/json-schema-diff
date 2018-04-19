@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {DiffResultDifference, DiffResultDifferenceType} from '../../../../lib/differ';
+import {DiffResultDifference, DiffResultDifferenceType} from '../../../../lib/json-schema-diff/differ';
 import {
 diffResultDifferenceValueBuilder,
 DiffResultDifferenceValueBuilder
@@ -43,7 +43,7 @@ export class DiffResultDifferenceBuilder {
             removedByDestinationSpec: this.state.removedByDestinationSpec,
             sourceValues: this.state.sourceValues.map((builder) => builder.build()),
             type: this.state.type,
-            value: _.clone(this.state.value)
+            value: _.cloneDeep(this.state.value)
         };
     }
     public withTypeAddType(): DiffResultDifferenceBuilder {
@@ -68,12 +68,38 @@ export class DiffResultDifferenceBuilder {
         });
     }
 
+    public withSourceValues(newSourceValues: DiffResultDifferenceValueBuilder[]): DiffResultDifferenceBuilder {
+        const copyOfNewSourceValues = Array.from(newSourceValues);
+        return new DiffResultDifferenceBuilder({
+            addedByDestinationSpec: this.state.addedByDestinationSpec,
+            destinationValues: this.state.destinationValues,
+            removedByDestinationSpec: this.state.removedByDestinationSpec,
+            sourceValues: copyOfNewSourceValues,
+            type: this.state.type,
+            value: this.state.value
+        });
+    }
+
     public withSourceValue(newSourceValue: DiffResultDifferenceValueBuilder): DiffResultDifferenceBuilder {
         return new DiffResultDifferenceBuilder({
             addedByDestinationSpec: this.state.addedByDestinationSpec,
             destinationValues: this.state.destinationValues,
             removedByDestinationSpec: this.state.removedByDestinationSpec,
             sourceValues: [newSourceValue],
+            type: this.state.type,
+            value: this.state.value
+        });
+    }
+
+    public withDestinationValues(
+        newDestinationValues: DiffResultDifferenceValueBuilder[]
+    ): DiffResultDifferenceBuilder {
+        const copyOfNewDestinationValues = Array.from(newDestinationValues);
+        return new DiffResultDifferenceBuilder({
+            addedByDestinationSpec: this.state.addedByDestinationSpec,
+            destinationValues: copyOfNewDestinationValues,
+            removedByDestinationSpec: this.state.removedByDestinationSpec,
+            sourceValues: this.state.sourceValues,
             type: this.state.type,
             value: this.state.value
         });
@@ -91,7 +117,7 @@ export class DiffResultDifferenceBuilder {
     }
 
     public withValue(newValue: any): DiffResultDifferenceBuilder {
-        const copyOfNewValue = _.clone(newValue);
+        const copyOfNewValue = _.cloneDeep(newValue);
         return new DiffResultDifferenceBuilder({
             addedByDestinationSpec: this.state.addedByDestinationSpec,
             destinationValues: this.state.destinationValues,

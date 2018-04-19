@@ -1,5 +1,5 @@
 import {DiffResultDifference} from './differ';
-import {WrappedLog} from './wrapped-log';
+import {WrappedLog} from './reporter/wrapped-log';
 
 export class Reporter {
     public constructor(private readonly wrappedLog: WrappedLog) {}

@@ -56,6 +56,7 @@
   },
   "types": "lib/api-types.d.ts",
   "dependencies": {
+    "ajv": "^6.4.0",
     "commander": "^2.15.1",
     "verror": "^1.10.0"
   }

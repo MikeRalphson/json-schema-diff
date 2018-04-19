@@ -1,12 +1,6 @@
-import {Differ, DiffResult} from './differ';
-import {FileReader} from './file-reader';
-import {JsonSchema} from './json-schema';
-import {Reporter} from './reporter';
-
-interface Schemas {
-    sourceSchema: JsonSchema;
-    destinationSchema: JsonSchema;
-}
+import {Differ, DiffResult} from './json-schema-diff/differ';
+import {FileReader} from './json-schema-diff/file-reader';
+import {Reporter} from './json-schema-diff/reporter';
 
 export class JsonSchemaDiff {
     private static isBreakingChange(diffResult: DiffResult): boolean {
@@ -18,7 +12,7 @@ export class JsonSchemaDiff {
         private readonly differ: Differ,
         private readonly reporter: Reporter) {}
 
-    public async diff(sourceSchemaFile: string, destinationSchemaFile: string): Promise<any> {
+    public async diff(sourceSchemaFile: string, destinationSchemaFile: string): Promise<void> {
         try {
             const {sourceSchema, destinationSchema} = await this.loadSchemas(sourceSchemaFile, destinationSchemaFile);
             const diffResult = await this.differ.diff(sourceSchema, destinationSchema);
@@ -27,8 +21,6 @@ export class JsonSchemaDiff {
             if (JsonSchemaDiff.isBreakingChange(diffResult)) {
                 return Promise.reject(new Error('Breaking changes detected'));
             }
-
-            return Promise.resolve();
         } catch (error) {
             this.reporter.reportError(error);
             return Promise.reject(error);
@@ -45,7 +37,7 @@ export class JsonSchemaDiff {
         }
     }
 
-    private async loadSchemas(sourceSchemaFile: string, destinationSchemaFile: string): Promise<Schemas> {
+    private async loadSchemas(sourceSchemaFile: string, destinationSchemaFile: string): Promise<any> {
         const whenSourceSchema = this.fileReader.read(sourceSchemaFile);
         const whenDestinationSchema = this.fileReader.read(destinationSchemaFile);
         const [sourceSchema, destinationSchema] = await Promise.all([whenSourceSchema, whenDestinationSchema]);

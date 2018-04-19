@@ -1,4 +1,4 @@
-import {Differ, DiffResult} from '../../../../lib/differ';
+import {Differ, DiffResult} from '../../../../lib/json-schema-diff/differ';
 
 interface MockDifferHelpers {
     givenDiffReturnsResult(result: DiffResult): void;

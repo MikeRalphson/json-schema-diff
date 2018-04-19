@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {FileReader} from '../../../../lib/file-reader';
+import {FileReader} from '../../../../lib/json-schema-diff/file-reader';
 
 interface MockFileReaderHelpers {
     givenReadReturnsFiles(files: {[fileName: string]: Promise<any>}): void;

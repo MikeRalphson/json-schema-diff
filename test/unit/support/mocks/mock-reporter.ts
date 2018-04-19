@@ -1,4 +1,4 @@
-import {Reporter} from '../../../../lib/reporter';
+import {Reporter} from '../../../../lib/json-schema-diff/reporter';
 
 export type MockReporter = jasmine.SpyObj<Reporter>;
 

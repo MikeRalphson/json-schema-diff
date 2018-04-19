@@ -1,9 +1,9 @@
-import {Differ} from './differ';
-import {FileReader} from './file-reader';
-import {FileSystem} from './file-reader/file-system';
 import {JsonSchemaDiff} from './json-schema-diff';
-import {Reporter} from './reporter';
-import {WrappedLog} from './wrapped-log';
+import {Differ} from './json-schema-diff/differ';
+import {FileReader} from './json-schema-diff/file-reader';
+import {FileSystem} from './json-schema-diff/file-reader/file-system';
+import {Reporter} from './json-schema-diff/reporter';
+import {WrappedLog} from './json-schema-diff/reporter/wrapped-log';
 
 export class JsonSchemaDiffFactory {
     public static create(): JsonSchemaDiff {

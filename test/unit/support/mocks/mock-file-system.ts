@@ -1,4 +1,4 @@
-import {FileSystem} from '../../../../lib/file-reader/file-system';
+import {FileSystem} from '../../../../lib/json-schema-diff/file-reader/file-system';
 
 interface MockFileSystemHelpers {
     givenReadFileReturnsContent(stringContent: string): void;

@@ -1,4 +1,4 @@
-import {FileReader} from '../../lib/file-reader';
+import {FileReader} from '../../lib/json-schema-diff/file-reader';
 import {expectToFail} from '../support/expect-to-fail';
 import {createMockFileSystem, MockFileSystem} from './support/mocks/mock-file-system';
 
