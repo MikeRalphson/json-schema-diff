@@ -37,4 +37,15 @@ describe('json-schema-diff', () => {
 
         expect(output).toContain('No differences found');
     });
+
+    it('should return the error when a file cannot be found', async () => {
+        const error = await expectToFail(
+            invokeJsonSchemaDiff(
+                './test/e2e/fixtures/type-string-spec.json',
+                './test/e2e/fixtures/missing-file.json'
+            )
+        );
+
+        expect(error.message).toContain('Error loading "./test/e2e/fixtures/missing-file.json"');
+    });
 });

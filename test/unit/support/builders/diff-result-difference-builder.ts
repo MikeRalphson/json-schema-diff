@@ -9,21 +9,21 @@ interface DiffResultDifferenceBuilderState {
     type: DiffResultDifferenceType;
     sourceValues: DiffResultDifferenceValueBuilder[];
     destinationValues: DiffResultDifferenceValueBuilder[];
-    addedByDestinationSpec: boolean;
-    removedByDestinationSpec: boolean;
+    addedByDestinationSchema: boolean;
+    removedByDestinationSchema: boolean;
     value: any;
 }
 
 export class DiffResultDifferenceBuilder {
     public static create(): DiffResultDifferenceBuilder {
         return new DiffResultDifferenceBuilder({
-            addedByDestinationSpec: true,
+            addedByDestinationSchema: true,
             destinationValues: [
                 diffResultDifferenceValueBuilder
                     .withLocation('default.destination.location')
                     .withValue('default-destination-value')
             ],
-            removedByDestinationSpec: false,
+            removedByDestinationSchema: false,
             sourceValues: [
                 diffResultDifferenceValueBuilder
                     .withLocation('default.source.location')
@@ -38,19 +38,20 @@ export class DiffResultDifferenceBuilder {
 
     public build(): DiffResultDifference {
         return {
-            addedByDestinationSpec: this.state.addedByDestinationSpec,
+            addedByDestinationSchema: this.state.addedByDestinationSchema,
             destinationValues: this.state.destinationValues.map((builder) => builder.build()),
-            removedByDestinationSpec: this.state.removedByDestinationSpec,
+            removedByDestinationSchema: this.state.removedByDestinationSchema,
             sourceValues: this.state.sourceValues.map((builder) => builder.build()),
             type: this.state.type,
             value: _.cloneDeep(this.state.value)
         };
     }
+
     public withTypeAddType(): DiffResultDifferenceBuilder {
         return new DiffResultDifferenceBuilder({
-            addedByDestinationSpec: true,
+            addedByDestinationSchema: true,
             destinationValues: this.state.destinationValues,
-            removedByDestinationSpec: false,
+            removedByDestinationSchema: false,
             sourceValues: this.state.sourceValues,
             type: 'add.type',
             value: this.state.value
@@ -59,9 +60,9 @@ export class DiffResultDifferenceBuilder {
 
     public withTypeRemoveType(): DiffResultDifferenceBuilder {
         return new DiffResultDifferenceBuilder({
-            addedByDestinationSpec: false,
+            addedByDestinationSchema: false,
             destinationValues: this.state.destinationValues,
-            removedByDestinationSpec: true,
+            removedByDestinationSchema: true,
             sourceValues: this.state.sourceValues,
             type: 'remove.type',
             value: this.state.value
@@ -71,9 +72,9 @@ export class DiffResultDifferenceBuilder {
     public withSourceValues(newSourceValues: DiffResultDifferenceValueBuilder[]): DiffResultDifferenceBuilder {
         const copyOfNewSourceValues = Array.from(newSourceValues);
         return new DiffResultDifferenceBuilder({
-            addedByDestinationSpec: this.state.addedByDestinationSpec,
+            addedByDestinationSchema: this.state.addedByDestinationSchema,
             destinationValues: this.state.destinationValues,
-            removedByDestinationSpec: this.state.removedByDestinationSpec,
+            removedByDestinationSchema: this.state.removedByDestinationSchema,
             sourceValues: copyOfNewSourceValues,
             type: this.state.type,
             value: this.state.value
@@ -82,9 +83,9 @@ export class DiffResultDifferenceBuilder {
 
     public withSourceValue(newSourceValue: DiffResultDifferenceValueBuilder): DiffResultDifferenceBuilder {
         return new DiffResultDifferenceBuilder({
-            addedByDestinationSpec: this.state.addedByDestinationSpec,
+            addedByDestinationSchema: this.state.addedByDestinationSchema,
             destinationValues: this.state.destinationValues,
-            removedByDestinationSpec: this.state.removedByDestinationSpec,
+            removedByDestinationSchema: this.state.removedByDestinationSchema,
             sourceValues: [newSourceValue],
             type: this.state.type,
             value: this.state.value
@@ -96,9 +97,9 @@ export class DiffResultDifferenceBuilder {
     ): DiffResultDifferenceBuilder {
         const copyOfNewDestinationValues = Array.from(newDestinationValues);
         return new DiffResultDifferenceBuilder({
-            addedByDestinationSpec: this.state.addedByDestinationSpec,
+            addedByDestinationSchema: this.state.addedByDestinationSchema,
             destinationValues: copyOfNewDestinationValues,
-            removedByDestinationSpec: this.state.removedByDestinationSpec,
+            removedByDestinationSchema: this.state.removedByDestinationSchema,
             sourceValues: this.state.sourceValues,
             type: this.state.type,
             value: this.state.value
@@ -107,9 +108,9 @@ export class DiffResultDifferenceBuilder {
 
     public withDestinationValue(newDestinationValue: DiffResultDifferenceValueBuilder): DiffResultDifferenceBuilder {
         return new DiffResultDifferenceBuilder({
-            addedByDestinationSpec: this.state.addedByDestinationSpec,
+            addedByDestinationSchema: this.state.addedByDestinationSchema,
             destinationValues: [newDestinationValue],
-            removedByDestinationSpec: this.state.removedByDestinationSpec,
+            removedByDestinationSchema: this.state.removedByDestinationSchema,
             sourceValues: this.state.sourceValues,
             type: this.state.type,
             value: this.state.value
@@ -119,9 +120,9 @@ export class DiffResultDifferenceBuilder {
     public withValue(newValue: any): DiffResultDifferenceBuilder {
         const copyOfNewValue = _.cloneDeep(newValue);
         return new DiffResultDifferenceBuilder({
-            addedByDestinationSpec: this.state.addedByDestinationSpec,
+            addedByDestinationSchema: this.state.addedByDestinationSchema,
             destinationValues: this.state.destinationValues,
-            removedByDestinationSpec: this.state.removedByDestinationSpec,
+            removedByDestinationSchema: this.state.removedByDestinationSchema,
             sourceValues: this.state.sourceValues,
             type: this.state.type,
             value: copyOfNewValue

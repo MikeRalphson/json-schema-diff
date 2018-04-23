@@ -17,15 +17,15 @@ export class JsonSchemaSet {
         private readonly objectSet: ObjectSet,
         private readonly stringSet: StringSet) {}
 
-    public inverse(): JsonSchemaSet {
+    public complement(): JsonSchemaSet {
         return new JsonSchemaSet(
-            this.arraySet.inverse(),
-            this.booleanSet.inverse(),
-            this.integerSet.inverse(),
-            this.numberSet.inverse(),
-            this.nullSet.inverse(),
-            this.objectSet.inverse(),
-            this.stringSet.inverse()
+            this.arraySet.complement(),
+            this.booleanSet.complement(),
+            this.integerSet.complement(),
+            this.numberSet.complement(),
+            this.nullSet.complement(),
+            this.objectSet.complement(),
+            this.stringSet.complement()
         );
     }
 

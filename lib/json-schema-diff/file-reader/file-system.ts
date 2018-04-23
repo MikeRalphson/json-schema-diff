@@ -6,6 +6,7 @@ export class FileSystem {
             fs.readFile(path, (error, data) => {
                 if (error) {
                     reject(error);
+                    return;
                 }
 
                 resolve(data.toString());

@@ -9,18 +9,18 @@ export interface DiffResultDifferenceValue {
 export type DiffResultDifferenceType = 'add.type' | 'remove.type';
 
 export interface DiffResultDifference {
-    addedByDestinationSpec: boolean;
+    addedByDestinationSchema: boolean;
     destinationValues: DiffResultDifferenceValue[];
-    removedByDestinationSpec: boolean;
+    removedByDestinationSchema: boolean;
     sourceValues: DiffResultDifferenceValue[];
     type: DiffResultDifferenceType;
     value: any;
 }
 
 export interface DiffResult {
-    addedByDestinationSpec: boolean;
+    addedByDestinationSchema: boolean;
     differences: DiffResultDifference[];
-    removedByDestinationSpec: boolean;
+    removedByDestinationSchema: boolean;
 }
 
 export class Differ {
@@ -31,9 +31,9 @@ export class Differ {
             return diffSchemas(sourceSchema, destinationSchema);
         }
         return Promise.resolve({
-            addedByDestinationSpec: false,
+            addedByDestinationSchema: false,
             differences: [],
-            removedByDestinationSpec: false
+            removedByDestinationSchema: false
         });
     }
 }

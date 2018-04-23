@@ -1,6 +1,6 @@
-import {FileReader} from '../../lib/json-schema-diff/file-reader';
-import {expectToFail} from '../support/expect-to-fail';
-import {createMockFileSystem, MockFileSystem} from './support/mocks/mock-file-system';
+import {FileReader} from '../../../lib/json-schema-diff/file-reader';
+import {expectToFail} from '../../support/expect-to-fail';
+import {createMockFileSystem, MockFileSystem} from '../support/mocks/mock-file-system';
 
 describe('file-reader', () => {
     let mockFileSystem: MockFileSystem;

@@ -42,9 +42,9 @@ const parseAsObjectSet = (types: SimpleTypes[], schemaOrigins: SchemaOrigin[]): 
 const parseAsStringSet = (types: SimpleTypes[], schemaOrigins: SchemaOrigin[]): StringSet =>
     types.indexOf('string') >= 0 ? new AllStringSet(schemaOrigins) : new EmptyStringSet(schemaOrigins);
 
-const parseForTypes = (schema: CoreSchemaMetaSchema,
-                       originType: SchemaOriginType,
-                       location: string): JsonSchemaSet => {
+const parseSubsets = (schema: CoreSchemaMetaSchema,
+                      originType: SchemaOriginType,
+                      location: string): JsonSchemaSet => {
     const types = toSimpleTypeArray(schema.type);
 
     const schemaOrigins = [{
@@ -64,10 +64,10 @@ const parseForTypes = (schema: CoreSchemaMetaSchema,
     return new JsonSchemaSet(arraySet, booleanSet, integerSet, numberSet, nullSet, objectSet, stringSet);
 };
 
-const parseForAllOf = (allOfSchemas: CoreSchemaMetaSchema[],
-                       origin: SchemaOriginType,
-                       location: string,
-                       initialJsonSchemaSet: JsonSchemaSet): JsonSchemaSet => {
+const parseAllOf = (allOfSchemas: CoreSchemaMetaSchema[],
+                    origin: SchemaOriginType,
+                    location: string,
+                    initialJsonSchemaSet: JsonSchemaSet): JsonSchemaSet => {
     let jsonSchemaSetResult = initialJsonSchemaSet;
 
     for (let i = 0; i < allOfSchemas.length; i += 1) {
@@ -82,10 +82,10 @@ const parseForAllOf = (allOfSchemas: CoreSchemaMetaSchema[],
 const parseWithLocation = (schema: CoreSchemaMetaSchema,
                            origin: SchemaOriginType,
                            location: string): JsonSchemaSet => {
-    let jsonSchemaSet = parseForTypes(schema, origin, location);
+    let jsonSchemaSet = parseSubsets(schema, origin, location);
 
     if (schema.allOf) {
-        jsonSchemaSet = parseForAllOf(schema.allOf, origin, location, jsonSchemaSet);
+        jsonSchemaSet = parseAllOf(schema.allOf, origin, location, jsonSchemaSet);
     }
 
     return jsonSchemaSet;

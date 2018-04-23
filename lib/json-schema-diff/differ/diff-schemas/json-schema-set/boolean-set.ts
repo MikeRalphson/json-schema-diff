@@ -24,7 +24,7 @@ export class AllBooleanSet implements BooleanSet {
         return new EmptyBooleanSet(mergedSchemaOrigins);
     }
 
-    public inverse(): BooleanSet {
+    public complement(): BooleanSet {
         return new EmptyBooleanSet(this.schemaOrigins);
     }
 
@@ -57,7 +57,7 @@ export class EmptyBooleanSet implements BooleanSet {
         return new EmptyBooleanSet(mergedSchemaOrigins);
     }
 
-    public inverse(): BooleanSet {
+    public complement(): BooleanSet {
         return new AllBooleanSet(this.schemaOrigins);
     }
 

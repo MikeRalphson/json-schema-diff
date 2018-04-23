@@ -24,7 +24,7 @@ export class AllNumberSet implements NumberSet {
         return new EmptyNumberSet(mergedSchemaOrigins);
     }
 
-    public inverse(): NumberSet {
+    public complement(): NumberSet {
         return new EmptyNumberSet(this.schemaOrigins);
     }
 
@@ -57,7 +57,7 @@ export class EmptyNumberSet implements NumberSet {
         return new EmptyNumberSet(mergedSchemaOrigins);
     }
 
-    public inverse(): NumberSet {
+    public complement(): NumberSet {
         return new AllNumberSet(this.schemaOrigins);
     }
 

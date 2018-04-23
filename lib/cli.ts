@@ -14,7 +14,7 @@ commander
     )
     .action(async (sourceSchemaFile, destinationSchemaFile) => {
         try {
-            await jsonSchemaDiff.diff(sourceSchemaFile, destinationSchemaFile);
+            await jsonSchemaDiff.diffFiles(sourceSchemaFile, destinationSchemaFile);
         } catch (error) {
             process.exitCode = 1;
         }

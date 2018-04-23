@@ -21,9 +21,9 @@ export const createMockDiffer = (): MockDiffer => {
 
     mockDiffer.givenDiffReturnsNoDifferencesFoundResult = () => {
         mockDiffer.givenDiffReturnsResult({
-            addedByDestinationSpec: false,
+            addedByDestinationSchema: false,
             differences: [],
-            removedByDestinationSpec: false
+            removedByDestinationSchema: false
         });
     };
 

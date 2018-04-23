@@ -24,7 +24,7 @@ export class AllArraySet implements ArraySet {
         return new EmptyArraySet(mergedSchemaOrigins);
     }
 
-    public inverse(): ArraySet {
+    public complement(): ArraySet {
         return new EmptyArraySet(this.schemaOrigins);
     }
 
@@ -57,7 +57,7 @@ export class EmptyArraySet implements ArraySet {
         return new EmptyArraySet(mergedSchemaOrigins);
     }
 
-    public inverse(): ArraySet {
+    public complement(): ArraySet {
         return new AllArraySet(this.schemaOrigins);
     }
 

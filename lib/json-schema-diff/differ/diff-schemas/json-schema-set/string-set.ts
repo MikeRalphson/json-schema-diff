@@ -24,7 +24,7 @@ export class AllStringSet implements StringSet {
         return new EmptyStringSet(mergedSchemaOrigins);
     }
 
-    public inverse(): StringSet {
+    public complement(): StringSet {
         return new EmptyStringSet(this.schemaOrigins);
     }
 
@@ -57,7 +57,7 @@ export class EmptyStringSet implements StringSet {
         return new EmptyStringSet(mergedSchemaOrigins);
     }
 
-    public inverse(): StringSet {
+    public complement(): StringSet {
         return new AllStringSet(this.schemaOrigins);
     }
 

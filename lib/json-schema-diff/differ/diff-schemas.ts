@@ -3,24 +3,24 @@ import {CoreSchemaMetaSchema} from './diff-schemas/json-schema';
 import {Representation} from './diff-schemas/json-schema-set/set';
 import {parseAsJsonSchemaSet} from './diff-schemas/parse-as-json-schema-set';
 
-const interpretationsToAddedDifferences = (interpretations: Representation[]): DiffResultDifference[] =>
-    interpretations.map((interpretation) => ({
-        addedByDestinationSpec: true,
-        destinationValues: interpretation.destinationValues,
-        removedByDestinationSpec: false,
-        sourceValues: interpretation.sourceValues,
+const representationsToAddedDifferences = (representations: Representation[]): DiffResultDifference[] =>
+    representations.map((representation) => ({
+        addedByDestinationSchema: true,
+        destinationValues: representation.destinationValues,
+        removedByDestinationSchema: false,
+        sourceValues: representation.sourceValues,
         type: 'add.type' as DiffResultDifferenceType,
-        value: interpretation.value
+        value: representation.value
     }));
 
-const interpretationsToRemovedDifferences = (interpretations: Representation[]): DiffResultDifference[] =>
-    interpretations.map((interpretation) => ({
-        addedByDestinationSpec: false,
-        destinationValues: interpretation.destinationValues,
-        removedByDestinationSpec: true,
-        sourceValues: interpretation.sourceValues,
+const representationsToRemovedDifferences = (representations: Representation[]): DiffResultDifference[] =>
+    representations.map((representation) => ({
+        addedByDestinationSchema: false,
+        destinationValues: representation.destinationValues,
+        removedByDestinationSchema: true,
+        sourceValues: representation.sourceValues,
         type: 'remove.type' as DiffResultDifferenceType,
-        value: interpretation.value
+        value: representation.value
     }));
 
 export const diffSchemas = (sourceSchema: CoreSchemaMetaSchema,
@@ -29,19 +29,19 @@ export const diffSchemas = (sourceSchema: CoreSchemaMetaSchema,
     const destinationSet = parseAsJsonSchemaSet(destinationSchema, 'destination');
 
     const intersectionOfSets = sourceSet.intersect(destinationSet);
-    const negatedIntersectionOfSets = intersectionOfSets.inverse();
-    const addedToDestinationSet = negatedIntersectionOfSets.intersect(destinationSet);
-    const removedFromDestinationSet = negatedIntersectionOfSets.intersect(sourceSet);
+    const intersectionOfSetsComplement = intersectionOfSets.complement();
+    const addedToDestinationSet = intersectionOfSetsComplement.intersect(destinationSet);
+    const removedFromDestinationSet = intersectionOfSetsComplement.intersect(sourceSet);
 
-    const addedInterpretations = addedToDestinationSet.toRepresentations();
-    const addedDifferences = interpretationsToAddedDifferences(addedInterpretations);
+    const addedRepresentations = addedToDestinationSet.toRepresentations();
+    const addedDifferences = representationsToAddedDifferences(addedRepresentations);
 
-    const removedInterpretations = removedFromDestinationSet.toRepresentations();
-    const removedDifferences = interpretationsToRemovedDifferences(removedInterpretations);
+    const removedRepresentations = removedFromDestinationSet.toRepresentations();
+    const removedDifferences = representationsToRemovedDifferences(removedRepresentations);
 
     return Promise.resolve({
-        addedByDestinationSpec: addedDifferences.length > 0,
+        addedByDestinationSchema: addedDifferences.length > 0,
         differences: addedDifferences.concat(removedDifferences),
-        removedByDestinationSpec: removedDifferences.length > 0
+        removedByDestinationSchema: removedDifferences.length > 0
     });
 };

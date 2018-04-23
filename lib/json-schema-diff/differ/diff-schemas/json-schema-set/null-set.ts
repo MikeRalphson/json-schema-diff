@@ -24,7 +24,7 @@ export class AllNullSet implements NullSet {
         return new EmptyNullSet(mergedSchemaOrigins);
     }
 
-    public inverse(): NullSet {
+    public complement(): NullSet {
         return new EmptyNullSet(this.schemaOrigins);
     }
 
@@ -57,7 +57,7 @@ export class EmptyNullSet implements NullSet {
         return new EmptyNullSet(mergedSchemaOrigins);
     }
 
-    public inverse(): NullSet {
+    public complement(): NullSet {
         return new AllNullSet(this.schemaOrigins);
     }
 

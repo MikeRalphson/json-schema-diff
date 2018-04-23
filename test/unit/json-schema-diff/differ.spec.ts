@@ -1,12 +1,19 @@
-import {Differ, DiffResult} from '../../lib/json-schema-diff/differ';
-import {JsonSchema} from '../../lib/json-schema-diff/differ/diff-schemas/json-schema';
-import {expectToFail} from '../support/expect-to-fail';
-import {diffResultDifferenceBuilder} from './support/builders/diff-result-difference-builder';
+import {Differ, DiffResult} from '../../../lib/json-schema-diff/differ';
+import {JsonSchema} from '../../../lib/json-schema-diff/differ/diff-schemas/json-schema';
+import {expectToFail} from '../../support/expect-to-fail';
+import {diffResultDifferenceBuilder} from '../support/builders/diff-result-difference-builder';
 import {
 diffResultDifferenceValueBuilder
-} from './support/builders/diff-result-difference-value-builder';
+} from '../support/builders/diff-result-difference-value-builder';
+import {customMatchers, CustomMatchers} from '../support/custom-matchers/diff-custom-matcher';
+
+declare function expect<T>(actual: T): CustomMatchers<T>;
 
 describe('differ', () => {
+    beforeEach(() => {
+        jasmine.addMatchers(customMatchers);
+    });
+
     const invokeDiff = async (sourceSchema: JsonSchema, destinationSchema: JsonSchema): Promise<DiffResult> => {
         try {
             return await new Differ().diff(sourceSchema, destinationSchema);
@@ -58,20 +65,20 @@ describe('differ', () => {
 
             const diffResult = await invokeDiff(sourceSchema, destinationsSchema);
 
-            expect(diffResult.addedByDestinationSpec).toBe(false, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(false, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([]);
         });
 
-        it('should find no differences when the schemas are the same', async () => {
+        it('should find no differences when the schemas are equivalent', async () => {
             const sourceSchema: JsonSchema = {type: 'string'};
             const destinationsSchema: JsonSchema = {type: ['string']};
 
             const diffResult = await invokeDiff(sourceSchema, destinationsSchema);
 
-            expect(diffResult.addedByDestinationSpec).toBe(false, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(false, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([]);
         });
 
         it('should find a remove type difference when a type is removed', async () => {
@@ -95,9 +102,9 @@ describe('differ', () => {
                 .withTypeRemoveType()
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(false, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(true, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([difference], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(true, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([difference]);
         });
 
         it('should find an add type difference when an array is added', async () => {
@@ -121,9 +128,9 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(true, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(false, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([difference], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([difference]);
         });
 
         it('should find an add type difference when a boolean is added', async () => {
@@ -147,9 +154,9 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(true, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(false, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([difference], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([difference]);
         });
 
         it('should find an add type difference when an integer is added', async () => {
@@ -173,9 +180,9 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(true, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(false, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([difference], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([difference]);
         });
 
         it('should find an add type difference when a null is added', async () => {
@@ -199,9 +206,9 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(true, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(false, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([difference], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([difference]);
         });
 
         it('should find an add type difference when a number is added', async () => {
@@ -225,9 +232,9 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(true, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(false, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([difference], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([difference]);
         });
 
         it('should find an add type difference when an object is added', async () => {
@@ -251,9 +258,9 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(true, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(false, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([difference], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([difference]);
         });
 
         it('should find an add type difference when a string is added', async () => {
@@ -277,9 +284,9 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(true, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(false, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([difference], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([difference]);
         });
 
         it('should find an add and remove difference when a type is changed ', async () => {
@@ -310,21 +317,20 @@ describe('differ', () => {
                 .withTypeRemoveType()
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(true, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(true, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toContain(addedDifference, 'diffResult.differences');
-            expect(diffResult.differences).toContain(removedDifference, 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(true, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([addedDifference, removedDifference]);
         });
 
-        it('should find no differences when given two empty specs', async () => {
+        it('should find no differences when given two empty schemas', async () => {
             const sourceSchema: JsonSchema = {};
             const destinationsSchema: JsonSchema = {};
 
             const diffResult = await invokeDiff(sourceSchema, destinationsSchema);
 
-            expect(diffResult.addedByDestinationSpec).toBe(false, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(false, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([]);
         });
 
         it('should find two differences when multiple types are removed', async () => {
@@ -354,10 +360,9 @@ describe('differ', () => {
                 .withValue('boolean')
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(false, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(true, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toContain(removedFirstDifference, 'diffResult.differences');
-            expect(diffResult.differences).toContain(removedSecondDifference, 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(true, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([removedFirstDifference, removedSecondDifference]);
         });
 
         it('should find two differences when multiple types are added', async () => {
@@ -387,15 +392,14 @@ describe('differ', () => {
                 .withValue('boolean')
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(true, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(false, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toContain(addedFirstDifference, 'diffResult.differences');
-            expect(diffResult.differences).toContain(addedSecondDifference, 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([addedFirstDifference, addedSecondDifference]);
         });
 
         it('should find removed differences when there was no type and now there is', async () => {
             const sourceSchema: JsonSchema = {};
-            const destinationsSchema: JsonSchema = {type: ['string', 'number', 'object', 'null', 'boolean', 'array']};
+            const destinationsSchema: JsonSchema = {type: ['integer', 'number', 'object', 'null', 'boolean', 'array']};
 
             const diffResult = await invokeDiff(sourceSchema, destinationsSchema);
 
@@ -403,20 +407,20 @@ describe('differ', () => {
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
                         .withLocation('.type')
-                        .withValue(['string', 'number', 'object', 'null', 'boolean', 'array'])
+                        .withValue(['integer', 'number', 'object', 'null', 'boolean', 'array'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
                         .withLocation('.type')
                         .withValue(undefined)
                 )
-                .withValue('integer')
+                .withValue('string')
                 .withTypeRemoveType()
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(false, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(true, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toContain(removedDifference, 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(true, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([removedDifference]);
         });
     });
 
@@ -458,9 +462,9 @@ describe('differ', () => {
                 .withTypeRemoveType()
                 .build();
 
-            expect(diffResult.addedByDestinationSpec).toBe(false, 'diffResult.addedByDestinationSpec');
-            expect(diffResult.removedByDestinationSpec).toBe(true, 'diffResult.removedByDestinationSpec');
-            expect(diffResult.differences).toEqual([difference], 'diffResult.differences');
+            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
+            expect(diffResult.removedByDestinationSchema).toBe(true, 'diffResult.removedByDestinationSchema');
+            expect(diffResult).toContainDifferences([difference]);
         });
     });
 });

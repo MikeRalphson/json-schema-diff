@@ -12,10 +12,10 @@ interface FailedValidationResult {
 
 type ValidationResult = SuccessfulValidationResult | FailedValidationResult;
 
-const validateJsonSchema = (sourceSchema: any): ValidationResult => {
+const validateJsonSchema = (schema: any): ValidationResult => {
     const ajv = new Ajv();
     const validate = ajv.compile(jsonSchemaDraft7Schema);
-    const valid = validate(sourceSchema);
+    const valid = validate(schema);
 
     if (valid) {
         return {isValid: true};

@@ -3,8 +3,8 @@ import {FileReader} from './json-schema-diff/file-reader';
 import {Reporter} from './json-schema-diff/reporter';
 
 export class JsonSchemaDiff {
-    private static isBreakingChange(diffResult: DiffResult): boolean {
-        return diffResult.removedByDestinationSpec;
+    private static containsBreakingChanges(diffResult: DiffResult): boolean {
+        return diffResult.removedByDestinationSchema;
     }
 
     public constructor(
@@ -12,13 +12,13 @@ export class JsonSchemaDiff {
         private readonly differ: Differ,
         private readonly reporter: Reporter) {}
 
-    public async diff(sourceSchemaFile: string, destinationSchemaFile: string): Promise<void> {
+    public async diffFiles(sourceSchemaFile: string, destinationSchemaFile: string): Promise<void> {
         try {
             const {sourceSchema, destinationSchema} = await this.loadSchemas(sourceSchemaFile, destinationSchemaFile);
             const diffResult = await this.differ.diff(sourceSchema, destinationSchema);
             this.reportDiffResult(diffResult);
 
-            if (JsonSchemaDiff.isBreakingChange(diffResult)) {
+            if (JsonSchemaDiff.containsBreakingChanges(diffResult)) {
                 return Promise.reject(new Error('Breaking changes detected'));
             }
         } catch (error) {
@@ -28,7 +28,7 @@ export class JsonSchemaDiff {
     }
 
     private reportDiffResult(diffResult: DiffResult): void {
-        if (JsonSchemaDiff.isBreakingChange(diffResult)) {
+        if (JsonSchemaDiff.containsBreakingChanges(diffResult)) {
             this.reporter.reportFailureWithDifferences(diffResult.differences);
         } else if (diffResult.differences.length > 0) {
             this.reporter.reportSuccessWithDifferences(diffResult.differences);

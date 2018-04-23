@@ -24,7 +24,7 @@ export class AllObjectSet implements ObjectSet {
         return new EmptyObjectSet(mergedSchemaOrigins);
     }
 
-    public inverse(): ObjectSet {
+    public complement(): ObjectSet {
         return new EmptyObjectSet(this.schemaOrigins);
     }
 
@@ -57,7 +57,7 @@ export class EmptyObjectSet implements ObjectSet {
         return new EmptyObjectSet(mergedSchemaOrigins);
     }
 
-    public inverse(): ObjectSet {
+    public complement(): ObjectSet {
         return new AllObjectSet(this.schemaOrigins);
     }
 
