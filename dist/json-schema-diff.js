@@ -26,7 +26,6 @@ class JsonSchemaDiff {
                 if (JsonSchemaDiff.isBreakingChange(diffResult)) {
                     return Promise.reject(new Error('Breaking changes detected'));
                 }
-                return Promise.resolve();
             }
             catch (error) {
                 this.reporter.reportError(error);

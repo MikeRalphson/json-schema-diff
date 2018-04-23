@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const differ_1 = require("./differ");
-const file_reader_1 = require("./file-reader");
-const file_system_1 = require("./file-reader/file-system");
 const json_schema_diff_1 = require("./json-schema-diff");
-const reporter_1 = require("./reporter");
-const wrapped_log_1 = require("./wrapped-log");
+const differ_1 = require("./json-schema-diff/differ");
+const file_reader_1 = require("./json-schema-diff/file-reader");
+const file_system_1 = require("./json-schema-diff/file-reader/file-system");
+const reporter_1 = require("./json-schema-diff/reporter");
+const wrapped_log_1 = require("./json-schema-diff/reporter/wrapped-log");
 class JsonSchemaDiffFactory {
     static create() {
         const fileSystem = new file_system_1.FileSystem();

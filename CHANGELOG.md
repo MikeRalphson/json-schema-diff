@@ -1,3 +1,13 @@
+<a name="0.2.0"></a>
+# [0.2.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.1.0...0.2.0) (2018-04-23)
+
+
+### Features
+
+* add support for the allOf keyword ([e329acd](https://bitbucket.org/atlassian/json-schema-diff/commits/e329acd))
+
+
+
 <a name="0.1.0"></a>
 # [0.1.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.0.1...0.1.0) (2018-04-19)
 
