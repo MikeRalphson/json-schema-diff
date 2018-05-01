@@ -65,8 +65,6 @@ describe('differ', () => {
 
             const diffResult = await invokeDiff(sourceSchema, destinationsSchema);
 
-            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([]);
         });
 
@@ -76,8 +74,6 @@ describe('differ', () => {
 
             const diffResult = await invokeDiff(sourceSchema, destinationsSchema);
 
-            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([]);
         });
 
@@ -102,8 +98,6 @@ describe('differ', () => {
                 .withTypeRemoveType()
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(true, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([difference]);
         });
 
@@ -128,8 +122,6 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([difference]);
         });
 
@@ -154,8 +146,6 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([difference]);
         });
 
@@ -180,8 +170,6 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([difference]);
         });
 
@@ -206,8 +194,6 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([difference]);
         });
 
@@ -232,8 +218,6 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([difference]);
         });
 
@@ -258,8 +242,6 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([difference]);
         });
 
@@ -284,8 +266,6 @@ describe('differ', () => {
                 .withTypeAddType()
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([difference]);
         });
 
@@ -317,8 +297,6 @@ describe('differ', () => {
                 .withTypeRemoveType()
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(true, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([addedDifference, removedDifference]);
         });
 
@@ -328,8 +306,6 @@ describe('differ', () => {
 
             const diffResult = await invokeDiff(sourceSchema, destinationsSchema);
 
-            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([]);
         });
 
@@ -360,8 +336,6 @@ describe('differ', () => {
                 .withValue('boolean')
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(true, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([removedFirstDifference, removedSecondDifference]);
         });
 
@@ -392,8 +366,6 @@ describe('differ', () => {
                 .withValue('boolean')
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(true, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(false, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([addedFirstDifference, addedSecondDifference]);
         });
 
@@ -418,8 +390,6 @@ describe('differ', () => {
                 .withTypeRemoveType()
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(true, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([removedDifference]);
         });
     });
@@ -462,8 +432,6 @@ describe('differ', () => {
                 .withTypeRemoveType()
                 .build();
 
-            expect(diffResult.addedByDestinationSchema).toBe(false, 'diffResult.addedByDestinationSchema');
-            expect(diffResult.removedByDestinationSchema).toBe(true, 'diffResult.removedByDestinationSchema');
             expect(diffResult).toContainDifferences([difference]);
         });
     });
