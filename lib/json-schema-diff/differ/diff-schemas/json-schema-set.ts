@@ -41,6 +41,18 @@ export class JsonSchemaSet {
         );
     }
 
+    public union(other: JsonSchemaSet): JsonSchemaSet {
+        return new JsonSchemaSet(
+            this.arraySet.union(other.arraySet),
+            this.booleanSet.union(other.booleanSet),
+            this.integerSet.union(other.integerSet),
+            this.numberSet.union(other.numberSet),
+            this.nullSet.union(other.nullSet),
+            this.objectSet.union(other.objectSet),
+            this.stringSet.union(other.stringSet)
+        );
+    }
+
     public toRepresentations(): Representation[] {
         return this.arraySet.toRepresentations()
             .concat(this.booleanSet.toRepresentations())

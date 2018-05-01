@@ -23,7 +23,19 @@ export class AllObjectSet implements ObjectSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyObjectSet(mergedSchemaOrigins);
     }
+    public union(otherSet: ObjectSet): ObjectSet {
+        return otherSet.unionWithAll(this);
+    }
 
+    public unionWithAll(otherAllSet: ObjectSet): ObjectSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllObjectSet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: ObjectSet): ObjectSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new AllObjectSet(mergedSchemaOrigins);
+    }
     public complement(): ObjectSet {
         return new EmptyObjectSet(this.schemaOrigins);
     }
@@ -53,6 +65,19 @@ export class EmptyObjectSet implements ObjectSet {
     }
 
     public intersectWithEmpty(otherEmptySet: ObjectSet): ObjectSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new EmptyObjectSet(mergedSchemaOrigins);
+    }
+    public union(otherSet: ObjectSet): ObjectSet {
+        return otherSet.unionWithEmpty(this);
+    }
+
+    public unionWithAll(otherAllSet: ObjectSet): ObjectSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllObjectSet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: ObjectSet): ObjectSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyObjectSet(mergedSchemaOrigins);
     }

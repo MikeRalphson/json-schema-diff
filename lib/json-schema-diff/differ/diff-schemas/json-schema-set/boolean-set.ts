@@ -24,6 +24,19 @@ export class AllBooleanSet implements BooleanSet {
         return new EmptyBooleanSet(mergedSchemaOrigins);
     }
 
+    public union(otherSet: BooleanSet): BooleanSet {
+        return otherSet.unionWithAll(this);
+    }
+
+    public unionWithAll(otherAllSet: BooleanSet): BooleanSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllBooleanSet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: BooleanSet): BooleanSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new AllBooleanSet(mergedSchemaOrigins);
+    }
     public complement(): BooleanSet {
         return new EmptyBooleanSet(this.schemaOrigins);
     }
@@ -53,6 +66,19 @@ export class EmptyBooleanSet implements BooleanSet {
     }
 
     public intersectWithEmpty(otherEmptySet: BooleanSet): BooleanSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new EmptyBooleanSet(mergedSchemaOrigins);
+    }
+    public union(otherSet: BooleanSet): BooleanSet {
+        return otherSet.unionWithEmpty(this);
+    }
+
+    public unionWithAll(otherAllSet: BooleanSet): BooleanSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllBooleanSet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: BooleanSet): BooleanSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyBooleanSet(mergedSchemaOrigins);
     }

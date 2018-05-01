@@ -3,12 +3,14 @@
 import {Representation, SchemaOrigin, Set} from './set';
 import {toDestinationRepresentationValues, toSourceRepresentationValues} from './set-helpers';
 
-export interface ArraySet extends Set<'array'> {}
+export interface ArraySet extends Set<'array'> {
+}
 
 export class AllArraySet implements ArraySet {
     public readonly setType = 'array';
 
-    public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
+    public constructor(public readonly schemaOrigins: SchemaOrigin[]) {
+    }
 
     public intersect(otherSet: ArraySet): ArraySet {
         return otherSet.intersectWithAll(this);
@@ -22,6 +24,20 @@ export class AllArraySet implements ArraySet {
     public intersectWithEmpty(otherEmptySet: ArraySet): ArraySet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyArraySet(mergedSchemaOrigins);
+    }
+
+    public union(otherSet: ArraySet): ArraySet {
+        return otherSet.unionWithAll(this);
+    }
+
+    public unionWithAll(otherAllSet: ArraySet): ArraySet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllArraySet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: ArraySet): ArraySet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new AllArraySet(mergedSchemaOrigins);
     }
 
     public complement(): ArraySet {
@@ -41,7 +57,8 @@ export class AllArraySet implements ArraySet {
 export class EmptyArraySet implements ArraySet {
     public readonly setType = 'array';
 
-    public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
+    public constructor(public readonly schemaOrigins: SchemaOrigin[]) {
+    }
 
     public intersect(otherSet: ArraySet): ArraySet {
         return otherSet.intersectWithEmpty(this);
@@ -53,6 +70,20 @@ export class EmptyArraySet implements ArraySet {
     }
 
     public intersectWithEmpty(otherEmptySet: ArraySet): ArraySet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new EmptyArraySet(mergedSchemaOrigins);
+    }
+
+    public union(otherSet: ArraySet): ArraySet {
+        return otherSet.unionWithEmpty(this);
+    }
+
+    public unionWithAll(otherAllSet: ArraySet): ArraySet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllArraySet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: ArraySet): ArraySet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyArraySet(mergedSchemaOrigins);
     }

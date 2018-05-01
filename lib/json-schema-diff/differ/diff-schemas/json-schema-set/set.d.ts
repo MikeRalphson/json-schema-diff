@@ -26,6 +26,9 @@ export interface Set<T> {
     intersect(otherSet: Set<T>): Set<T>;
     intersectWithAll(otherAllSet: Set<T>): Set<T>;
     intersectWithEmpty(otherEmptySet: Set<T>): Set<T>;
+    union(otherSet: Set<T>): Set<T>;
+    unionWithAll(otherAllSet: Set<T>): Set<T>;
+    unionWithEmpty(otherEmptySet: Set<T>): Set<T>;
     complement(): Set<T>;
     toRepresentations(): Representation[];
 }

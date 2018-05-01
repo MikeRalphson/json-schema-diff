@@ -23,6 +23,19 @@ export class AllNumberSet implements NumberSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyNumberSet(mergedSchemaOrigins);
     }
+    public union(otherSet: NumberSet): NumberSet {
+        return otherSet.unionWithAll(this);
+    }
+
+    public unionWithAll(otherAllSet: NumberSet): NumberSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllNumberSet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: NumberSet): NumberSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new AllNumberSet(mergedSchemaOrigins);
+    }
 
     public complement(): NumberSet {
         return new EmptyNumberSet(this.schemaOrigins);
@@ -53,6 +66,20 @@ export class EmptyNumberSet implements NumberSet {
     }
 
     public intersectWithEmpty(otherEmptySet: NumberSet): NumberSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new EmptyNumberSet(mergedSchemaOrigins);
+    }
+
+    public union(otherSet: NumberSet): NumberSet {
+        return otherSet.unionWithEmpty(this);
+    }
+
+    public unionWithAll(otherAllSet: NumberSet): NumberSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllNumberSet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: NumberSet): NumberSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyNumberSet(mergedSchemaOrigins);
     }

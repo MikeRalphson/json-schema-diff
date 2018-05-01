@@ -3,7 +3,7 @@ import {JsonSchema} from '../../../lib/json-schema-diff/differ/diff-schemas/json
 import {expectToFail} from '../../support/expect-to-fail';
 import {diffResultDifferenceBuilder} from '../support/builders/diff-result-difference-builder';
 import {
-diffResultDifferenceValueBuilder
+    diffResultDifferenceValueBuilder
 } from '../support/builders/diff-result-difference-value-builder';
 import {customMatchers, CustomMatchers} from '../support/custom-matchers/diff-custom-matcher';
 
@@ -23,10 +23,8 @@ describe('differ', () => {
         }
     };
 
-    const invokeDiffAndExpectToFail = async (
-        sourceSchema: JsonSchema,
-        destinationSchema: JsonSchema
-    ): Promise<Error> => {
+    const invokeDiffAndExpectToFail = async (sourceSchema: JsonSchema,
+                                             destinationSchema: JsonSchema): Promise<Error> => {
         return expectToFail(new Differ().diff(sourceSchema, destinationSchema));
     };
 
@@ -439,10 +437,10 @@ describe('differ', () => {
     describe('not', () => {
         it('should find a remove and an add difference inside of a not', async () => {
             const sourceSchema: JsonSchema = {
-                not: { type: 'string'}
+                not: {type: 'string'}
             };
             const destinationSchema: JsonSchema = {
-                not: { type: 'number'}
+                not: {type: 'number'}
             };
 
             const diffResult = await invokeDiff(sourceSchema, destinationSchema);
@@ -476,6 +474,142 @@ describe('differ', () => {
                 .build();
 
             expect(diffResult).toContainDifferences([addedDifference, removeDifference]);
+        });
+    });
+
+    describe('anyOf', () => {
+        it('should find an add and a remove difference inside an anyOf', async () => {
+            const sourceSchema: JsonSchema = {
+                anyOf: [
+                    {type: 'string'},
+                    {type: 'number'}
+                ]
+            };
+            const destinationSchema: JsonSchema = {
+                anyOf: [
+                    {type: 'string'},
+                    {type: 'boolean'}
+                ]
+            };
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const baseDifferenceBuilder = diffResultDifferenceBuilder
+                .withSourceValues([
+                    diffResultDifferenceValueBuilder
+                        .withValue(undefined)
+                        .withLocation('.type'),
+                    diffResultDifferenceValueBuilder
+                        .withValue('string')
+                        .withLocation('.anyOf[0].type'),
+                    diffResultDifferenceValueBuilder
+                        .withValue('number')
+                        .withLocation('.anyOf[1].type')
+                ])
+                .withDestinationValues([
+                    diffResultDifferenceValueBuilder
+                        .withValue(undefined)
+                        .withLocation('.type'),
+                    diffResultDifferenceValueBuilder
+                        .withValue('string')
+                        .withLocation('.anyOf[0].type'),
+                    diffResultDifferenceValueBuilder
+                        .withValue('boolean')
+                        .withLocation('.anyOf[1].type')]);
+
+            const addDifference = baseDifferenceBuilder
+                .withTypeAddType()
+                .withValue('boolean')
+                .build();
+
+            const removeDifference = baseDifferenceBuilder
+                .withTypeRemoveType()
+                .withValue('number')
+                .build();
+
+            expect(diffResult).toContainDifferences([addDifference, removeDifference]);
+        });
+    });
+
+    describe('keyword combination', () => {
+        it('should find an add and remove differences for a schema with all the keywords', async () => {
+            const sourceSchema: JsonSchema = {
+                allOf: [
+                    {type: 'object'},
+                    {type: ['object', 'array']}
+                ],
+                anyOf: [
+                    {type: 'object'},
+                    {not: {type: 'array'}}
+                ]
+            };
+            const destinationSchema: JsonSchema = {
+                allOf: [
+                    {type: 'string'},
+                    {type: ['string', 'array']}
+                ],
+                anyOf: [
+                    {type: 'string'},
+                    {not: {type: 'array'}}
+                ]
+            };
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const baseDifference = diffResultDifferenceBuilder
+                .withSourceValues([
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.allOf[0].type')
+                        .withValue('object'),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.allOf[1].type')
+                        .withValue(['object', 'array']),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.anyOf[0].type')
+                        .withValue('object'),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.anyOf[1].type')
+                        .withValue(undefined),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.anyOf[1].not.type')
+                        .withValue('array'),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.type')
+                        .withValue(undefined)
+                ])
+                .withDestinationValues([
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.allOf[0].type')
+                        .withValue('string'),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.allOf[1].type')
+                        .withValue(['string', 'array']),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.anyOf[0].type')
+                        .withValue('string'),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.anyOf[1].type')
+                        .withValue(undefined),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.anyOf[1].not.type')
+                        .withValue('array'),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.type')
+                        .withValue(undefined)
+                ]);
+
+            const addedDifference = baseDifference
+                .withTypeAddType()
+                .withValue('string')
+                .build();
+
+            const removedDifference = baseDifference
+                .withTypeRemoveType()
+                .withValue('object')
+                .build();
+
+            expect(diffResult).toContainDifferences([addedDifference, removedDifference]);
+
         });
     });
 });

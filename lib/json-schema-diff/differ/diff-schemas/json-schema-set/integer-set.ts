@@ -24,6 +24,19 @@ export class AllIntegerSet implements IntegerSet {
         return new EmptyIntegerSet(mergedSchemaOrigins);
     }
 
+    public union(otherSet: IntegerSet): IntegerSet {
+        return otherSet.unionWithAll(this);
+    }
+
+    public unionWithAll(otherAllSet: IntegerSet): IntegerSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllIntegerSet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: IntegerSet): IntegerSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new AllIntegerSet(mergedSchemaOrigins);
+    }
     public complement(): IntegerSet {
         return new EmptyIntegerSet(this.schemaOrigins);
     }
@@ -53,6 +66,20 @@ export class EmptyIntegerSet implements IntegerSet {
     }
 
     public intersectWithEmpty(otherEmptySet: IntegerSet): IntegerSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new EmptyIntegerSet(mergedSchemaOrigins);
+    }
+
+    public union(otherSet: IntegerSet): IntegerSet {
+        return otherSet.unionWithEmpty(this);
+    }
+
+    public unionWithAll(otherAllSet: IntegerSet): IntegerSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllIntegerSet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: IntegerSet): IntegerSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyIntegerSet(mergedSchemaOrigins);
     }

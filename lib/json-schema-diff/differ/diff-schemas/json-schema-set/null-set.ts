@@ -24,6 +24,20 @@ export class AllNullSet implements NullSet {
         return new EmptyNullSet(mergedSchemaOrigins);
     }
 
+    public union(otherSet: NullSet): NullSet {
+        return otherSet.unionWithAll(this);
+    }
+
+    public unionWithAll(otherAllSet: NullSet): NullSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllNullSet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: NullSet): NullSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new AllNullSet(mergedSchemaOrigins);
+    }
+
     public complement(): NullSet {
         return new EmptyNullSet(this.schemaOrigins);
     }
@@ -53,6 +67,20 @@ export class EmptyNullSet implements NullSet {
     }
 
     public intersectWithEmpty(otherEmptySet: NullSet): NullSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new EmptyNullSet(mergedSchemaOrigins);
+    }
+
+    public union(otherSet: NullSet): NullSet {
+        return otherSet.unionWithEmpty(this);
+    }
+
+    public unionWithAll(otherAllSet: NullSet): NullSet {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllNullSet(mergedSchemaOrigins);
+    }
+
+    public unionWithEmpty(otherEmptySet: NullSet): NullSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyNullSet(mergedSchemaOrigins);
     }
