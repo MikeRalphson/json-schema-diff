@@ -435,4 +435,47 @@ describe('differ', () => {
             expect(diffResult).toContainDifferences([difference]);
         });
     });
+
+    describe('not', () => {
+        it('should find a remove and an add difference inside of a not', async () => {
+            const sourceSchema: JsonSchema = {
+                not: { type: 'string'}
+            };
+            const destinationSchema: JsonSchema = {
+                not: { type: 'number'}
+            };
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const baseDifference = diffResultDifferenceBuilder
+                .withSourceValues([
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.not.type')
+                        .withValue('string'),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.type')
+                        .withValue(undefined)
+                ])
+                .withDestinationValues([
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.not.type')
+                        .withValue('number'),
+                    diffResultDifferenceValueBuilder
+                        .withLocation('.type')
+                        .withValue(undefined)
+                ]);
+
+            const addedDifference = baseDifference
+                .withTypeAddType()
+                .withValue('string')
+                .build();
+
+            const removeDifference = baseDifference
+                .withTypeRemoveType()
+                .withValue('number')
+                .build();
+
+            expect(diffResult).toContainDifferences([addedDifference, removeDifference]);
+        });
+    });
 });

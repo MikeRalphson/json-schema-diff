@@ -99,7 +99,7 @@ export const customMatchers = {
             const pass = differencesCheck.pass && addedByDestinationCheck.pass && removedByDestinationCheck.pass;
             const message = [
                 differencesCheck.message, addedByDestinationCheck.message, removedByDestinationCheck.message
-            ].join('/n');
+            ].join('\n');
 
             return {
                 message, pass

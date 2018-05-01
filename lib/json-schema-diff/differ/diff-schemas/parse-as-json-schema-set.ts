@@ -79,6 +79,15 @@ const parseAllOf = (allOfSchemas: CoreSchemaMetaSchema[],
     return jsonSchemaSetResult;
 };
 
+const parseNot = (notSchema: CoreSchemaMetaSchema,
+                  origin: SchemaOriginType,
+                  location: string,
+                  initialJsonSchemaSet: JsonSchemaSet): JsonSchemaSet => {
+    const parsedNotJsonSchemaSet = parseWithLocation(notSchema, origin, `${location}.not`);
+    const complementedNotJsonSchemaSet = parsedNotJsonSchemaSet.complement();
+    return complementedNotJsonSchemaSet.intersect(initialJsonSchemaSet);
+};
+
 const parseWithLocation = (schema: CoreSchemaMetaSchema,
                            origin: SchemaOriginType,
                            location: string): JsonSchemaSet => {
@@ -86,6 +95,9 @@ const parseWithLocation = (schema: CoreSchemaMetaSchema,
 
     if (schema.allOf) {
         jsonSchemaSet = parseAllOf(schema.allOf, origin, location, jsonSchemaSet);
+    }
+    if (schema.not) {
+        jsonSchemaSet = parseNot(schema.not, origin, location, jsonSchemaSet);
     }
 
     return jsonSchemaSet;
