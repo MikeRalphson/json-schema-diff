@@ -14,16 +14,16 @@ class JsonSchemaDiff {
         this.differ = differ;
         this.reporter = reporter;
     }
-    static isBreakingChange(diffResult) {
-        return diffResult.removedByDestinationSpec;
+    static containsBreakingChanges(diffResult) {
+        return diffResult.removedByDestinationSchema;
     }
-    diff(sourceSchemaFile, destinationSchemaFile) {
+    diffFiles(sourceSchemaFile, destinationSchemaFile) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { sourceSchema, destinationSchema } = yield this.loadSchemas(sourceSchemaFile, destinationSchemaFile);
                 const diffResult = yield this.differ.diff(sourceSchema, destinationSchema);
                 this.reportDiffResult(diffResult);
-                if (JsonSchemaDiff.isBreakingChange(diffResult)) {
+                if (JsonSchemaDiff.containsBreakingChanges(diffResult)) {
                     return Promise.reject(new Error('Breaking changes detected'));
                 }
             }
@@ -34,7 +34,7 @@ class JsonSchemaDiff {
         });
     }
     reportDiffResult(diffResult) {
-        if (JsonSchemaDiff.isBreakingChange(diffResult)) {
+        if (JsonSchemaDiff.containsBreakingChanges(diffResult)) {
             this.reporter.reportFailureWithDifferences(diffResult.differences);
         }
         else if (diffResult.differences.length > 0) {

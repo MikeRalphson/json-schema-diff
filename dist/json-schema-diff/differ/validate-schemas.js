@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Ajv = require("ajv");
 const json_schema_draft_7_schema_1 = require("./validate-schemas/json-schema-draft-7-schema");
-const validateJsonSchema = (sourceSchema) => {
+const validateJsonSchema = (schema) => {
     const ajv = new Ajv();
     const validate = ajv.compile(json_schema_draft_7_schema_1.jsonSchemaDraft7Schema);
-    const valid = validate(sourceSchema);
+    const valid = validate(schema);
     if (valid) {
         return { isValid: true };
     }

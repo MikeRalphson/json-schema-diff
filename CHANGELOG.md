@@ -1,3 +1,13 @@
+<a name="0.3.0"></a>
+# [0.3.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.2.0...0.3.0) (2018-05-02)
+
+
+### Features
+
+* add support for the not keyword ([c9b7e98](https://bitbucket.org/atlassian/json-schema-diff/commits/c9b7e98))
+
+
+
 <a name="0.2.0"></a>
 # [0.2.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.1.0...0.2.0) (2018-04-23)
 

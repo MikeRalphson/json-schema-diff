@@ -1,6 +1,6 @@
 {
   "name": "json-schema-diff",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A language agnostic CLI tool and nodejs api to identify differences between two json schema files.",
   "bin": {
     "json-schema-diff": "./bin/json-schema-diff"

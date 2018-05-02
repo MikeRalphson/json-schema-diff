@@ -18,7 +18,7 @@ class AllNumberSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyNumberSet(mergedSchemaOrigins);
     }
-    inverse() {
+    complement() {
         return new EmptyNumberSet(this.schemaOrigins);
     }
     toRepresentations() {
@@ -47,7 +47,7 @@ class EmptyNumberSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyNumberSet(mergedSchemaOrigins);
     }
-    inverse() {
+    complement() {
         return new AllNumberSet(this.schemaOrigins);
     }
     toRepresentations() {

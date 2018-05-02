@@ -10,8 +10,8 @@ class JsonSchemaSet {
         this.objectSet = objectSet;
         this.stringSet = stringSet;
     }
-    inverse() {
-        return new JsonSchemaSet(this.arraySet.inverse(), this.booleanSet.inverse(), this.integerSet.inverse(), this.numberSet.inverse(), this.nullSet.inverse(), this.objectSet.inverse(), this.stringSet.inverse());
+    complement() {
+        return new JsonSchemaSet(this.arraySet.complement(), this.booleanSet.complement(), this.integerSet.complement(), this.numberSet.complement(), this.nullSet.complement(), this.objectSet.complement(), this.stringSet.complement());
     }
     intersect(other) {
         return new JsonSchemaSet(this.arraySet.intersect(other.arraySet), this.booleanSet.intersect(other.booleanSet), this.integerSet.intersect(other.integerSet), this.numberSet.intersect(other.numberSet), this.nullSet.intersect(other.nullSet), this.objectSet.intersect(other.objectSet), this.stringSet.intersect(other.stringSet));

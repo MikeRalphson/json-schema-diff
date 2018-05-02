@@ -18,9 +18,9 @@ class Differ {
                 return diff_schemas_1.diffSchemas(sourceSchema, destinationSchema);
             }
             return Promise.resolve({
-                addedByDestinationSpec: false,
+                addedByDestinationSchema: false,
                 differences: [],
-                removedByDestinationSpec: false
+                removedByDestinationSchema: false
             });
         });
     }

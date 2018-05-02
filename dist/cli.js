@@ -19,7 +19,7 @@ commander
     .description(`TODO: write me`)
     .action((sourceSchemaFile, destinationSchemaFile) => __awaiter(this, void 0, void 0, function* () {
     try {
-        yield jsonSchemaDiff.diff(sourceSchemaFile, destinationSchemaFile);
+        yield jsonSchemaDiff.diffFiles(sourceSchemaFile, destinationSchemaFile);
     }
     catch (error) {
         process.exitCode = 1;

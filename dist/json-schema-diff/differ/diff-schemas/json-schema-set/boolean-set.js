@@ -18,7 +18,7 @@ class AllBooleanSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyBooleanSet(mergedSchemaOrigins);
     }
-    inverse() {
+    complement() {
         return new EmptyBooleanSet(this.schemaOrigins);
     }
     toRepresentations() {
@@ -47,7 +47,7 @@ class EmptyBooleanSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyBooleanSet(mergedSchemaOrigins);
     }
-    inverse() {
+    complement() {
         return new AllBooleanSet(this.schemaOrigins);
     }
     toRepresentations() {

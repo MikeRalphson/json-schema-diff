@@ -24,7 +24,7 @@ const parseAsNumberSet = (types, schemaOrigins) => types.indexOf('number') >= 0 
 const parseAsNullSet = (types, schemaOrigins) => types.indexOf('null') >= 0 ? new null_set_1.AllNullSet(schemaOrigins) : new null_set_1.EmptyNullSet(schemaOrigins);
 const parseAsObjectSet = (types, schemaOrigins) => types.indexOf('object') >= 0 ? new object_set_1.AllObjectSet(schemaOrigins) : new object_set_1.EmptyObjectSet(schemaOrigins);
 const parseAsStringSet = (types, schemaOrigins) => types.indexOf('string') >= 0 ? new string_set_1.AllStringSet(schemaOrigins) : new string_set_1.EmptyStringSet(schemaOrigins);
-const parseForTypes = (schema, originType, location) => {
+const parseSubsets = (schema, originType, location) => {
     const types = toSimpleTypeArray(schema.type);
     const schemaOrigins = [{
             location: `${location}.type`,
@@ -40,7 +40,7 @@ const parseForTypes = (schema, originType, location) => {
     const stringSet = parseAsStringSet(types, schemaOrigins);
     return new json_schema_set_1.JsonSchemaSet(arraySet, booleanSet, integerSet, numberSet, nullSet, objectSet, stringSet);
 };
-const parseForAllOf = (allOfSchemas, origin, location, initialJsonSchemaSet) => {
+const parseAllOf = (allOfSchemas, origin, location, initialJsonSchemaSet) => {
     let jsonSchemaSetResult = initialJsonSchemaSet;
     for (let i = 0; i < allOfSchemas.length; i += 1) {
         const currentJsonSchemaSet = parseWithLocation(allOfSchemas[i], origin, `${location}.allOf[${i}]`);
@@ -48,10 +48,18 @@ const parseForAllOf = (allOfSchemas, origin, location, initialJsonSchemaSet) => 
     }
     return jsonSchemaSetResult;
 };
+const parseNot = (notSchema, origin, location, initialJsonSchemaSet) => {
+    const parsedNotJsonSchemaSet = parseWithLocation(notSchema, origin, `${location}.not`);
+    const complementedNotJsonSchemaSet = parsedNotJsonSchemaSet.complement();
+    return complementedNotJsonSchemaSet.intersect(initialJsonSchemaSet);
+};
 const parseWithLocation = (schema, origin, location) => {
-    let jsonSchemaSet = parseForTypes(schema, origin, location);
+    let jsonSchemaSet = parseSubsets(schema, origin, location);
     if (schema.allOf) {
-        jsonSchemaSet = parseForAllOf(schema.allOf, origin, location, jsonSchemaSet);
+        jsonSchemaSet = parseAllOf(schema.allOf, origin, location, jsonSchemaSet);
+    }
+    if (schema.not) {
+        jsonSchemaSet = parseNot(schema.not, origin, location, jsonSchemaSet);
     }
     return jsonSchemaSet;
 };
