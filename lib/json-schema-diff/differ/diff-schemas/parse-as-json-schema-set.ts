@@ -1,4 +1,4 @@
-import {CoreSchemaMetaSchema, SimpleTypes} from './json-schema';
+import {CoreSchemaMetaSchema, JsonSchema, SimpleTypes} from './json-schema';
 import {JsonSchemaSet} from './json-schema-set';
 import {AllArraySet, ArraySet, EmptyArraySet} from './json-schema-set/array-set';
 import {AllBooleanSet, BooleanSet, EmptyBooleanSet} from './json-schema-set/boolean-set';
@@ -9,9 +9,12 @@ import {AllObjectSet, EmptyObjectSet, ObjectSet} from './json-schema-set/object-
 import {SchemaOrigin, SchemaOriginType} from './json-schema-set/set';
 import {AllStringSet, EmptyStringSet, StringSet} from './json-schema-set/string-set';
 
+const allSchemaTypes: SimpleTypes[] = ['string', 'number', 'boolean', 'integer', 'array', 'object', 'null'];
+const emptySchemaTypes: SimpleTypes[] = [];
+
 const toSimpleTypeArray = (type?: SimpleTypes | SimpleTypes[]): SimpleTypes[] => {
     if (!type) {
-        return ['string', 'number', 'boolean', 'integer', 'array', 'object', 'null'];
+        return allSchemaTypes;
     }
 
     if (typeof type === 'string') {
@@ -42,17 +45,7 @@ const parseAsObjectSet = (types: SimpleTypes[], schemaOrigins: SchemaOrigin[]): 
 const parseAsStringSet = (types: SimpleTypes[], schemaOrigins: SchemaOrigin[]): StringSet =>
     types.indexOf('string') >= 0 ? new AllStringSet(schemaOrigins) : new EmptyStringSet(schemaOrigins);
 
-const parseSubsets = (schema: CoreSchemaMetaSchema,
-                      originType: SchemaOriginType,
-                      location: string): JsonSchemaSet => {
-    const types = toSimpleTypeArray(schema.type);
-
-    const schemaOrigins = [{
-        location: `${location}.type`,
-        type: originType,
-        value: schema.type
-    }];
-
+const createJsonSchemaSet = (types: SimpleTypes[], schemaOrigins: SchemaOrigin[]): JsonSchemaSet => {
     const arraySet = parseAsArraySet(types, schemaOrigins);
     const booleanSet = parseAsBooleanSet(types, schemaOrigins);
     const integerSet = parseAsIntegerSet(types, schemaOrigins);
@@ -64,7 +57,7 @@ const parseSubsets = (schema: CoreSchemaMetaSchema,
     return new JsonSchemaSet(arraySet, booleanSet, integerSet, numberSet, nullSet, objectSet, stringSet);
 };
 
-const parseAllOf = (allOfSchemas: CoreSchemaMetaSchema[],
+const parseAllOf = (allOfSchemas: JsonSchema[],
                     origin: SchemaOriginType,
                     location: string,
                     initialJsonSchemaSet: JsonSchemaSet): JsonSchemaSet => {
@@ -79,7 +72,7 @@ const parseAllOf = (allOfSchemas: CoreSchemaMetaSchema[],
     return jsonSchemaSetResult;
 };
 
-const parseAnyOf = (anyOfSchemas: CoreSchemaMetaSchema[],
+const parseAnyOf = (anyOfSchemas: JsonSchema[],
                     origin: SchemaOriginType,
                     location: string,
                     initialJsonSchemaSet: JsonSchemaSet): JsonSchemaSet => {
@@ -95,7 +88,7 @@ const parseAnyOf = (anyOfSchemas: CoreSchemaMetaSchema[],
     return jsonSchemaSetResult;
 };
 
-const parseNot = (notSchema: CoreSchemaMetaSchema,
+const parseNot = (notSchema: JsonSchema,
                   origin: SchemaOriginType,
                   location: string,
                   initialJsonSchemaSet: JsonSchemaSet): JsonSchemaSet => {
@@ -104,24 +97,59 @@ const parseNot = (notSchema: CoreSchemaMetaSchema,
     return complementedNotJsonSchemaSet.intersect(initialJsonSchemaSet);
 };
 
-const parseWithLocation = (schema: CoreSchemaMetaSchema,
-                           origin: SchemaOriginType,
-                           location: string): JsonSchemaSet => {
-    let jsonSchemaSet = parseSubsets(schema, origin, location);
+const parseSubsets = (schema: CoreSchemaMetaSchema,
+                      originType: SchemaOriginType,
+                      location: string): JsonSchemaSet => {
+    const types = toSimpleTypeArray(schema.type);
 
+    const schemaOrigins = [{
+        location: `${location}.type`,
+        type: originType,
+        value: schema.type
+    }];
+
+    return createJsonSchemaSet(types, schemaOrigins);
+};
+
+const parseCoreSchemaMetaSchema = (schema: CoreSchemaMetaSchema,
+                                   originType: SchemaOriginType,
+                                   location: string): JsonSchemaSet => {
+    let jsonSchemaSet = parseSubsets(schema, originType, location);
     if (schema.allOf) {
-        jsonSchemaSet = parseAllOf(schema.allOf, origin, location, jsonSchemaSet);
+        jsonSchemaSet = parseAllOf(schema.allOf, originType, location, jsonSchemaSet);
     }
     if (schema.anyOf) {
-        jsonSchemaSet = parseAnyOf(schema.anyOf, origin, location, jsonSchemaSet);
+        jsonSchemaSet = parseAnyOf(schema.anyOf, originType, location, jsonSchemaSet);
     }
     if (schema.not) {
-        jsonSchemaSet = parseNot(schema.not, origin, location, jsonSchemaSet);
+        jsonSchemaSet = parseNot(schema.not, originType, location, jsonSchemaSet);
     }
-
     return jsonSchemaSet;
 };
 
-export const parseAsJsonSchemaSet = (schema: CoreSchemaMetaSchema, origin: SchemaOriginType): JsonSchemaSet => {
-    return parseWithLocation(schema, origin, '');
+const parseBooleanSchema = (schema: boolean,
+                            originType: SchemaOriginType,
+                            location: string): JsonSchemaSet => {
+    const types = schema ? allSchemaTypes : emptySchemaTypes;
+
+    const schemaOrigins = [{
+        location,
+        type: originType,
+        value: schema
+    }];
+
+    return createJsonSchemaSet(types, schemaOrigins);
+};
+
+const parseWithLocation = (schema: JsonSchema,
+                           originType: SchemaOriginType,
+                           location: string): JsonSchemaSet => {
+
+    return (typeof schema === 'boolean')
+        ? parseBooleanSchema(schema, originType, location)
+        : parseCoreSchemaMetaSchema(schema, originType, location);
+};
+
+export const parseAsJsonSchemaSet = (schema: JsonSchema, originType: SchemaOriginType): JsonSchemaSet => {
+    return parseWithLocation(schema, originType, '');
 };

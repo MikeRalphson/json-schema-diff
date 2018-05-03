@@ -1,5 +1,5 @@
 import {DiffResult, DiffResultDifference, DiffResultDifferenceType} from '../differ';
-import {CoreSchemaMetaSchema} from './diff-schemas/json-schema';
+import {JsonSchema} from './diff-schemas/json-schema';
 import {Representation} from './diff-schemas/json-schema-set/set';
 import {parseAsJsonSchemaSet} from './diff-schemas/parse-as-json-schema-set';
 
@@ -23,8 +23,8 @@ const representationsToRemovedDifferences = (representations: Representation[]):
         value: representation.value
     }));
 
-export const diffSchemas = (sourceSchema: CoreSchemaMetaSchema,
-                            destinationSchema: CoreSchemaMetaSchema): Promise<DiffResult> => {
+export const diffSchemas = (sourceSchema: JsonSchema,
+                            destinationSchema: JsonSchema): Promise<DiffResult> => {
     const sourceSet = parseAsJsonSchemaSet(sourceSchema, 'source');
     const destinationSet = parseAsJsonSchemaSet(destinationSchema, 'destination');
 

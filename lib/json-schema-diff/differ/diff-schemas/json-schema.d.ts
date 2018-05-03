@@ -2,7 +2,7 @@
 
 export type NonNegativeInteger = number;
 export type NonNegativeIntegerDefault0 = NonNegativeInteger;
-export type SchemaArray = CoreSchemaMetaSchema[];
+export type SchemaArray = JsonSchema[];
 export type StringArray = string[];
 export type SimpleTypes = 'array' | 'boolean' | 'integer' | 'null' | 'number' | 'object' | 'string';
 
@@ -24,42 +24,42 @@ export interface CoreSchemaMetaSchema {
     maxLength?: NonNegativeInteger;
     minLength?: NonNegativeIntegerDefault0;
     pattern?: string;
-    additionalItems?: CoreSchemaMetaSchema;
-    items?: CoreSchemaMetaSchema | SchemaArray;
+    additionalItems?: JsonSchema;
+    items?: JsonSchema | SchemaArray;
     maxItems?: NonNegativeInteger;
     minItems?: NonNegativeIntegerDefault0;
     uniqueItems?: boolean;
-    contains?: CoreSchemaMetaSchema;
+    contains?: JsonSchema;
     maxProperties?: NonNegativeInteger;
     minProperties?: NonNegativeIntegerDefault0;
     required?: StringArray;
-    additionalProperties?: CoreSchemaMetaSchema;
+    additionalProperties?: JsonSchema;
     definitions?: {
-        [k: string]: CoreSchemaMetaSchema;
+        [k: string]: JsonSchema;
     };
     properties?: {
-        [k: string]: CoreSchemaMetaSchema;
+        [k: string]: JsonSchema;
     };
     patternProperties?: {
-        [k: string]: CoreSchemaMetaSchema;
+        [k: string]: JsonSchema;
     };
     dependencies?: {
-        [k: string]: CoreSchemaMetaSchema | StringArray;
+        [k: string]: JsonSchema | StringArray;
     };
-    propertyNames?: CoreSchemaMetaSchema;
+    propertyNames?: JsonSchema;
     const?: any;
     enum?: any[];
     type?: SimpleTypes | SimpleTypes[];
     format?: string;
     contentMediaType?: string;
     contentEncoding?: string;
-    if?: CoreSchemaMetaSchema;
-    then?: CoreSchemaMetaSchema;
-    else?: CoreSchemaMetaSchema;
+    if?: JsonSchema;
+    then?: JsonSchema;
+    else?: JsonSchema;
     allOf?: SchemaArray;
     anyOf?: SchemaArray;
     oneOf?: SchemaArray;
-    not?: CoreSchemaMetaSchema;
+    not?: JsonSchema;
     [k: string]: any;
 }
 

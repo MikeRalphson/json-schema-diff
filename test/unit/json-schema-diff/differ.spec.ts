@@ -1,5 +1,5 @@
 import {Differ, DiffResult} from '../../../lib/json-schema-diff/differ';
-import {JsonSchema} from '../../../lib/json-schema-diff/differ/diff-schemas/json-schema';
+import {JsonSchema, SimpleTypes} from '../../../lib/json-schema-diff/differ/diff-schemas/json-schema';
 import {expectToFail} from '../../support/expect-to-fail';
 import {diffResultDifferenceBuilder} from '../support/builders/diff-result-difference-builder';
 import {
@@ -611,5 +611,71 @@ describe('differ', () => {
             expect(diffResult).toContainDifferences([addedDifference, removedDifference]);
 
         });
+        it('should find no differences with two equivalent schemas using nested boolean schemas', async () => {
+            const sourceSchema: JsonSchema = {
+                not: {
+                    anyOf: [
+                        false,
+                        true
+                    ]
+                }
+            };
+
+            const destinationSchema: JsonSchema = false;
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+            expect(diffResult).toContainDifferences([]);
+        });
+    });
+
+    describe('schema as boolean', () => {
+       it('should find an add difference when object schema is changed to true', async () => {
+           const allTypesButObject: SimpleTypes[] = ['string', 'array', 'number', 'integer', 'boolean', 'null'];
+           const sourceSchema: JsonSchema = {
+               type: allTypesButObject
+           };
+           const destinationSchema: JsonSchema = true;
+
+           const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+           const addDifference = diffResultDifferenceBuilder
+               .withSourceValue(
+                   diffResultDifferenceValueBuilder
+                       .withLocation('.type')
+                       .withValue(['string', 'array', 'number', 'integer', 'boolean', 'null'])
+               )
+               .withDestinationValue(
+                   diffResultDifferenceValueBuilder
+                   .withValue(true)
+                   .withLocation('')
+               )
+               .withValue('object')
+               .withTypeAddType()
+               .build();
+
+           expect(diffResult).toContainDifferences([addDifference]);
+       });
+
+       it('should find a remove difference when object schema is changed to false', async () => {
+           const sourceSchema: JsonSchema = {type: 'integer'};
+           const destinationSchema: JsonSchema = false;
+
+           const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+           const removeDifference = diffResultDifferenceBuilder
+               .withSourceValue(
+                   diffResultDifferenceValueBuilder
+                   .withValue('integer')
+                   .withLocation('.type'))
+               .withDestinationValue(
+                   diffResultDifferenceValueBuilder
+                       .withValue(false)
+                       .withLocation(''))
+               .withTypeRemoveType()
+               .withValue('integer')
+               .build();
+
+           expect(diffResult).toContainDifferences([removeDifference]);
+       });
     });
 });

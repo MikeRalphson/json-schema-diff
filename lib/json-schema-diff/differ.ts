@@ -27,13 +27,6 @@ export class Differ {
     public async diff(sourceSchema: any, destinationSchema: any): Promise<DiffResult> {
         await validateSchemas(sourceSchema, destinationSchema);
 
-        if (typeof sourceSchema !== 'boolean' && typeof destinationSchema !== 'boolean') {
-            return diffSchemas(sourceSchema, destinationSchema);
-        }
-        return Promise.resolve({
-            addedByDestinationSchema: false,
-            differences: [],
-            removedByDestinationSchema: false
-        });
+        return diffSchemas(sourceSchema, destinationSchema);
     }
 }
