@@ -48,6 +48,15 @@ const parseAllOf = (allOfSchemas, origin, location, initialJsonSchemaSet) => {
     }
     return jsonSchemaSetResult;
 };
+const parseAnyOf = (anyOfSchemas, origin, location, initialJsonSchemaSet) => {
+    let jsonSchemaSetResult = parseWithLocation(anyOfSchemas[0], origin, `${location}.anyOf[0]`);
+    for (let i = 1; i < anyOfSchemas.length; i += 1) {
+        const currentJsonSchemaSet = parseWithLocation(anyOfSchemas[i], origin, `${location}.anyOf[${i}]`);
+        jsonSchemaSetResult = jsonSchemaSetResult.union(currentJsonSchemaSet);
+    }
+    jsonSchemaSetResult = jsonSchemaSetResult.intersect(initialJsonSchemaSet);
+    return jsonSchemaSetResult;
+};
 const parseNot = (notSchema, origin, location, initialJsonSchemaSet) => {
     const parsedNotJsonSchemaSet = parseWithLocation(notSchema, origin, `${location}.not`);
     const complementedNotJsonSchemaSet = parsedNotJsonSchemaSet.complement();
@@ -57,6 +66,9 @@ const parseWithLocation = (schema, origin, location) => {
     let jsonSchemaSet = parseSubsets(schema, origin, location);
     if (schema.allOf) {
         jsonSchemaSet = parseAllOf(schema.allOf, origin, location, jsonSchemaSet);
+    }
+    if (schema.anyOf) {
+        jsonSchemaSet = parseAnyOf(schema.anyOf, origin, location, jsonSchemaSet);
     }
     if (schema.not) {
         jsonSchemaSet = parseNot(schema.not, origin, location, jsonSchemaSet);

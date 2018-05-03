@@ -18,6 +18,17 @@ class AllArraySet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyArraySet(mergedSchemaOrigins);
     }
+    union(otherSet) {
+        return otherSet.unionWithAll(this);
+    }
+    unionWithAll(otherAllSet) {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllArraySet(mergedSchemaOrigins);
+    }
+    unionWithEmpty(otherEmptySet) {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new AllArraySet(mergedSchemaOrigins);
+    }
     complement() {
         return new EmptyArraySet(this.schemaOrigins);
     }
@@ -44,6 +55,17 @@ class EmptyArraySet {
         return new EmptyArraySet(mergedSchemaOrigins);
     }
     intersectWithEmpty(otherEmptySet) {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
+        return new EmptyArraySet(mergedSchemaOrigins);
+    }
+    union(otherSet) {
+        return otherSet.unionWithEmpty(this);
+    }
+    unionWithAll(otherAllSet) {
+        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
+        return new AllArraySet(mergedSchemaOrigins);
+    }
+    unionWithEmpty(otherEmptySet) {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyArraySet(mergedSchemaOrigins);
     }

@@ -1,3 +1,13 @@
+<a name="0.4.0"></a>
+# [0.4.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.3.0...0.4.0) (2018-05-03)
+
+
+### Features
+
+* add support for anyOf keyword ([1753af1](https://bitbucket.org/atlassian/json-schema-diff/commits/1753af1))
+
+
+
 <a name="0.3.0"></a>
 # [0.3.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.2.0...0.3.0) (2018-05-02)
 
