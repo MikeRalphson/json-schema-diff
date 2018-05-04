@@ -2,7 +2,7 @@ import {diffSchemas} from './differ/diff-schemas';
 import {validateSchemas} from './differ/validate-schemas';
 
 export interface DiffResultDifferenceValue {
-    location: string;
+    path: string;
     value: any;
 }
 

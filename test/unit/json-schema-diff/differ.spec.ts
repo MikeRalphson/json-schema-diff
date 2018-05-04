@@ -1,11 +1,10 @@
-import {Differ, DiffResult} from '../../../lib/json-schema-diff/differ';
-import {JsonSchema, SimpleTypes} from '../../../lib/json-schema-diff/differ/diff-schemas/json-schema';
-import {expectToFail} from '../../support/expect-to-fail';
+import {JsonSchema, SimpleTypes} from '../../../lib/json-schema-diff/parser/json-set/json-schema';
 import {diffResultDifferenceBuilder} from '../support/builders/diff-result-difference-builder';
 import {
     diffResultDifferenceValueBuilder
 } from '../support/builders/diff-result-difference-value-builder';
-import {customMatchers, CustomMatchers} from '../support/custom-matchers/diff-custom-matcher';
+import {customMatchers, CustomMatchers} from '../support/custom-matchers/custom-matchers';
+import {invokeDiff, invokeDiffAndExpectToFail} from '../support/invoke-diff';
 
 declare function expect<T>(actual: T): CustomMatchers<T>;
 
@@ -13,20 +12,6 @@ describe('differ', () => {
     beforeEach(() => {
         jasmine.addMatchers(customMatchers);
     });
-
-    const invokeDiff = async (sourceSchema: JsonSchema, destinationSchema: JsonSchema): Promise<DiffResult> => {
-        try {
-            return await new Differ().diff(sourceSchema, destinationSchema);
-        } catch (error) {
-            fail(error.stack);
-            throw error;
-        }
-    };
-
-    const invokeDiffAndExpectToFail = async (sourceSchema: JsonSchema,
-                                             destinationSchema: JsonSchema): Promise<Error> => {
-        return expectToFail(new Differ().diff(sourceSchema, destinationSchema));
-    };
 
     describe('validation', () => {
         it('should return an error when the source schema is not valid', async () => {
@@ -84,12 +69,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['string'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['string', 'number'])
                 )
                 .withValue('number')
@@ -108,12 +93,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['number', 'array'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue('number')
                 )
                 .withValue('array')
@@ -132,12 +117,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['number', 'boolean'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue('number')
                 )
                 .withValue('boolean')
@@ -156,12 +141,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['number', 'integer'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue('number')
                 )
                 .withValue('integer')
@@ -180,12 +165,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['number', 'null'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue('number')
                 )
                 .withValue('null')
@@ -204,12 +189,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['string', 'number'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue('string')
                 )
                 .withValue('number')
@@ -226,14 +211,17 @@ describe('differ', () => {
             const diffResult = await invokeDiff(sourceSchema, destinationsSchema);
 
             const difference = diffResultDifferenceBuilder
-                .withDestinationValue(
+                .withDestinationValues([
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
-                        .withValue(['number', 'object'])
-                )
+                        .withPath('.type')
+                        .withValue(['number', 'object']),
+                    diffResultDifferenceValueBuilder
+                        .withPath('.additionalProperties')
+                        .withValue(undefined)
+                ])
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue('number')
                 )
                 .withValue('object')
@@ -252,12 +240,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['number', 'string'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue('number')
                 )
                 .withValue('string')
@@ -276,12 +264,12 @@ describe('differ', () => {
             const differenceBuilder = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue('string')
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue('number')
                 );
 
@@ -307,7 +295,7 @@ describe('differ', () => {
             expect(diffResult).toContainDifferences([]);
         });
 
-        it('should find two differences when multiple types are removed', async () => {
+        it('should find multiple differences when multiple types are removed', async () => {
             const sourceSchema: JsonSchema = {type: ['number', 'string', 'boolean']};
             const destinationsSchema: JsonSchema = {type: ['number']};
 
@@ -316,12 +304,12 @@ describe('differ', () => {
             const differenceBuilder = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['number'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['number', 'string', 'boolean'])
                 )
                 .withTypeRemoveType();
@@ -337,7 +325,7 @@ describe('differ', () => {
             expect(diffResult).toContainDifferences([removedFirstDifference, removedSecondDifference]);
         });
 
-        it('should find two differences when multiple types are added', async () => {
+        it('should find multiple differences when multiple types are added', async () => {
             const sourceSchema: JsonSchema = {type: ['number']};
             const destinationsSchema: JsonSchema = {type: ['number', 'string', 'boolean']};
 
@@ -346,12 +334,12 @@ describe('differ', () => {
             const differenceBuilder = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['number', 'string', 'boolean'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['number'])
                 )
                 .withTypeAddType();
@@ -376,12 +364,12 @@ describe('differ', () => {
             const removedDifference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(['integer', 'number', 'object', 'null', 'boolean', 'array'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(undefined)
                 )
                 .withValue('string')
@@ -409,21 +397,21 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValues([
                     diffResultDifferenceValueBuilder
-                        .withLocation('.allOf[1].type')
+                        .withPath('.allOf[1].type')
                         .withValue(['string', 'boolean']),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.allOf[0].type')
+                        .withPath('.allOf[0].type')
                         .withValue(['string', 'number']),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(undefined)
                 ])
                 .withSourceValues([
                     diffResultDifferenceValueBuilder
-                        .withLocation('.allOf[0].type')
+                        .withPath('.allOf[0].type')
                         .withValue(['string', 'number']),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(undefined)
                 ])
                 .withValue('number')
@@ -448,18 +436,18 @@ describe('differ', () => {
             const baseDifference = diffResultDifferenceBuilder
                 .withSourceValues([
                     diffResultDifferenceValueBuilder
-                        .withLocation('.not.type')
+                        .withPath('.not.type')
                         .withValue('string'),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(undefined)
                 ])
                 .withDestinationValues([
                     diffResultDifferenceValueBuilder
-                        .withLocation('.not.type')
+                        .withPath('.not.type')
                         .withValue('number'),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(undefined)
                 ]);
 
@@ -498,24 +486,24 @@ describe('differ', () => {
                 .withSourceValues([
                     diffResultDifferenceValueBuilder
                         .withValue(undefined)
-                        .withLocation('.type'),
+                        .withPath('.type'),
                     diffResultDifferenceValueBuilder
                         .withValue('string')
-                        .withLocation('.anyOf[0].type'),
+                        .withPath('.anyOf[0].type'),
                     diffResultDifferenceValueBuilder
                         .withValue('number')
-                        .withLocation('.anyOf[1].type')
+                        .withPath('.anyOf[1].type')
                 ])
                 .withDestinationValues([
                     diffResultDifferenceValueBuilder
                         .withValue(undefined)
-                        .withLocation('.type'),
+                        .withPath('.type'),
                     diffResultDifferenceValueBuilder
                         .withValue('string')
-                        .withLocation('.anyOf[0].type'),
+                        .withPath('.anyOf[0].type'),
                     diffResultDifferenceValueBuilder
                         .withValue('boolean')
-                        .withLocation('.anyOf[1].type')]);
+                        .withPath('.anyOf[1].type')]);
 
             const addDifference = baseDifferenceBuilder
                 .withTypeAddType()
@@ -535,11 +523,11 @@ describe('differ', () => {
         it('should find an add and remove differences for a schema with all the keywords', async () => {
             const sourceSchema: JsonSchema = {
                 allOf: [
-                    {type: 'object'},
-                    {type: ['object', 'array']}
+                    {type: 'number'},
+                    {type: ['number', 'array']}
                 ],
                 anyOf: [
-                    {type: 'object'},
+                    {type: 'number'},
                     {not: {type: 'array'}}
                 ]
             };
@@ -559,42 +547,42 @@ describe('differ', () => {
             const baseDifference = diffResultDifferenceBuilder
                 .withSourceValues([
                     diffResultDifferenceValueBuilder
-                        .withLocation('.allOf[0].type')
-                        .withValue('object'),
+                        .withPath('.allOf[0].type')
+                        .withValue('number'),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.allOf[1].type')
-                        .withValue(['object', 'array']),
+                        .withPath('.allOf[1].type')
+                        .withValue(['number', 'array']),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.anyOf[0].type')
-                        .withValue('object'),
+                        .withPath('.anyOf[0].type')
+                        .withValue('number'),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.anyOf[1].type')
+                        .withPath('.anyOf[1].type')
                         .withValue(undefined),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.anyOf[1].not.type')
+                        .withPath('.anyOf[1].not.type')
                         .withValue('array'),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(undefined)
                 ])
                 .withDestinationValues([
                     diffResultDifferenceValueBuilder
-                        .withLocation('.allOf[0].type')
+                        .withPath('.allOf[0].type')
                         .withValue('string'),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.allOf[1].type')
+                        .withPath('.allOf[1].type')
                         .withValue(['string', 'array']),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.anyOf[0].type')
+                        .withPath('.anyOf[0].type')
                         .withValue('string'),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.anyOf[1].type')
+                        .withPath('.anyOf[1].type')
                         .withValue(undefined),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.anyOf[1].not.type')
+                        .withPath('.anyOf[1].not.type')
                         .withValue('array'),
                     diffResultDifferenceValueBuilder
-                        .withLocation('.type')
+                        .withPath('.type')
                         .withValue(undefined)
                 ]);
 
@@ -605,12 +593,13 @@ describe('differ', () => {
 
             const removedDifference = baseDifference
                 .withTypeRemoveType()
-                .withValue('object')
+                .withValue('number')
                 .build();
 
             expect(diffResult).toContainDifferences([addedDifference, removedDifference]);
 
         });
+
         it('should find no differences with two equivalent schemas using nested boolean schemas', async () => {
             const sourceSchema: JsonSchema = {
                 not: {
@@ -629,53 +618,134 @@ describe('differ', () => {
     });
 
     describe('schema as boolean', () => {
-       it('should find an add difference when object schema is changed to true', async () => {
-           const allTypesButObject: SimpleTypes[] = ['string', 'array', 'number', 'integer', 'boolean', 'null'];
-           const sourceSchema: JsonSchema = {
-               type: allTypesButObject
-           };
-           const destinationSchema: JsonSchema = true;
+        it('should find an add difference when schema is changed to true', async () => {
+            const allTypesButObject: SimpleTypes[] = ['string', 'array', 'number', 'integer', 'boolean', 'null'];
+            const sourceSchema: JsonSchema = {
+                type: allTypesButObject
+            };
+            const destinationSchema: JsonSchema = true;
 
-           const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
 
-           const addDifference = diffResultDifferenceBuilder
-               .withSourceValue(
-                   diffResultDifferenceValueBuilder
-                       .withLocation('.type')
-                       .withValue(['string', 'array', 'number', 'integer', 'boolean', 'null'])
-               )
-               .withDestinationValue(
-                   diffResultDifferenceValueBuilder
-                   .withValue(true)
-                   .withLocation('')
-               )
-               .withValue('object')
-               .withTypeAddType()
-               .build();
+            const addDifference = diffResultDifferenceBuilder
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withPath('.type')
+                        .withValue(['string', 'array', 'number', 'integer', 'boolean', 'null'])
+                )
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue(true)
+                        .withPath('')
+                )
+                .withValue('object')
+                .withTypeAddType()
+                .build();
 
-           expect(diffResult).toContainDifferences([addDifference]);
-       });
+            expect(diffResult).toContainDifferences([addDifference]);
+        });
 
-       it('should find a remove difference when object schema is changed to false', async () => {
-           const sourceSchema: JsonSchema = {type: 'integer'};
-           const destinationSchema: JsonSchema = false;
+        it('should find a remove difference when schema is changed to false', async () => {
+            const sourceSchema: JsonSchema = {type: 'integer'};
+            const destinationSchema: JsonSchema = false;
 
-           const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
 
-           const removeDifference = diffResultDifferenceBuilder
-               .withSourceValue(
-                   diffResultDifferenceValueBuilder
-                   .withValue('integer')
-                   .withLocation('.type'))
-               .withDestinationValue(
-                   diffResultDifferenceValueBuilder
-                       .withValue(false)
-                       .withLocation(''))
-               .withTypeRemoveType()
-               .withValue('integer')
-               .build();
+            const removeDifference = diffResultDifferenceBuilder
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('integer')
+                        .withPath('.type'))
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue(false)
+                        .withPath(''))
+                .withTypeRemoveType()
+                .withValue('integer')
+                .build();
 
-           expect(diffResult).toContainDifferences([removeDifference]);
-       });
+            expect(diffResult).toContainDifferences([removeDifference]);
+        });
+    });
+
+    describe('object type', () => {
+        it('should find an add and a remove differences when changing properties type', async () => {
+            const sourceSchema: JsonSchema = {
+                properties: {
+                    name: {type: 'array'}
+                },
+                type: 'object'
+            };
+            const destinationSchema: JsonSchema = {
+                properties: {
+                    name: {type: 'string'}
+                },
+                type: 'object'
+            };
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const baseDifference = diffResultDifferenceBuilder
+                .withSourceValues([
+                    diffResultDifferenceValueBuilder
+                        .withValue('array')
+                        .withPath('.properties.name.type')])
+                .withDestinationValues([
+                    diffResultDifferenceValueBuilder
+                        .withValue('string')
+                        .withPath('.properties.name.type')]);
+
+            const removeDifference = baseDifference
+                .withTypeRemoveType()
+                .withValue('array')
+                .build();
+
+            const addDifference = baseDifference
+                .withTypeAddType()
+                .withValue('string')
+                .build();
+            expect(diffResult).toContainDifferences([removeDifference, addDifference]);
+        });
+
+        it('should find a difference between schemas with boolean additional properties', async () => {
+            const sourceSchema: JsonSchema = {
+                additionalProperties: true,
+                type: 'object'
+            };
+            const destinationSchema: JsonSchema = {
+                additionalProperties: false,
+                type: 'object'
+            };
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const baseRemovedDifference = diffResultDifferenceBuilder
+                .withSourceValues([
+                    diffResultDifferenceValueBuilder
+                        .withValue('object')
+                        .withPath('.type'),
+                    diffResultDifferenceValueBuilder
+                        .withValue(true)
+                        .withPath('.additionalProperties')
+                ])
+                .withDestinationValues([
+                    diffResultDifferenceValueBuilder
+                        .withValue('object')
+                        .withPath('.type'),
+                    diffResultDifferenceValueBuilder
+                        .withValue(false)
+                        .withPath('.additionalProperties')
+                ])
+                .withTypeRemoveType();
+            expect(diffResult).toContainDifferences([
+                baseRemovedDifference.withValue('array').build(),
+                baseRemovedDifference.withValue('boolean').build(),
+                baseRemovedDifference.withValue('integer').build(),
+                baseRemovedDifference.withValue('null').build(),
+                baseRemovedDifference.withValue('number').build(),
+                baseRemovedDifference.withValue('object').build(),
+                baseRemovedDifference.withValue('string').build()
+            ]);
+        });
     });
 });

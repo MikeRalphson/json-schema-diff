@@ -3,25 +3,25 @@ import {DiffResultDifferenceValue} from '../../../../lib/json-schema-diff/differ
 
 export class DiffResultDifferenceValueBuilder {
     public static create(): DiffResultDifferenceValueBuilder {
-        return new DiffResultDifferenceValueBuilder('default.location', 'default-value');
+        return new DiffResultDifferenceValueBuilder('default.path', 'default-value');
     }
 
-    private constructor(private readonly location: string, private readonly value: any) {}
+    private constructor(private readonly path: string, private readonly value: any) {}
 
     public build(): DiffResultDifferenceValue {
         return {
-            location: this.location,
+            path: this.path,
             value: _.cloneDeep(this.value)
         };
     }
 
-    public withLocation(newLocation: string): DiffResultDifferenceValueBuilder {
+    public withPath(newLocation: string): DiffResultDifferenceValueBuilder {
         return new DiffResultDifferenceValueBuilder(newLocation, this.value);
     }
 
     public withValue(newValue: any): DiffResultDifferenceValueBuilder {
         const copyOfNewValue = _.cloneDeep(newValue);
-        return new DiffResultDifferenceValueBuilder(this.location, copyOfNewValue);
+        return new DiffResultDifferenceValueBuilder(this.path, copyOfNewValue);
     }
 }
 

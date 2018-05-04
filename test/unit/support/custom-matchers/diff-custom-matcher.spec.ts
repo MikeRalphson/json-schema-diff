@@ -1,7 +1,7 @@
 import {DiffResult, DiffResultDifference} from '../../../../lib/json-schema-diff/differ';
 import {diffResultDifferenceBuilder} from '../builders/diff-result-difference-builder';
 import {diffResultDifferenceValueBuilder} from '../builders/diff-result-difference-value-builder';
-import {customMatchers} from './diff-custom-matcher';
+import {customMatchers} from './custom-matchers';
 import CustomMatcherResult = jasmine.CustomMatcherResult;
 
 describe('toContainDifferences', () => {

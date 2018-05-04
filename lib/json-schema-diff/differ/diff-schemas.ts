@@ -1,7 +1,8 @@
+import * as _ from 'lodash';
 import {DiffResult, DiffResultDifference, DiffResultDifferenceType} from '../differ';
-import {JsonSchema} from './diff-schemas/json-schema';
-import {Representation} from './diff-schemas/json-schema-set/set';
-import {parseAsJsonSchemaSet} from './diff-schemas/parse-as-json-schema-set';
+import {JsonSchema} from '../parser/json-set/json-schema';
+import {Representation} from '../parser/json-set/set';
+import {parseAsJsonSet} from '../parser/parse-as-json-set';
 
 const representationsToAddedDifferences = (representations: Representation[]): DiffResultDifference[] =>
     representations.map((representation) => ({
@@ -25,8 +26,8 @@ const representationsToRemovedDifferences = (representations: Representation[]):
 
 export const diffSchemas = (sourceSchema: JsonSchema,
                             destinationSchema: JsonSchema): Promise<DiffResult> => {
-    const sourceSet = parseAsJsonSchemaSet(sourceSchema, 'source');
-    const destinationSet = parseAsJsonSchemaSet(destinationSchema, 'destination');
+    const sourceSet = parseAsJsonSet(sourceSchema, 'source');
+    const destinationSet = parseAsJsonSet(destinationSchema, 'destination');
 
     const intersectionOfSets = sourceSet.intersect(destinationSet);
     const intersectionOfSetsComplement = intersectionOfSets.complement();
@@ -34,10 +35,17 @@ export const diffSchemas = (sourceSchema: JsonSchema,
     const removedFromDestinationSet = intersectionOfSetsComplement.intersect(sourceSet);
 
     const addedRepresentations = addedToDestinationSet.toRepresentations();
-    const addedDifferences = representationsToAddedDifferences(addedRepresentations);
-
     const removedRepresentations = removedFromDestinationSet.toRepresentations();
-    const removedDifferences = representationsToRemovedDifferences(removedRepresentations);
+
+    const identicalRepresentations =
+        _.intersectionWith(addedRepresentations, removedRepresentations, _.isEqual);
+    const uniqueDifferenceAddedRepresentations =
+        _.differenceWith(addedRepresentations,  identicalRepresentations, _.isEqual);
+    const uniqueDifferenceRemovedRepresentations =
+        _.differenceWith(removedRepresentations,  identicalRepresentations, _.isEqual);
+
+    const addedDifferences = representationsToAddedDifferences(uniqueDifferenceAddedRepresentations);
+    const removedDifferences = representationsToRemovedDifferences(uniqueDifferenceRemovedRepresentations);
 
     return Promise.resolve({
         addedByDestinationSchema: addedDifferences.length > 0,

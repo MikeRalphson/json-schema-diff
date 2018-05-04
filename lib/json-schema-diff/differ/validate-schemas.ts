@@ -1,5 +1,5 @@
 import * as Ajv from 'ajv';
-import {jsonSchemaDraft7Schema} from './validate-schemas/json-schema-draft-7-schema';
+import {jsonSchemaDraft7Schema} from './json-schema-draft-7-schema';
 
 interface SuccessfulValidationResult {
     isValid: true;

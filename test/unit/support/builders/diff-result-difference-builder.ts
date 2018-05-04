@@ -20,13 +20,13 @@ export class DiffResultDifferenceBuilder {
             addedByDestinationSchema: true,
             destinationValues: [
                 diffResultDifferenceValueBuilder
-                    .withLocation('default.destination.location')
+                    .withPath('default.destination.location')
                     .withValue('default-destination-value')
             ],
             removedByDestinationSchema: false,
             sourceValues: [
                 diffResultDifferenceValueBuilder
-                    .withLocation('default.source.location')
+                    .withPath('default.source.location')
                     .withValue('default-source-value')
             ],
             type: 'add.type',
