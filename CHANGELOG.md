@@ -1,3 +1,14 @@
+<a name="0.5.0"></a>
+# [0.5.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.4.0...0.5.0) (2018-05-23)
+
+
+### Features
+
+* add support for boolean schemas ([519f648](https://bitbucket.org/atlassian/json-schema-diff/commits/519f648))
+* add support for properties and additionalProperties ([f68a38a](https://bitbucket.org/atlassian/json-schema-diff/commits/f68a38a))
+
+
+
 <a name="0.4.0"></a>
 # [0.4.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.3.0...0.4.0) (2018-05-03)
 

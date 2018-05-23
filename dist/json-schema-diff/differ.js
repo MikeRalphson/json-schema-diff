@@ -14,14 +14,7 @@ class Differ {
     diff(sourceSchema, destinationSchema) {
         return __awaiter(this, void 0, void 0, function* () {
             yield validate_schemas_1.validateSchemas(sourceSchema, destinationSchema);
-            if (typeof sourceSchema !== 'boolean' && typeof destinationSchema !== 'boolean') {
-                return diff_schemas_1.diffSchemas(sourceSchema, destinationSchema);
-            }
-            return Promise.resolve({
-                addedByDestinationSchema: false,
-                differences: [],
-                removedByDestinationSchema: false
-            });
+            return diff_schemas_1.diffSchemas(sourceSchema, destinationSchema);
         });
     }
 }

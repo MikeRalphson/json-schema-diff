@@ -1,7 +1,8 @@
 "use strict";
 // tslint:disable:max-classes-per-file
 Object.defineProperty(exports, "__esModule", { value: true });
-const set_helpers_1 = require("./set-helpers");
+const set_1 = require("../set");
+const is_type_supported_1 = require("./is-type-supported");
 class AllNumberSet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
@@ -22,26 +23,26 @@ class AllNumberSet {
         return otherSet.unionWithAll(this);
     }
     unionWithAll(otherAllSet) {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
-        return new AllNumberSet(mergedSchemaOrigins);
+        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
     }
     unionWithEmpty(otherEmptySet) {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
-        return new AllNumberSet(mergedSchemaOrigins);
+        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
     }
     complement() {
         return new EmptyNumberSet(this.schemaOrigins);
     }
+    withAdditionalOrigins(origins) {
+        return new AllNumberSet(this.schemaOrigins.concat(origins));
+    }
     toRepresentations() {
         return [{
-                destinationValues: set_helpers_1.toDestinationRepresentationValues(this.schemaOrigins),
-                sourceValues: set_helpers_1.toSourceRepresentationValues(this.schemaOrigins),
+                destinationValues: set_1.Set.toDestinationRepresentationValues(this.schemaOrigins),
+                sourceValues: set_1.Set.toSourceRepresentationValues(this.schemaOrigins),
                 type: 'type',
                 value: 'number'
             }];
     }
 }
-exports.AllNumberSet = AllNumberSet;
 class EmptyNumberSet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
@@ -51,29 +52,30 @@ class EmptyNumberSet {
         return otherSet.intersectWithEmpty(this);
     }
     intersectWithAll(otherAllSet) {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
-        return new EmptyNumberSet(mergedSchemaOrigins);
+        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
     }
     intersectWithEmpty(otherEmptySet) {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
-        return new EmptyNumberSet(mergedSchemaOrigins);
+        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
     }
     union(otherSet) {
         return otherSet.unionWithEmpty(this);
     }
     unionWithAll(otherAllSet) {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
-        return new AllNumberSet(mergedSchemaOrigins);
+        return otherAllSet.withAdditionalOrigins(this.schemaOrigins);
     }
     unionWithEmpty(otherEmptySet) {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
-        return new EmptyNumberSet(mergedSchemaOrigins);
+        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
     }
     complement() {
         return new AllNumberSet(this.schemaOrigins);
+    }
+    withAdditionalOrigins(origins) {
+        return new EmptyNumberSet(this.schemaOrigins.concat(origins));
     }
     toRepresentations() {
         return [];
     }
 }
-exports.EmptyNumberSet = EmptyNumberSet;
+exports.createNumberSet = (parsedSchemaKeywords) => is_type_supported_1.isTypeSupported(parsedSchemaKeywords, 'number')
+    ? new AllNumberSet(parsedSchemaKeywords.type.origins)
+    : new EmptyNumberSet(parsedSchemaKeywords.type.origins);
