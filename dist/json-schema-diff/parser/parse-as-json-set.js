@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const util_1 = require("util");
 const json_set_1 = require("./json-set/json-set");
 const create_json_set_1 = require("./json-set/json-subset/create-json-set");
 const set_1 = require("./json-set/set");
@@ -87,11 +88,11 @@ const parseBooleanSchema = (schema, location) => {
             type: location.schemaOriginType,
             value: schema
         }];
-    const schemaValue = schema === undefined ? true : schema;
+    const schemaValue = util_1.isUndefined(schema) ? true : schema;
     return schemaValue ? json_set_1.createAllJsonSet(schemaOrigins) : json_set_1.createEmptyJsonSet(schemaOrigins);
 };
 const parseWithLocation = (schema, location) => {
-    return (typeof schema === 'boolean' || schema === undefined)
+    return (util_1.isBoolean(schema) || util_1.isUndefined(schema))
         ? parseBooleanSchema(schema, location)
         : parseCoreSchemaMetaSchema(schema, location);
 };

@@ -1,3 +1,13 @@
+<a name="0.6.0"></a>
+# [0.6.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.5.0...0.6.0) (2018-05-23)
+
+
+### Features
+
+* add support for json schema references ([76a0457](https://bitbucket.org/atlassian/json-schema-diff/commits/76a0457))
+
+
+
 <a name="0.5.0"></a>
 # [0.5.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.4.0...0.5.0) (2018-05-23)
 
