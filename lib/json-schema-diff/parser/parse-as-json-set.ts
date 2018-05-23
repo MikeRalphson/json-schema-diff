@@ -1,3 +1,4 @@
+import {isBoolean, isUndefined} from 'util';
 import {CoreSchemaMetaSchema, JsonSchema, SimpleTypes} from './json-set/json-schema';
 import {createAllJsonSet, createEmptyJsonSet} from './json-set/json-set';
 import {createJsonSet} from './json-set/json-subset/create-json-set';
@@ -125,13 +126,13 @@ const parseBooleanSchema = (schema: boolean | undefined,
         type: location.schemaOriginType,
         value: schema
     }];
-    const schemaValue = schema === undefined ? true : schema;
+    const schemaValue = isUndefined(schema) ? true : schema;
     return schemaValue ? createAllJsonSet(schemaOrigins) : createEmptyJsonSet(schemaOrigins);
 };
 
 const parseWithLocation = (schema: JsonSchema | undefined,
                            location: SchemaLocation): Set<'json'> => {
-    return (typeof schema === 'boolean' || schema === undefined)
+    return (isBoolean(schema) || isUndefined(schema))
         ? parseBooleanSchema(schema, location)
         : parseCoreSchemaMetaSchema(schema, location);
 };

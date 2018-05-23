@@ -1,4 +1,6 @@
+import RefParser = require('json-schema-ref-parser');
 import * as _ from 'lodash';
+import {isBoolean} from 'util';
 import {DiffResult, DiffResultDifference, DiffResultDifferenceType} from '../differ';
 import {JsonSchema} from '../parser/json-set/json-schema';
 import {Representation} from '../parser/json-set/set';
@@ -24,10 +26,22 @@ const representationsToRemovedDifferences = (representations: Representation[]):
         value: representation.value
     }));
 
-export const diffSchemas = (sourceSchema: JsonSchema,
-                            destinationSchema: JsonSchema): Promise<DiffResult> => {
-    const sourceSet = parseAsJsonSet(sourceSchema, 'source');
-    const destinationSet = parseAsJsonSet(destinationSchema, 'destination');
+export const dereferenceSchema = async (schema: JsonSchema): Promise<JsonSchema> => {
+    const refParser = new RefParser();
+    return isBoolean(schema)
+        ? schema
+        : await refParser.dereference(schema as any) as JsonSchema;
+};
+
+export const diffSchemas = async (sourceSchema: JsonSchema,
+                                  destinationSchema: JsonSchema): Promise<DiffResult> => {
+
+    const [dereferencedSourceSchema, dereferencedDestinationSchema] = await Promise.all([
+        dereferenceSchema(sourceSchema), dereferenceSchema(destinationSchema)
+    ]);
+
+    const sourceSet = parseAsJsonSet(dereferencedSourceSchema, 'source');
+    const destinationSet = parseAsJsonSet(dereferencedDestinationSchema, 'destination');
 
     const intersectionOfSets = sourceSet.intersect(destinationSet);
     const intersectionOfSetsComplement = intersectionOfSets.complement();
@@ -47,9 +61,9 @@ export const diffSchemas = (sourceSchema: JsonSchema,
     const addedDifferences = representationsToAddedDifferences(uniqueDifferenceAddedRepresentations);
     const removedDifferences = representationsToRemovedDifferences(uniqueDifferenceRemovedRepresentations);
 
-    return Promise.resolve({
+    return {
         addedByDestinationSchema: addedDifferences.length > 0,
         differences: addedDifferences.concat(removedDifferences),
         removedByDestinationSchema: removedDifferences.length > 0
-    });
+    };
 };

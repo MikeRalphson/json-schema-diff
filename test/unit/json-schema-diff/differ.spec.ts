@@ -748,4 +748,189 @@ describe('differ', () => {
             ]);
         });
     });
+
+    describe('references', () => {
+        it('should follow references in source schema when detecting differences', async () => {
+            const sourceSchema: JsonSchema = {
+                definitions: {
+                    basic_type: {
+                        type: 'string'
+                    }
+                },
+                properties: {
+                    id: {
+                        $ref: '#/definitions/basic_type'
+                    }
+                },
+                type: 'object'
+            };
+            const destinationSchema: JsonSchema = {
+                properties: {
+                    id: {
+                        type: 'number'
+                    }
+                },
+                type: 'object'
+            };
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const removeDifference = diffResultDifferenceBuilder
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('string')
+                        .withPath('.properties.id.type'))
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('number')
+                        .withPath('.properties.id.type'))
+                .withTypeRemoveType()
+                .withValue('string')
+                .build();
+
+            const addDifference = diffResultDifferenceBuilder
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('string')
+                        .withPath('.properties.id.type'))
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('number')
+                        .withPath('.properties.id.type'))
+                .withTypeAddType()
+                .withValue('number')
+                .build();
+
+            expect(diffResult).toContainDifferences([removeDifference, addDifference]);
+        });
+
+        it('should follow references in destination schema when detecting differences', async () => {
+            const sourceSchema: JsonSchema = {
+                properties: {
+                    id: {
+                        type: 'string'
+                    }
+                },
+                type: 'object'
+            };
+            const destinationSchema: JsonSchema = {
+                definitions: {
+                    basic_type: {
+                        type: 'number'
+                    }
+                },
+                properties: {
+                    id: {
+                        $ref: '#/definitions/basic_type'
+                    }
+                },
+                type: 'object'
+            };
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const removeDifference = diffResultDifferenceBuilder
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('string')
+                        .withPath('.properties.id.type'))
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('number')
+                        .withPath('.properties.id.type'))
+                .withTypeRemoveType()
+                .withValue('string')
+                .build();
+
+            const addDifference = diffResultDifferenceBuilder
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('string')
+                        .withPath('.properties.id.type'))
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('number')
+                        .withPath('.properties.id.type'))
+                .withTypeAddType()
+                .withValue('number')
+                .build();
+
+            expect(diffResult).toContainDifferences([removeDifference, addDifference]);
+        });
+
+        it('should follow nested references', async () => {
+            const sourceSchema: JsonSchema = {
+                definitions: {
+                    basic_object: {
+                        properties: {
+                            content: {
+                                $ref: '#/definitions/basic_type'
+                            }
+                        },
+                        type: 'object'
+                    },
+                    basic_type: {
+                        type: 'string'
+                    }
+                },
+                properties: {
+                    id: {
+                        $ref: '#/definitions/basic_object'
+                    }
+                },
+                type: 'object'
+            };
+            const destinationSchema: JsonSchema = {
+                definitions: {
+                    basic_object: {
+                        properties: {
+                            content: {
+                                $ref: '#/definitions/basic_type'
+                            }
+                        },
+                        type: 'object'
+                    },
+                    basic_type: {
+                        type: 'number'
+                    }
+                },
+                properties: {
+                    id: {
+                        $ref: '#/definitions/basic_object'
+                    }
+                },
+                type: 'object'
+            };
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const removeDifference = diffResultDifferenceBuilder
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('string')
+                        .withPath('.properties.id.properties.content.type'))
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('number')
+                        .withPath('.properties.id.properties.content.type'))
+                .withTypeRemoveType()
+                .withValue('string')
+                .build();
+
+            const addDifference = diffResultDifferenceBuilder
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('string')
+                        .withPath('.properties.id.properties.content.type'))
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('number')
+                        .withPath('.properties.id.properties.content.type'))
+                .withTypeAddType()
+                .withValue('number')
+                .build();
+
+            expect(diffResult).toContainDifferences([removeDifference, addDifference]);
+        });
+    });
 });
