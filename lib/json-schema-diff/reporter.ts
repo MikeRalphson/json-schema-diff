@@ -1,4 +1,4 @@
-import {DiffResultDifference} from './differ';
+import {DiffResultDifference} from '../api-types';
 import {WrappedLog} from './reporter/wrapped-log';
 
 export class Reporter {

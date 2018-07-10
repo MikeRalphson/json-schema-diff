@@ -1,10 +1,12 @@
-import {Differ, DiffResult} from '../../../lib/json-schema-diff/differ';
+import {DiffResult} from '../../../lib/api-types';
 import {JsonSchema} from '../../../lib/json-schema-diff/parser/json-set/json-schema';
 import {expectToFail} from '../../support/expect-to-fail';
+import {createJsonSchemaDiff} from './create-json-schema-diff';
 
 export const invokeDiff = async (sourceSchema: JsonSchema, destinationSchema: JsonSchema): Promise<DiffResult> => {
     try {
-        return await new Differ().diff(sourceSchema, destinationSchema);
+        const jsonSchemaDiff = createJsonSchemaDiff();
+        return await jsonSchemaDiff.diffSchemas({sourceSchema, destinationSchema});
     } catch (error) {
         fail(error.stack);
         throw error;
@@ -13,5 +15,6 @@ export const invokeDiff = async (sourceSchema: JsonSchema, destinationSchema: Js
 
 export const invokeDiffAndExpectToFail = async (sourceSchema: JsonSchema,
                                                 destinationSchema: JsonSchema): Promise<Error> => {
-    return expectToFail(new Differ().diff(sourceSchema, destinationSchema));
+    const jsonSchemaDiff = createJsonSchemaDiff();
+    return expectToFail(jsonSchemaDiff.diffSchemas({sourceSchema, destinationSchema}));
 };

@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {DiffResult, DiffResultDifference, DiffResultDifferenceType} from '../../../../lib/json-schema-diff/differ';
+import {DiffResult, DiffResultDifference, DiffResultDifferenceType} from '../../../../lib/api-types';
 import {doArraysContainSameElements} from './do-arrays-contain-same-elements';
 import {objectWithoutProperties} from './object-without-properties';
 

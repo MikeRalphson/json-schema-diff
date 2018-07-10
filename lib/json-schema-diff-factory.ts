@@ -1,5 +1,4 @@
 import {JsonSchemaDiff} from './json-schema-diff';
-import {Differ} from './json-schema-diff/differ';
 import {FileReader} from './json-schema-diff/file-reader';
 import {FileSystem} from './json-schema-diff/file-reader/file-system';
 import {Reporter} from './json-schema-diff/reporter';
@@ -9,9 +8,8 @@ export class JsonSchemaDiffFactory {
     public static create(): JsonSchemaDiff {
         const fileSystem = new FileSystem();
         const fileReader = new FileReader(fileSystem);
-        const differ = new Differ();
         const wrappedLog = new WrappedLog();
         const reporter = new Reporter(wrappedLog);
-        return new JsonSchemaDiff(fileReader, differ, reporter);
+        return new JsonSchemaDiff(fileReader, reporter);
     }
 }

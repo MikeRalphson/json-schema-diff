@@ -1,7 +1,7 @@
 import RefParser = require('json-schema-ref-parser');
 import * as _ from 'lodash';
 import {isBoolean} from 'util';
-import {DiffResult, DiffResultDifference, DiffResultDifferenceType} from '../differ';
+import {DiffResult, DiffResultDifference, DiffResultDifferenceType} from '../../api-types';
 import {JsonSchema} from '../parser/json-set/json-schema';
 import {Representation} from '../parser/json-set/set';
 import {parseAsJsonSet} from '../parser/parse-as-json-set';

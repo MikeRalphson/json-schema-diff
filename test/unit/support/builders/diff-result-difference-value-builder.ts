@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {DiffResultDifferenceValue} from '../../../../lib/json-schema-diff/differ';
+import {DiffResultDifferenceValue} from '../../../../lib/api-types';
 
 export class DiffResultDifferenceValueBuilder {
     public static create(): DiffResultDifferenceValueBuilder {

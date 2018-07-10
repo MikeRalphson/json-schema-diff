@@ -15,7 +15,7 @@ const invokeJsonSchemaDiff = (sourceSchemaFile: string, destinationSchemaFile: s
     });
 };
 
-describe('json-schema-diff', () => {
+describe('json-schema-diff cli', () => {
     it('should find a difference in type', async () => {
         const error = await expectToFail(
             invokeJsonSchemaDiff(

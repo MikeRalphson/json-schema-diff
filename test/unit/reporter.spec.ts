@@ -1,8 +1,8 @@
-import {Reporter} from '../../../lib/json-schema-diff/reporter';
-import {WrappedLog} from '../../../lib/json-schema-diff/reporter/wrapped-log';
+import {Reporter} from '../../lib/json-schema-diff/reporter';
+import {WrappedLog} from '../../lib/json-schema-diff/reporter/wrapped-log';
 import {
-    diffResultDifferenceBuilder} from '../support/builders/diff-result-difference-builder';
-import {diffResultDifferenceValueBuilder} from '../support/builders/diff-result-difference-value-builder';
+    diffResultDifferenceBuilder} from './support/builders/diff-result-difference-builder';
+import {diffResultDifferenceValueBuilder} from './support/builders/diff-result-difference-value-builder';
 
 describe('reporter', () => {
     let reporter: Reporter;

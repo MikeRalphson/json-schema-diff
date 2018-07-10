@@ -1,27 +1,23 @@
-import {JsonSchemaDiff} from '../../lib/json-schema-diff';
 import {JsonSchema} from '../../lib/json-schema-diff/parser/json-set/json-schema';
 import {expectToFail} from '../support/expect-to-fail';
 import {
     diffResultDifferenceBuilder} from './support/builders/diff-result-difference-builder';
-import {createMockDiffer, MockDiffer} from './support/mocks/mock-differ';
-import {createMockFileReader, MockFileReader} from './support/mocks/mock-file-reader';
+import {diffResultDifferenceValueBuilder} from './support/builders/diff-result-difference-value-builder';
+import {createJsonSchemaDiffWithMocks} from './support/create-json-schema-diff';
+import {createMockFileSystem, MockFileSystem} from './support/mocks/mock-file-system';
 import {createMockReporter, MockReporter} from './support/mocks/mock-reporter';
 
 describe('json-schema-diff', () => {
-    let mockFileReader: MockFileReader;
     let mockReporter: MockReporter;
-    let mockDiffer: MockDiffer;
+    let mockFileSystem: MockFileSystem;
 
     beforeEach(() => {
-        mockFileReader = createMockFileReader();
-        mockFileReader.givenReadReturns(Promise.resolve({default: 'schema'}));
-
+        mockFileSystem = createMockFileSystem();
         mockReporter = createMockReporter();
-        mockDiffer = createMockDiffer();
     });
 
-    const invokeDiffFiles = (sourceSchemaFile: string, destinationSchemaFile: string): Promise<void> => {
-        const jsonSchemaDiff = new JsonSchemaDiff(mockFileReader, mockDiffer, mockReporter);
+    const invokeDiffForLocations = (sourceSchemaFile: string, destinationSchemaFile: string): Promise<void> => {
+        const jsonSchemaDiff = createJsonSchemaDiffWithMocks({mockFileSystem, mockReporter});
         return jsonSchemaDiff.diffFiles(sourceSchemaFile, destinationSchemaFile);
     };
 
@@ -29,19 +25,18 @@ describe('json-schema-diff', () => {
     const defaultDestinationSchemaFileName = 'default-destination-schema-file.json';
 
     const invokeDiffFilesWithSource = (sourceSchemaFile: string): Promise<void> =>
-        invokeDiffFiles(sourceSchemaFile, defaultDestinationSchemaFileName);
+        invokeDiffForLocations(sourceSchemaFile, defaultDestinationSchemaFileName);
 
     const invokeDiffFilesWithDestination = (destinationSchemaFile: string): Promise<void> =>
-        invokeDiffFiles(defaultSourceSchemaFileName, destinationSchemaFile);
+        invokeDiffForLocations(defaultSourceSchemaFileName, destinationSchemaFile);
 
-    const invokeDiffFilesWithSchemas = (sourceSchemaContent: Promise<JsonSchema>,
-                                        destinationSchemaContent: Promise<JsonSchema>): Promise<void> => {
-        mockFileReader.givenReadReturnsFiles({
-            [defaultSourceSchemaFileName]: sourceSchemaContent,
-            [defaultDestinationSchemaFileName]: destinationSchemaContent
+    const invokeDiffFilesWithContents = (sourceSchemaContent: JsonSchema,
+                                         destinationSchemaContent: JsonSchema): Promise<void> => {
+        mockFileSystem.givenReadFileReturnsContents({
+            [defaultSourceSchemaFileName]: Promise.resolve(JSON.stringify(sourceSchemaContent)),
+            [defaultDestinationSchemaFileName]: Promise.resolve(JSON.stringify(destinationSchemaContent))
         });
-
-        return invokeDiffFiles(defaultSourceSchemaFileName, defaultDestinationSchemaFileName);
+        return invokeDiffForLocations(defaultSourceSchemaFileName, defaultDestinationSchemaFileName);
     };
 
     describe('diffFiles', () => {
@@ -50,7 +45,7 @@ describe('json-schema-diff', () => {
 
             await invokeDiffFilesWithSource(sourceSchemaFile);
 
-            expect(mockFileReader.read).toHaveBeenCalledWith(sourceSchemaFile);
+            expect(mockFileSystem.readFile).toHaveBeenCalledWith(sourceSchemaFile);
         });
 
         it('should load the destination schema file', async () => {
@@ -58,91 +53,110 @@ describe('json-schema-diff', () => {
 
             await invokeDiffFilesWithDestination(destinationSchemaFile);
 
-            expect(mockFileReader.read).toHaveBeenCalledWith(destinationSchemaFile);
+            expect(mockFileSystem.readFile).toHaveBeenCalledWith(destinationSchemaFile);
         });
 
         it('should report an error when loading the source schema file fails', async () => {
-            const sourceSchema = Promise.reject(new Error('an error'));
-            const destinationSchema = Promise.resolve({});
+            mockFileSystem.givenReadFileReturnsError(new Error('an error'));
 
-            await expectToFail(invokeDiffFilesWithSchemas(sourceSchema, destinationSchema));
+            await expectToFail(invokeDiffFilesWithSource('source-schema'));
 
-            expect(mockReporter.reportError).toHaveBeenCalledWith(new Error('an error'));
+            expect(mockReporter.reportError)
+                .toHaveBeenCalledWith(new Error('Error loading "source-schema": an error'));
         });
 
         it('should report an error when loading the destination schema file fails', async () => {
-            const sourceSchema = Promise.resolve({});
-            const destinationSchema = Promise.reject(new Error('an error'));
+            mockFileSystem.givenReadFileReturnsContents({
+                [defaultSourceSchemaFileName]: Promise.resolve('{}'),
+                ['destination-schema']: Promise.reject(new Error('an error'))
+            });
 
-            await expectToFail(invokeDiffFilesWithSchemas(sourceSchema, destinationSchema));
+            await expectToFail(invokeDiffFilesWithDestination('destination-schema'));
 
-            expect(mockReporter.reportError).toHaveBeenCalledWith(new Error('an error'));
+            expect(mockReporter.reportError)
+                .toHaveBeenCalledWith(new Error('Error loading "destination-schema": an error'));
         });
 
-        it('should diff the source and destination schemas', async () => {
-            const sourceSchema = Promise.resolve<JsonSchema>({type: 'string'});
-            const destinationSchema = Promise.resolve<JsonSchema>({type: 'object'});
+        it('should return the error when the source file is not in json format', async () => {
+            mockFileSystem.givenReadFileReturnsContents({
+                ['source.json']: Promise.resolve('{not json}'),
+                [defaultDestinationSchemaFileName]: Promise.resolve('{}')
+            });
 
-            await invokeDiffFilesWithSchemas(sourceSchema, destinationSchema);
+            await expectToFail(invokeDiffFilesWithSource('source.json'));
 
-            expect(mockDiffer.diff).toHaveBeenCalledWith({type: 'string'}, {type: 'object'});
+            expect(mockReporter.reportError)
+                .toHaveBeenCalledWith(
+                    new Error('Error parsing "source.json": Unexpected token n in JSON at position 1')
+                );
         });
 
-        it('should report an error when differ has an unexpected error', async () => {
-            const sourceSchema = Promise.resolve<JsonSchema>({type: 'string'});
-            const destinationSchema = Promise.resolve<JsonSchema>({type: 'object'});
-            mockDiffer.givenDiffReturnsError(new Error('Unexpected error diffing'));
+        it('should return the error when the destination file is not in json format', async () => {
+            mockFileSystem.givenReadFileReturnsContents({
+                [defaultSourceSchemaFileName]: Promise.resolve('{}'),
+                ['destination.json']: Promise.resolve('{not json}')
+            });
 
-            await expectToFail(invokeDiffFilesWithSchemas(sourceSchema, destinationSchema));
+            await expectToFail(invokeDiffFilesWithDestination('destination.json'));
 
-            expect(mockReporter.reportError).toHaveBeenCalledWith(new Error('Unexpected error diffing'));
+            expect(mockReporter.reportError)
+                .toHaveBeenCalledWith(
+                    new Error('Error parsing "destination.json": Unexpected token n in JSON at position 1')
+                );
         });
 
         it('should report no differences when none are found', async () => {
-            const sourceSchema = Promise.resolve<JsonSchema>({type: 'string'});
-            const destinationSchema = Promise.resolve<JsonSchema>({type: 'string'});
-            mockDiffer.givenDiffReturnsNoDifferencesFoundResult();
+            const aSchema: JsonSchema = {type: 'object'};
 
-            await invokeDiffFilesWithSchemas(sourceSchema, destinationSchema);
+            await invokeDiffFilesWithContents(aSchema, aSchema);
 
             expect(mockReporter.reportNoDifferencesFound).toHaveBeenCalled();
             expect(mockReporter.reportSuccessWithDifferences).not.toHaveBeenCalled();
         });
 
-        it('should report compatible differences when an addition is found', async () => {
-            const sourceSchema = Promise.resolve<JsonSchema>({type: 'string'});
-            const destinationSchema = Promise.resolve<JsonSchema>({type: ['string', 'number']});
+        it('should not fail and report compatible differences when an addition is found', async () => {
+            const sourceSchema: JsonSchema = {type: 'object'};
+            const destinationSchema: JsonSchema = {type: ['string', 'object']};
 
-            const addTypeDifferenceBuilder = diffResultDifferenceBuilder.withTypeAddType();
-
-            mockDiffer.givenDiffReturnsResult({
-                addedByDestinationSchema: true,
-                differences: [addTypeDifferenceBuilder.build()],
-                removedByDestinationSchema: false
-            });
-
-            await invokeDiffFilesWithSchemas(sourceSchema, destinationSchema);
+            await invokeDiffFilesWithContents(sourceSchema, destinationSchema);
 
             expect(mockReporter.reportNoDifferencesFound).not.toHaveBeenCalled();
-            expect(mockReporter.reportSuccessWithDifferences).toHaveBeenCalledWith([addTypeDifferenceBuilder.build()]);
+            expect(mockReporter.reportSuccessWithDifferences).toHaveBeenCalledWith([
+                diffResultDifferenceBuilder
+                    .withSourceValue(
+                        diffResultDifferenceValueBuilder
+                            .withPath('.type')
+                            .withValue('object'))
+                    .withDestinationValue(
+                        diffResultDifferenceValueBuilder
+                            .withPath('.type')
+                            .withValue(['string', 'object'])
+                    )
+                    .withValue('string')
+                    .withTypeAddType().build()
+            ]);
         });
 
-        it('should report incompatible differences when a removal is found', async () => {
-            const sourceSchema = Promise.resolve<JsonSchema>({type: ['string', 'boolean']});
-            const destinationSchema = Promise.resolve<JsonSchema>({type: 'string'});
+        it('should fail and report incompatible differences when a removal is found', async () => {
+            const sourceSchema: JsonSchema = {type: ['string', 'object']};
+            const destinationSchema: JsonSchema = {type: 'object'};
 
-            const removeTypeDifferenceBuilder = diffResultDifferenceBuilder.withTypeRemoveType();
-
-            mockDiffer.givenDiffReturnsResult({
-                addedByDestinationSchema: false,
-                differences: [removeTypeDifferenceBuilder.build()],
-                removedByDestinationSchema: true
-            });
-
-            await expectToFail(invokeDiffFilesWithSchemas(sourceSchema, destinationSchema));
+            await expectToFail(invokeDiffFilesWithContents(sourceSchema, destinationSchema));
 
             expect(mockReporter.reportFailureWithDifferences).toHaveBeenCalledWith([
-                removeTypeDifferenceBuilder.build()
+                diffResultDifferenceBuilder
+                    .withTypeRemoveType()
+                    .withDestinationValue(
+                        diffResultDifferenceValueBuilder
+                            .withPath('.type')
+                            .withValue('object'))
+                    .withSourceValue(
+                        diffResultDifferenceValueBuilder
+                            .withPath('.type')
+                            .withValue(['string', 'object'])
+                    )
+                    .withValue('string')
+                    .build()
             ]);
         });
     });

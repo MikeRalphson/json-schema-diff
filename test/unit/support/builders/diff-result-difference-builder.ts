@@ -1,8 +1,8 @@
 import * as _ from 'lodash';
-import {DiffResultDifference, DiffResultDifferenceType} from '../../../../lib/json-schema-diff/differ';
+import {DiffResultDifference, DiffResultDifferenceType} from '../../../../lib/api-types';
 import {
-diffResultDifferenceValueBuilder,
-DiffResultDifferenceValueBuilder
+    diffResultDifferenceValueBuilder,
+    DiffResultDifferenceValueBuilder
 } from './diff-result-difference-value-builder';
 
 interface DiffResultDifferenceBuilderState {

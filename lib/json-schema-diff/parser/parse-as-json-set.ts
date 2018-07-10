@@ -24,45 +24,6 @@ const toSimpleTypeArray = (type?: SimpleTypes | SimpleTypes[]): SimpleTypes[] =>
     return type;
 };
 
-const parseAllOf = (allOfSchemas: JsonSchema[],
-                    location: SchemaLocation,
-                    initialJsonSet: Set<'json'>): Set<'json'> => {
-    let jsonSetResult = initialJsonSet;
-
-    for (let i = 0; i < allOfSchemas.length; i += 1) {
-        const allOfLocation = location.child(`allOf[${i}]`);
-        const currentJsonSet = parseWithLocation(allOfSchemas[i], allOfLocation);
-        jsonSetResult = jsonSetResult.intersect(currentJsonSet);
-    }
-
-    return jsonSetResult;
-};
-
-const parseAnyOf = (anyOfSchemas: JsonSchema[],
-                    location: SchemaLocation,
-                    initialJsonSet: Set<'json'>): Set<'json'> => {
-
-    let jsonSetResult = parseWithLocation(anyOfSchemas[0], location.child('anyOf[0]'));
-
-    for (let i = 1; i < anyOfSchemas.length; i += 1) {
-        const currentJsonSet = parseWithLocation(anyOfSchemas[i], location.child(`anyOf[${i}]`));
-        jsonSetResult = jsonSetResult.union(currentJsonSet);
-    }
-
-    jsonSetResult = jsonSetResult.intersect(initialJsonSet);
-
-    return jsonSetResult;
-};
-
-const parseNot = (notSchema: JsonSchema,
-                  location: SchemaLocation,
-                  initialJsonSet: Set<'json'>): Set<'json'> => {
-    const notLocation = location.child('not');
-    const parsedNotJsonSet = parseWithLocation(notSchema, notLocation);
-    const complementedNotJsonSet = parsedNotJsonSet.complement();
-    return complementedNotJsonSet.intersect(initialJsonSet);
-};
-
 const parseSchemaProperties = (schema: CoreSchemaMetaSchema,
                                location: SchemaLocation): ParsedPropertiesKeyword => {
     const objectSetProperties: ParsedPropertiesKeyword = {};
@@ -106,17 +67,7 @@ const parseSubsets = (schema: CoreSchemaMetaSchema,
 
 const parseCoreSchemaMetaSchema = (schema: CoreSchemaMetaSchema,
                                    location: SchemaLocation): Set<'json'> => {
-    let jsonSet = parseSubsets(schema, location);
-    if (schema.allOf) {
-        jsonSet = parseAllOf(schema.allOf, location, jsonSet);
-    }
-    if (schema.anyOf) {
-        jsonSet = parseAnyOf(schema.anyOf, location, jsonSet);
-    }
-    if (schema.not) {
-        jsonSet = parseNot(schema.not, location, jsonSet);
-    }
-    return jsonSet;
+    return parseSubsets(schema, location);
 };
 
 const parseBooleanSchema = (schema: boolean | undefined,

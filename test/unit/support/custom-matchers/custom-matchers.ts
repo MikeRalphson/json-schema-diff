@@ -1,4 +1,4 @@
-import {DiffResultDifference} from '../../../../lib/json-schema-diff/differ';
+import {DiffResultDifference} from '../../../../lib/api-types';
 import {Representation} from '../../../../lib/json-schema-diff/parser/json-set/set';
 import {compare as toContainDifferencesCompare} from './diff-custom-matcher';
 import {compare as toContainRepresentationsCompare} from './representations-custom-matcher';
