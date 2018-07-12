@@ -16,8 +16,7 @@ class FileReader {
     read(filePath) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const file = yield this.fileSystem.readFile(filePath);
-                return JSON.parse(file);
+                return yield this.fileSystem.readFile(filePath);
             }
             catch (error) {
                 throw new verror_1.VError(error, '%s', `Error loading "${filePath}"`);

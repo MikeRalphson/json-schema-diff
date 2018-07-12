@@ -14,30 +14,6 @@ const toSimpleTypeArray = (type) => {
     }
     return type;
 };
-const parseAllOf = (allOfSchemas, location, initialJsonSet) => {
-    let jsonSetResult = initialJsonSet;
-    for (let i = 0; i < allOfSchemas.length; i += 1) {
-        const allOfLocation = location.child(`allOf[${i}]`);
-        const currentJsonSet = parseWithLocation(allOfSchemas[i], allOfLocation);
-        jsonSetResult = jsonSetResult.intersect(currentJsonSet);
-    }
-    return jsonSetResult;
-};
-const parseAnyOf = (anyOfSchemas, location, initialJsonSet) => {
-    let jsonSetResult = parseWithLocation(anyOfSchemas[0], location.child('anyOf[0]'));
-    for (let i = 1; i < anyOfSchemas.length; i += 1) {
-        const currentJsonSet = parseWithLocation(anyOfSchemas[i], location.child(`anyOf[${i}]`));
-        jsonSetResult = jsonSetResult.union(currentJsonSet);
-    }
-    jsonSetResult = jsonSetResult.intersect(initialJsonSet);
-    return jsonSetResult;
-};
-const parseNot = (notSchema, location, initialJsonSet) => {
-    const notLocation = location.child('not');
-    const parsedNotJsonSet = parseWithLocation(notSchema, notLocation);
-    const complementedNotJsonSet = parsedNotJsonSet.complement();
-    return complementedNotJsonSet.intersect(initialJsonSet);
-};
 const parseSchemaProperties = (schema, location) => {
     const objectSetProperties = {};
     if (schema.properties) {
@@ -70,17 +46,7 @@ const parseSubsets = (schema, location) => {
     return create_json_set_1.createJsonSet(parsedSchemaKeywords);
 };
 const parseCoreSchemaMetaSchema = (schema, location) => {
-    let jsonSet = parseSubsets(schema, location);
-    if (schema.allOf) {
-        jsonSet = parseAllOf(schema.allOf, location, jsonSet);
-    }
-    if (schema.anyOf) {
-        jsonSet = parseAnyOf(schema.anyOf, location, jsonSet);
-    }
-    if (schema.not) {
-        jsonSet = parseNot(schema.not, location, jsonSet);
-    }
-    return jsonSet;
+    return parseSubsets(schema, location);
 };
 const parseBooleanSchema = (schema, location) => {
     const schemaOrigins = [{

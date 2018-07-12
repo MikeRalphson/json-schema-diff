@@ -8,11 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const verror_1 = require("verror");
+const differ_1 = require("./json-schema-diff/differ");
 class JsonSchemaDiff {
-    constructor(fileReader, differ, reporter) {
+    constructor(fileReader, reporter) {
         this.fileReader = fileReader;
-        this.differ = differ;
         this.reporter = reporter;
+    }
+    static parseSchema(schemaContent, schemaFilePath) {
+        try {
+            return JSON.parse(schemaContent);
+        }
+        catch (error) {
+            throw new verror_1.VError(error, '%s', `Error parsing "${schemaFilePath}"`);
+        }
     }
     static containsBreakingChanges(diffResult) {
         return diffResult.removedByDestinationSchema;
@@ -21,7 +30,7 @@ class JsonSchemaDiff {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { sourceSchema, destinationSchema } = yield this.loadSchemas(sourceSchemaFile, destinationSchemaFile);
-                const diffResult = yield this.differ.diff(sourceSchema, destinationSchema);
+                const diffResult = yield this.diffSchemas({ sourceSchema, destinationSchema });
                 this.reportDiffResult(diffResult);
                 if (JsonSchemaDiff.containsBreakingChanges(diffResult)) {
                     return Promise.reject(new Error('Breaking changes detected'));
@@ -31,6 +40,11 @@ class JsonSchemaDiff {
                 this.reporter.reportError(error);
                 return Promise.reject(error);
             }
+        });
+    }
+    diffSchemas(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return differ_1.Differ.diff(options.sourceSchema, options.destinationSchema);
         });
     }
     reportDiffResult(diffResult) {
@@ -48,7 +62,9 @@ class JsonSchemaDiff {
         return __awaiter(this, void 0, void 0, function* () {
             const whenSourceSchema = this.fileReader.read(sourceSchemaFile);
             const whenDestinationSchema = this.fileReader.read(destinationSchemaFile);
-            const [sourceSchema, destinationSchema] = yield Promise.all([whenSourceSchema, whenDestinationSchema]);
+            const [sourceSchemaJson, destinationSchemaJson] = yield Promise.all([whenSourceSchema, whenDestinationSchema]);
+            const sourceSchema = JsonSchemaDiff.parseSchema(sourceSchemaJson, sourceSchemaFile);
+            const destinationSchema = JsonSchemaDiff.parseSchema(destinationSchemaJson, destinationSchemaFile);
             return { sourceSchema, destinationSchema };
         });
     }

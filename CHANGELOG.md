@@ -1,3 +1,13 @@
+<a name="0.7.0"></a>
+# [0.7.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.6.0...0.7.0) (2018-07-12)
+
+
+### Features
+
+* added public programmable api and removed support for allOf, anyOf and not keywords ([0c15017](https://bitbucket.org/atlassian/json-schema-diff/commits/0c15017))
+
+
+
 <a name="0.6.0"></a>
 # [0.6.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.5.0...0.6.0) (2018-05-23)
 
