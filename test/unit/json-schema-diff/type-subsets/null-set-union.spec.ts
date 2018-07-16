@@ -28,14 +28,14 @@ describe('null-set', () => {
             it('should merge schema origins when empty and empty null sets are unioned', () => {
                 const emptyNullSetSource = createEmptyNullSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('string')
                 ]).build();
 
                 const emptyNullSetDestination = createEmptyNullSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
                 ]).build();
@@ -43,7 +43,7 @@ describe('null-set', () => {
                 const complementOfUnion = emptyNullSetSource.union(emptyNullSetDestination).complement();
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('string');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -74,14 +74,14 @@ describe('null-set', () => {
             it('should merge schema origins when all and all null sets are unioned', () => {
                 const allNullSetSource = createAllNullSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('null')
                 ]).build();
 
                 const allNullSetDestination = createAllNullSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('null')
                 ]).build();
@@ -89,7 +89,7 @@ describe('null-set', () => {
                 const resultNullSet = allNullSetSource.union(allNullSetDestination);
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('null');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -120,14 +120,14 @@ describe('null-set', () => {
             it('should merge schema origins when empty and all null sets are unioned', () => {
                 const emptyNullSetSource = createEmptyNullSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('string')
                 ]).build();
 
                 const allNullSetDestination = createAllNullSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('null')
                 ]).build();
@@ -136,10 +136,10 @@ describe('null-set', () => {
 
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('null'))
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string'))
                     .withValue('null')
                     .build();

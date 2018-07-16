@@ -1,10 +1,11 @@
 import * as _ from 'lodash';
+import {Path} from '../../../api-types';
 import {SimpleTypes} from './json-schema';
 
 export type RepresentationType = 'type';
 
 export interface RepresentationValue {
-    path: string;
+    path: Path;
     value: any;
 }
 
@@ -18,7 +19,7 @@ export interface Representation {
 export type SchemaOriginType = 'source' | 'destination';
 
 export interface SchemaOrigin {
-    path: string;
+    path: Path;
     type: SchemaOriginType;
     value: any;
 }

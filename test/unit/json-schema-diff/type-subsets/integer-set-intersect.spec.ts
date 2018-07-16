@@ -31,14 +31,14 @@ describe('integer-set', () => {
             it('should merge schema origins when empty and empty integer sets are intersected', () => {
                 const emptyIntegerSetSource = createEmptyIntegerSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('string')
                 ]).build();
 
                 const emptyIntegerSetDestination = createEmptyIntegerSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
                 ]).build();
@@ -47,7 +47,7 @@ describe('integer-set', () => {
                     .intersect(emptyIntegerSetDestination).complement();
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('string');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -78,14 +78,14 @@ describe('integer-set', () => {
             it('should merge schema origins when all and all integer sets are intersected', () => {
                 const allIntegerSetSource = createAllIntegerSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('integer')
                 ]).build();
 
                 const allIntegerSetDestination = createAllIntegerSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('integer')
                 ]).build();
@@ -93,7 +93,7 @@ describe('integer-set', () => {
                 const resultIntegerSet = allIntegerSetSource.intersect(allIntegerSetDestination);
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('integer');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -119,14 +119,14 @@ describe('integer-set', () => {
             it('should merge schema origins when empty and all integer sets are intersected', () => {
                 const emptyIntegerSetSource = createEmptyIntegerSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('string')
                 ]).build();
 
                 const allIntegerSetDestination = createAllIntegerSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('integer')
                 ]).build();
@@ -135,10 +135,10 @@ describe('integer-set', () => {
 
                 const expectedRepresentation = representationBuilder
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string'))
                     .withDestinationValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('integer'))
                     .withValue('integer')
                     .build();

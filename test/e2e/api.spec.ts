@@ -40,12 +40,12 @@ describe('api', () => {
                 differences: [{
                     addedByDestinationSchema: jasmine.any(Boolean),
                     destinationValues: [{
-                        path: jasmine.any(String),
+                        path: jasmine.any(Array),
                         value: jasmine.anything()
                     }],
                     removedByDestinationSchema: jasmine.any(Boolean),
                     sourceValues: [{
-                        path: jasmine.any(String),
+                        path: jasmine.any(Array),
                         value: jasmine.anything()
                     }],
                     type: jasmine.any(String),

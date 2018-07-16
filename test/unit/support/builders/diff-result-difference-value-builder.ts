@@ -1,22 +1,22 @@
 import * as _ from 'lodash';
-import {DiffResultDifferenceValue} from '../../../../lib/api-types';
+import {DiffResultDifferenceValue, Path} from '../../../../lib/api-types';
 
 export class DiffResultDifferenceValueBuilder {
     public static create(): DiffResultDifferenceValueBuilder {
-        return new DiffResultDifferenceValueBuilder('default.path', 'default-value');
+        return new DiffResultDifferenceValueBuilder(['default', 'path'], 'default-value');
     }
 
-    private constructor(private readonly path: string, private readonly value: any) {}
+    private constructor(private readonly path: Path, private readonly value: any) {}
 
     public build(): DiffResultDifferenceValue {
         return {
-            path: this.path,
+            path: [...this.path],
             value: _.cloneDeep(this.value)
         };
     }
 
-    public withPath(newLocation: string): DiffResultDifferenceValueBuilder {
-        return new DiffResultDifferenceValueBuilder(newLocation, this.value);
+    public withPath(newLocation: Path): DiffResultDifferenceValueBuilder {
+        return new DiffResultDifferenceValueBuilder([...newLocation], this.value);
     }
 
     public withValue(newValue: any): DiffResultDifferenceValueBuilder {

@@ -1,19 +1,20 @@
 import * as _ from 'lodash';
+import { Path } from '../../../../../lib/api-types';
 import {SchemaOrigin, SchemaOriginType} from '../../../../../lib/json-schema-diff/parser/json-set/set';
 
 export class SchemaOriginBuilder {
     public static defaultSchemaOriginBuilder(): SchemaOriginBuilder {
-        return new SchemaOriginBuilder('.properties.default-path', 'devault-value', 'source');
+        return new SchemaOriginBuilder(['properties', 'default-path'], 'devault-value', 'source');
     }
 
     private constructor(
-        private readonly path: string,
+        private readonly path: Path,
         private readonly value: any,
         private readonly type: SchemaOriginType
     ) {}
 
-    public withPath(path: string): SchemaOriginBuilder {
-        return new SchemaOriginBuilder(path, this.value, this.type);
+    public withPath(path: Path): SchemaOriginBuilder {
+        return new SchemaOriginBuilder([...path], this.value, this.type);
     }
 
     public withValue(value: any): SchemaOriginBuilder {
@@ -26,7 +27,7 @@ export class SchemaOriginBuilder {
 
     public build(): SchemaOrigin {
         return {
-            path: this.path,
+            path: [...this.path],
             type: this.type,
             value: _.cloneDeep(this.value)
         };

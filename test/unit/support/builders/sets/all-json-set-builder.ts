@@ -19,4 +19,4 @@ export class AllJsonSetBuilder {
 }
 
 export const allJsonSetBuilder = AllJsonSetBuilder.defaultAllJsonSetBuilder()
-    .withOrigins([schemaOriginBuilder.withType('source').withPath('').withValue(true)]);
+    .withOrigins([schemaOriginBuilder.withType('source').withPath([]).withValue(true)]);

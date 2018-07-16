@@ -44,7 +44,7 @@ describe('object-set', () => {
                                     .withParsedValue(['string'])
                                     .withOrigins([
                                         schemaOriginBuilder
-                                            .withPath('.type')
+                                            .withPath(['type'])
                                             .withType('source')
                                             .withValue('string')
                                     ])))
@@ -58,7 +58,7 @@ describe('object-set', () => {
                                     .withParsedValue(['string'])
                                     .withOrigins([
                                         schemaOriginBuilder
-                                            .withPath('.type')
+                                            .withPath(['type'])
                                             .withType('destination')
                                             .withValue('string')
                                     ])))
@@ -67,7 +67,7 @@ describe('object-set', () => {
                 const complementOfIntersection = emptyObjectSetSource.intersect(emptyObjectSetDestination).complement();
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('string');
 
                 const expectedRepresentation = representationBuilder
@@ -84,7 +84,7 @@ describe('object-set', () => {
                     emptyJsonSetBuilder
                         .withOrigins([
                             schemaOriginBuilder
-                                .withPath('.additionalProperties')
+                                .withPath(['additionalProperties'])
                                 .withType(type)
                                 .withValue(false)]);
 
@@ -95,7 +95,7 @@ describe('object-set', () => {
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([
                                     schemaOriginBuilder
-                                        .withPath('.type')
+                                        .withPath(['type'])
                                         .withType('source')
                                         .withValue(['string'])
                                 ])))
@@ -108,7 +108,7 @@ describe('object-set', () => {
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([
                                     schemaOriginBuilder
-                                        .withPath('.type')
+                                        .withPath(['type'])
                                         .withType('destination')
                                         .withValue(['string'])])))
                     .build();
@@ -119,11 +119,11 @@ describe('object-set', () => {
                     representationBuilder
                         .withDestinationValue(
                             representationValueBuilder
-                                .withPath('.type')
+                                .withPath(['type'])
                                 .withValue(['string']))
                         .withSourceValue(
                             representationValueBuilder
-                                .withPath('.type')
+                                .withPath(['type'])
                                 .withValue(['string']))
                         .withValue('object')
                         .build()
@@ -139,13 +139,13 @@ describe('object-set', () => {
                             .withAdditionalProperties(allJsonSetBuilder
                                 .withOrigins([
                                     schemaOriginBuilder
-                                        .withPath('.additionalProperties')
+                                        .withPath(['additionalProperties'])
                                         .withType('source')
                                         .withValue(true)
                                 ]))
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.type')
+                                    .withPath(['type'])
                                     .withType('source')
                                     .withValue('object')])
                                 .withParsedValue(['object']))
@@ -157,13 +157,13 @@ describe('object-set', () => {
                             .withAdditionalProperties(allJsonSetBuilder
                                 .withOrigins([
                                     schemaOriginBuilder
-                                        .withPath('.additionalProperties')
+                                        .withPath(['additionalProperties'])
                                         .withType('destination')
                                         .withValue(undefined)
                                 ]))
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.type')
+                                    .withPath(['type'])
                                     .withType('destination')
                                     .withValue('object')])
                                 .withParsedValue(['object']))
@@ -175,17 +175,17 @@ describe('object-set', () => {
                     .withSourceValues([
                         representationValueBuilder
                             .withValue(true)
-                            .withPath('.additionalProperties'),
+                            .withPath(['additionalProperties']),
                         representationValueBuilder
                             .withValue('object')
-                            .withPath('.type')])
+                            .withPath(['type'])])
                     .withDestinationValues([
                         representationValueBuilder
                             .withValue(undefined)
-                            .withPath('.additionalProperties'),
+                            .withPath(['additionalProperties']),
                         representationValueBuilder
                             .withValue('object')
-                            .withPath('.type')])
+                            .withPath(['type'])])
                     .withValue('object')
                     .build();
                 expect(result.toRepresentations()).toContainRepresentations([representation]);
@@ -209,7 +209,7 @@ describe('object-set', () => {
                         parsedSchemaKeywordsBuilder
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.type')
+                                    .withPath(['type'])
                                     .withType('source')
                                     .withValue('string')])
                                 .withParsedValue(['string']))
@@ -221,13 +221,13 @@ describe('object-set', () => {
                             .withAdditionalProperties(allJsonSetBuilder
                                 .withOrigins([
                                     schemaOriginBuilder
-                                        .withPath('.additionalProperties')
+                                        .withPath(['additionalProperties'])
                                         .withType('destination')
                                         .withValue(undefined)
                                 ]))
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.type')
+                                    .withPath(['type'])
                                     .withType('destination')
                                     .withValue('object')])
                                 .withParsedValue(['object']))
@@ -237,10 +237,10 @@ describe('object-set', () => {
                 const complementOfResult = resultObjectSet.complement();
 
                 const expectedRepresentation = representationBuilder
-                    .withSourceValue(representationValueBuilder.withPath('.type').withValue('string'))
+                    .withSourceValue(representationValueBuilder.withPath(['type']).withValue('string'))
                     .withDestinationValues([
-                        representationValueBuilder.withPath('.type').withValue('object'),
-                        representationValueBuilder.withPath('.additionalProperties').withValue(undefined)
+                        representationValueBuilder.withPath(['type']).withValue('object'),
+                        representationValueBuilder.withPath(['additionalProperties']).withValue(undefined)
                     ])
                     .withValue('object')
                     .build();
@@ -279,7 +279,7 @@ describe('object-set', () => {
                         parsedSchemaKeywordsBuilder
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.type')
+                                    .withPath(['type'])
                                     .withType('source')
                                     .withValue('string')])
                                 .withParsedValue(['string']))
@@ -291,7 +291,7 @@ describe('object-set', () => {
                             .withAdditionalProperties(emptyJsonSetBuilder.withOrigins([]))
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.type')
+                                    .withPath(['type'])
                                     .withType('destination')
                                     .withValue('object')])
                                 .withParsedValue(['object']))
@@ -301,8 +301,8 @@ describe('object-set', () => {
                 const complementOfResult = resultObjectSet.complement();
 
                 const expectedRepresentation = representationBuilder
-                    .withSourceValue(representationValueBuilder.withPath('.type').withValue('string'))
-                    .withDestinationValue(representationValueBuilder.withPath('.type').withValue('object'))
+                    .withSourceValue(representationValueBuilder.withPath(['type']).withValue('string'))
+                    .withDestinationValue(representationValueBuilder.withPath(['type']).withValue('object'))
                     .withValue('object')
                     .build();
                 expect(complementOfResult.toRepresentations()).toEqual([expectedRepresentation]);
@@ -326,7 +326,7 @@ describe('object-set', () => {
                                 name: emptyJsonSetBuilder
                                     .withOrigins([
                                         schemaOriginBuilder
-                                            .withPath('.properties.name')
+                                            .withPath(['properties', 'name'])
                                             .withType('destination')
                                             .withValue(false)
                                     ])
@@ -343,7 +343,7 @@ describe('object-set', () => {
                         .withSourceValues([])
                         .withDestinationValue(
                             representationValueBuilder
-                                .withPath('.properties.name')
+                                .withPath(['properties', 'name'])
                                 .withValue(false)
                         )
                         .withValue('object')
@@ -367,7 +367,7 @@ describe('object-set', () => {
                                 .withOrigins([
                                     schemaOriginBuilder
                                         .withType('destination')
-                                        .withPath('.additionalProperties')
+                                        .withPath(['additionalProperties'])
                                         .withValue(true)]))
                             .withProperties({
                                 name: emptyJsonSetBuilder
@@ -385,7 +385,7 @@ describe('object-set', () => {
                         .withSourceValues([])
                         .withDestinationValue(
                             representationValueBuilder
-                                .withPath('.additionalProperties')
+                                .withPath(['additionalProperties'])
                                 .withValue(true))
                         .withValue('object')
                         .build()
@@ -412,12 +412,12 @@ describe('object-set', () => {
                         parsedSchemaKeywordsBuilder
                             .withAdditionalProperties(allJsonSetBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.additionalProperties')
+                                    .withPath(['additionalProperties'])
                                     .withValue(true)
                                     .withType('source')]))
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.type')
+                                    .withPath(['type'])
                                     .withValue('object')
                                     .withType('source')])
                                 .withParsedValue(['object']))
@@ -434,7 +434,7 @@ describe('object-set', () => {
                             })
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.type')
+                                    .withPath(['type'])
                                     .withValue('object')
                                     .withType('destination')])
                                 .withParsedValue(['object']))
@@ -444,10 +444,10 @@ describe('object-set', () => {
 
                 const expectedSourceValues = [
                     representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('object'),
                     representationValueBuilder
-                        .withPath('.additionalProperties')
+                        .withPath(['additionalProperties'])
                         .withValue(true)
                 ];
 
@@ -460,7 +460,7 @@ describe('object-set', () => {
                     .withDestinationValue(
                         representationValueBuilder
                             .withValue('object')
-                            .withPath('.type')
+                            .withPath(['type'])
                     )
                     .withValue('object')
                     .build();
@@ -483,12 +483,12 @@ describe('object-set', () => {
                         parsedSchemaKeywordsBuilder
                             .withAdditionalProperties(allJsonSetBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.additionalProperties')
+                                    .withPath(['additionalProperties'])
                                     .withValue(true)
                                     .withType('source')]))
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.type')
+                                    .withPath(['type'])
                                     .withValue('object')
                                     .withType('source')])
                                 .withParsedValue(['object']))
@@ -502,7 +502,7 @@ describe('object-set', () => {
                             .withProperties({
                                 name: allJsonSetBuilder
                                     .withOrigins([schemaOriginBuilder
-                                        .withPath('.properties.name')
+                                        .withPath(['properties', 'name'])
                                         .withValue(true)
                                         .withType('destination')])
                             })
@@ -515,10 +515,10 @@ describe('object-set', () => {
 
                 const expectedSourceValues = [
                     representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('object'),
                     representationValueBuilder
-                        .withPath('.additionalProperties')
+                        .withPath(['additionalProperties'])
                         .withValue(true)
                 ];
 
@@ -526,7 +526,7 @@ describe('object-set', () => {
                     .withSourceValues(expectedSourceValues)
                     .withDestinationValues([
                         representationValueBuilder
-                            .withPath('.properties.name')
+                            .withPath(['properties', 'name'])
                             .withValue(true)
                     ]);
 
@@ -553,12 +553,12 @@ describe('object-set', () => {
                         parsedSchemaKeywordsBuilder
                             .withAdditionalProperties(allJsonSetBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.additionalProperties')
+                                    .withPath(['additionalProperties'])
                                     .withValue(undefined)
                                     .withType('source')]))
                             .withType(parsedTypeKeywordBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.type')
+                                    .withPath(['type'])
                                     .withValue('object')
                                     .withType('source')])
                                 .withParsedValue(['object']))
@@ -569,7 +569,7 @@ describe('object-set', () => {
                         parsedSchemaKeywordsBuilder
                             .withAdditionalProperties(allJsonSetBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.additionalProperties')
+                                    .withPath(['additionalProperties'])
                                     .withValue(true)
                                     .withType('destination')]))
                             .withProperties({
@@ -585,10 +585,10 @@ describe('object-set', () => {
 
                 const expectedSourceValues = [
                     representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('object'),
                     representationValueBuilder
-                        .withPath('.additionalProperties')
+                        .withPath(['additionalProperties'])
                         .withValue(undefined)
                 ];
 
@@ -606,7 +606,7 @@ describe('object-set', () => {
                     .withSourceValues(expectedSourceValues)
                     .withDestinationValues([
                         representationValueBuilder
-                            .withPath('.additionalProperties')
+                            .withPath(['additionalProperties'])
                             .withValue(true)
                     ]);
 
@@ -655,7 +655,7 @@ describe('object-set', () => {
                                 .withOrigins([schemaOriginBuilder
                                     .withType('source')
                                     .withValue('object')
-                                    .withPath('.type')])
+                                    .withPath(['type'])])
                                 .withParsedValue(['object']))
                     ).build();
 
@@ -670,7 +670,7 @@ describe('object-set', () => {
                                 .withOrigins([schemaOriginBuilder
                                     .withType('destination')
                                     .withValue('object')
-                                    .withPath('.type')])
+                                    .withPath(['type'])])
                                 .withParsedValue(['object']))
                     ).build();
 
@@ -679,10 +679,10 @@ describe('object-set', () => {
                 const representation = representationBuilder
                     .withSourceValue(representationValueBuilder
                         .withValue('object')
-                        .withPath('.type'))
+                        .withPath(['type']))
                     .withDestinationValue(representationValueBuilder
                         .withValue('object')
-                        .withPath('.type'))
+                        .withPath(['type']))
                     .withValue('object')
                     .build();
 
@@ -695,7 +695,7 @@ describe('object-set', () => {
                         parsedSchemaKeywordsBuilder
                             .withAdditionalProperties(allJsonSetBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.additionalProperties')
+                                    .withPath(['additionalProperties'])
                                     .withValue(true)
                                     .withType('source')]))
                             .withProperties({
@@ -712,7 +712,7 @@ describe('object-set', () => {
                         parsedSchemaKeywordsBuilder
                             .withAdditionalProperties(allJsonSetBuilder
                                 .withOrigins([schemaOriginBuilder
-                                    .withPath('.additionalProperties')
+                                    .withPath(['additionalProperties'])
                                     .withValue(true)
                                     .withType('destination')]))
                             .withProperties({
@@ -734,10 +734,10 @@ describe('object-set', () => {
 
                 const baseAdditionalPropertiesRepresentation = representationBuilder
                     .withSourceValue(representationValueBuilder
-                        .withPath('.additionalProperties')
+                        .withPath(['additionalProperties'])
                         .withValue(true))
                     .withDestinationValue(representationValueBuilder
-                        .withPath('.additionalProperties')
+                        .withPath(['additionalProperties'])
                         .withValue(true));
 
                 expect(result.toRepresentations()).toContainRepresentations([
@@ -763,7 +763,7 @@ describe('object-set', () => {
                                     name: allJsonSetBuilder
                                         .withOrigins([schemaOriginBuilder
                                             .withValue(true)
-                                            .withPath('.properties.name')
+                                            .withPath(['properties', 'name'])
                                             .withType('source')])
                                 })
                                 .withType(parsedTypeKeywordBuilder
@@ -780,7 +780,7 @@ describe('object-set', () => {
                                     name: allJsonSetBuilder
                                         .withOrigins([schemaOriginBuilder
                                             .withValue(true)
-                                            .withPath('.properties.name')
+                                            .withPath(['properties', 'name'])
                                             .withType('destination')])
                                 })
                                 .withType(parsedTypeKeywordBuilder
@@ -792,10 +792,10 @@ describe('object-set', () => {
 
                     const basePropertyNameRepresentation = representationBuilder
                         .withSourceValue(representationValueBuilder
-                            .withPath('.properties.name')
+                            .withPath(['properties', 'name'])
                             .withValue(true))
                         .withDestinationValue(representationValueBuilder
-                            .withPath('.properties.name')
+                            .withPath(['properties', 'name'])
                             .withValue(true));
 
                     const rootTypeRepresentation = representationBuilder
@@ -828,7 +828,7 @@ describe('object-set', () => {
                                 propertyMissingInDestination: allJsonSetBuilder
                                     .withOrigins([schemaOriginBuilder
                                         .withValue(true)
-                                        .withPath('.properties.propertyMissingInDestination')
+                                        .withPath(['properties', 'propertyMissingInDestination'])
                                         .withType('source')])
                             })
                             .withType(parsedTypeKeywordBuilder
@@ -843,7 +843,7 @@ describe('object-set', () => {
                                 .withType(parsedTypeKeywordBuilder
                                     .withOrigins([schemaOriginBuilder
                                         .withValue('string')
-                                        .withPath('.additionalProperties.type')
+                                        .withPath(['additionalProperties', 'type'])
                                         .withType('destination')])
                                     .withParsedValue(['string']))
                         ));
@@ -863,10 +863,10 @@ describe('object-set', () => {
 
                 const missingPropertyRepresentation = representationBuilder
                     .withSourceValue(representationValueBuilder
-                        .withPath('.properties.propertyMissingInDestination')
+                        .withPath(['properties', 'propertyMissingInDestination'])
                         .withValue(true))
                     .withDestinationValue(representationValueBuilder
-                        .withPath('.additionalProperties.type')
+                        .withPath(['additionalProperties', 'type'])
                         .withValue('string'))
                     .withValue('string')
                     .build();
@@ -892,7 +892,7 @@ describe('object-set', () => {
                                 .withType(parsedTypeKeywordBuilder
                                     .withOrigins([schemaOriginBuilder
                                         .withValue('string')
-                                        .withPath('.additionalProperties.type')
+                                        .withPath(['additionalProperties', 'type'])
                                         .withType('source')])
                                     .withParsedValue(['string']))
                         ));
@@ -919,7 +919,7 @@ describe('object-set', () => {
                                 propertyMissingInSource: allJsonSetBuilder
                                     .withOrigins([schemaOriginBuilder
                                         .withValue(true)
-                                        .withPath('.properties.propertyMissingInDestination')
+                                        .withPath(['properties', 'propertyMissingInDestination'])
                                         .withType('destination')])
                             })
                             .withType(parsedTypeKeywordBuilder
@@ -931,10 +931,10 @@ describe('object-set', () => {
 
                 const missingPropertyRepresentation = representationBuilder
                     .withDestinationValue(representationValueBuilder
-                        .withPath('.properties.propertyMissingInDestination')
+                        .withPath(['properties', 'propertyMissingInDestination'])
                         .withValue(true))
                     .withSourceValue(representationValueBuilder
-                        .withPath('.additionalProperties.type')
+                        .withPath(['additionalProperties', 'type'])
                         .withValue('string'))
                     .withValue('string')
                     .build();

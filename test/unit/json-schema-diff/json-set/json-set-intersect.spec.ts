@@ -52,20 +52,20 @@ describe('json-set', () => {
 
             it('should keep track of schema origins when intersecting all and all json sets', () => {
                 const firstAllJsonSet = allJsonSetBuilder.withOrigins([
-                    schemaOriginBuilder.withType('source').withPath('definitions.someSchema').withValue(true)
+                    schemaOriginBuilder.withType('source').withPath(['definitions', 'someSchema']).withValue(true)
                 ]).build();
                 const secondAllJsonSet = allJsonSetBuilder.withOrigins([
-                    schemaOriginBuilder.withType('destination').withPath('definitions.otherSchema').withValue(true)
+                    schemaOriginBuilder.withType('destination').withPath(['definitions', 'otherSchema']).withValue(true)
                 ]).build();
 
                 const result = firstAllJsonSet.intersect(secondAllJsonSet);
 
                 const baseRepresentation = representationBuilder
                     .withSourceValues([
-                        representationValueBuilder.withPath('definitions.someSchema').withValue(true)
+                        representationValueBuilder.withPath(['definitions', 'someSchema']).withValue(true)
                     ])
                     .withDestinationValues([
-                        representationValueBuilder.withPath('definitions.otherSchema').withValue(true)
+                        representationValueBuilder.withPath(['definitions', 'otherSchema']).withValue(true)
                     ]);
 
                 expect(result.toRepresentations()).toContainRepresentations([
@@ -92,20 +92,23 @@ describe('json-set', () => {
 
             it('should keep track of schema origins when intersecting all and empty json sets', () => {
                 const allJsonSet = allJsonSetBuilder.withOrigins([
-                    schemaOriginBuilder.withType('source').withPath('definitions.someSchema').withValue(true)
+                    schemaOriginBuilder.withType('source').withPath(['definitions', 'someSchema']).withValue(true)
                 ]).build();
                 const emptyJsonSet = emptyJsonSetBuilder.withOrigins([
-                    schemaOriginBuilder.withType('destination').withPath('definitions.otherSchema').withValue(false)
+                    schemaOriginBuilder
+                        .withType('destination')
+                        .withPath(['definitions', 'otherSchema'])
+                        .withValue(false)
                 ]).build();
 
                 const complementOfIntersection = allJsonSet.intersect(emptyJsonSet).complement();
 
                 const baseRepresentation = representationBuilder
                     .withSourceValues([
-                        representationValueBuilder.withPath('definitions.someSchema').withValue(true)
+                        representationValueBuilder.withPath(['definitions', 'someSchema']).withValue(true)
                     ])
                     .withDestinationValues([
-                        representationValueBuilder.withPath('definitions.otherSchema').withValue(false)
+                        representationValueBuilder.withPath(['definitions', 'otherSchema']).withValue(false)
                     ]);
 
                 expect(complementOfIntersection.toRepresentations()).toContainRepresentations([
@@ -156,14 +159,14 @@ describe('json-set', () => {
 
             it('should keep track of schema origins when intersecting all and some json sets', () => {
                 const allJsonSet = allJsonSetBuilder.withOrigins([
-                    schemaOriginBuilder.withType('source').withPath('definitions.someSchema').withValue(true)
+                    schemaOriginBuilder.withType('source').withPath(['definitions', 'someSchema']).withValue(true)
                 ]).build();
 
                 const jsonSetOfStrings = someJsonSetBuilder
                     .withStringSet(createAllStringSetWithOrigins([
                         schemaOriginBuilder
                             .withType('destination')
-                            .withPath('definitions.otherSchema.type')
+                            .withPath(['definitions', 'otherSchema', 'type'])
                             .withValue('string')
                     ]))
                     .build();
@@ -173,10 +176,12 @@ describe('json-set', () => {
                 expect(result.toRepresentations()).toContainRepresentations([
                     representationBuilder
                         .withSourceValues([
-                            representationValueBuilder.withPath('definitions.someSchema').withValue(true)
+                            representationValueBuilder.withPath(['definitions', 'someSchema']).withValue(true)
                         ])
                         .withDestinationValues([
-                            representationValueBuilder.withPath('definitions.otherSchema.type').withValue('string')
+                            representationValueBuilder
+                                .withPath(['definitions', 'otherSchema', 'type'])
+                                .withValue('string')
                         ])
                         .withValue('string')
                         .build()
@@ -208,20 +213,23 @@ describe('json-set', () => {
 
             it('should keep track of schema origins when intersecting empty and empty json sets', () => {
                 const firstEmptyJsonSet = emptyJsonSetBuilder.withOrigins([
-                    schemaOriginBuilder.withType('source').withPath('definitions.someSchema').withValue(false)
+                    schemaOriginBuilder.withType('source').withPath(['definitions', 'someSchema']).withValue(false)
                 ]).build();
                 const secondEmptyJsonSet = emptyJsonSetBuilder.withOrigins([
-                    schemaOriginBuilder.withType('destination').withPath('definitions.otherSchema').withValue(false)
+                    schemaOriginBuilder
+                        .withType('destination')
+                        .withPath(['definitions', 'otherSchema'])
+                        .withValue(false)
                 ]).build();
 
                 const complementOfIntersection = firstEmptyJsonSet.intersect(secondEmptyJsonSet).complement();
 
                 const baseRepresentation = representationBuilder
                     .withSourceValues([
-                        representationValueBuilder.withPath('definitions.someSchema').withValue(false)
+                        representationValueBuilder.withPath(['definitions', 'someSchema']).withValue(false)
                     ])
                     .withDestinationValues([
-                        representationValueBuilder.withPath('definitions.otherSchema').withValue(false)
+                        representationValueBuilder.withPath(['definitions', 'otherSchema']).withValue(false)
                     ]);
 
                 expect(complementOfIntersection.toRepresentations()).toContainRepresentations([
@@ -250,7 +258,7 @@ describe('json-set', () => {
             it('should keep track of schema origins when intersecting empty and some json sets', () => {
                 const emptyJsonSet = emptyJsonSetBuilder
                     .withOrigins([
-                        schemaOriginBuilder.withType('source').withPath('definitions.someSchema').withValue(false)
+                        schemaOriginBuilder.withType('source').withPath(['definitions', 'someSchema']).withValue(false)
                     ])
                     .build();
 
@@ -258,7 +266,7 @@ describe('json-set', () => {
                     .withStringSet(createAllStringSetWithOrigins([
                         schemaOriginBuilder
                             .withType('destination')
-                            .withPath('definitions.otherSchema.type')
+                            .withPath(['definitions', 'otherSchema', 'type'])
                             .withValue('string')
                     ]))
                     .build();
@@ -267,10 +275,10 @@ describe('json-set', () => {
 
                 const baseRepresentation = representationBuilder
                     .withSourceValues([
-                        representationValueBuilder.withPath('definitions.someSchema').withValue(false)
+                        representationValueBuilder.withPath(['definitions', 'someSchema']).withValue(false)
                     ])
                     .withDestinationValues([
-                        representationValueBuilder.withPath('definitions.otherSchema.type').withValue('string')
+                        representationValueBuilder.withPath(['definitions', 'otherSchema', 'type']).withValue('string')
                     ]);
 
                 expect(complementOfIntersection.toRepresentations()).toContainRepresentations([

@@ -135,5 +135,5 @@ export const someJsonSetBuilder = SomeJsonSetBuilder.defaultSomeJsonSetBuilder()
 
 export const someJsonSetOfStrings = someJsonSetBuilder
     .withStringSet(createAllStringSetWithOrigins([
-        schemaOriginBuilder.withType('destination').withPath('.type').withValue('string')
+        schemaOriginBuilder.withType('destination').withPath(['type']).withValue('string')
     ]));

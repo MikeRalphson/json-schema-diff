@@ -29,14 +29,14 @@ describe('boolean-set', () => {
             it('should merge schema origins when empty and empty boolean sets are intersected', () => {
                 const emptyBooleanSetSource = createEmptyBooleanSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('string')
                 ]).build();
 
                 const emptyBooleanSetDestination = createEmptyBooleanSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
                 ]).build();
@@ -45,7 +45,7 @@ describe('boolean-set', () => {
                     .intersect(emptyBooleanSetDestination).complement();
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('string');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -76,14 +76,14 @@ describe('boolean-set', () => {
             it('should merge schema origins when all and all boolean sets are intersected', () => {
                 const allBooleanSetSource = createAllBooleanSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('boolean')
                 ]).build();
 
                 const allBooleanSetDestination = createAllBooleanSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('boolean')
                 ]).build();
@@ -91,7 +91,7 @@ describe('boolean-set', () => {
                 const resultBooleanSet = allBooleanSetSource.intersect(allBooleanSetDestination);
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('boolean');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -117,14 +117,14 @@ describe('boolean-set', () => {
             it('should merge schema origins when empty and all boolean sets are intersected', () => {
                 const emptyBooleanSetSource = createEmptyBooleanSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('string')
                 ]).build();
 
                 const allBooleanSetDestination = createAllBooleanSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('boolean')
                 ]).build();
@@ -133,10 +133,10 @@ describe('boolean-set', () => {
 
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('boolean'))
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string'))
                     .withValue('boolean')
                     .build();

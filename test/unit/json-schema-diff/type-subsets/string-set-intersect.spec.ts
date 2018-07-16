@@ -31,7 +31,7 @@ describe('string-set', () => {
             it('should merge schema origins when empty and empty string sets are intersected', () => {
                 const firstEmptyStringSet = createEmptyStringSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('number')
                     ])
@@ -39,7 +39,7 @@ describe('string-set', () => {
 
                 const secondEmptyStringSet = createEmptyStringSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('number')
                 ])
@@ -50,7 +50,7 @@ describe('string-set', () => {
                     .complement();
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('number');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -81,14 +81,14 @@ describe('string-set', () => {
             it('should merge schema origins when all and all string sets are intersected', () => {
                 const firstAllStringSet = createAllStringSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('string')
                 ]).build();
 
                 const secondAllStringSet = createAllStringSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
                 ]).build();
@@ -96,7 +96,7 @@ describe('string-set', () => {
                 const result = firstAllStringSet.intersect(secondAllStringSet);
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('string');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -122,14 +122,14 @@ describe('string-set', () => {
             it('should merge schema origins when empty and all string sets are intersected', () => {
                 const emptyStringSet = createEmptyStringSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('number')
                 ]).build();
 
                 const allStringSet = createAllStringSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
                 ]).build();
@@ -138,10 +138,10 @@ describe('string-set', () => {
 
                 const expectedRepresentation = representationBuilder
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('number'))
                     .withDestinationValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string'))
                     .withValue('string')
                     .build();

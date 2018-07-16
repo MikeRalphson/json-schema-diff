@@ -14,12 +14,12 @@ export class RepresentationBuilder {
         return new RepresentationBuilder({
             destinationValues: [
                 representationValueBuilder
-                    .withPath('default.destination.location')
+                    .withPath(['default-destination-location'])
                     .withValue('default-destination-value')
             ],
             sourceValues: [
                 representationValueBuilder
-                    .withPath('default.source.location')
+                    .withPath(['default-source-location'])
                     .withValue('default-source-value')
             ],
             type: 'type',

@@ -28,14 +28,14 @@ describe('array-set', () => {
             it('should merge schema origins when empty and empty array sets are intersected', () => {
                 const emptyArraySetSource = createEmptyArraySetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('string')
                 ]).build();
 
                 const emptyArraySetDestination = createEmptyArraySetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
                 ]).build();
@@ -43,7 +43,7 @@ describe('array-set', () => {
                 const complementOfIntersection = emptyArraySetSource.intersect(emptyArraySetDestination).complement();
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('string');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -74,14 +74,14 @@ describe('array-set', () => {
             it('should merge schema origins when all and all array sets are intersected', () => {
                 const allArraySetSource = createAllArraySetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('array')
                 ]).build();
 
                 const allArraySetDestination = createAllArraySetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('array')
                 ]).build();
@@ -89,7 +89,7 @@ describe('array-set', () => {
                 const resultArraySet = allArraySetSource.intersect(allArraySetDestination);
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('array');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -115,14 +115,14 @@ describe('array-set', () => {
             it('should merge schema origins when empty and all array sets are intersected', () => {
                 const emptyArraySetSource = createEmptyArraySetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('string')
                 ]).build();
 
                 const allArraySetDestination = createAllArraySetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('array')
                 ]).build();
@@ -131,10 +131,10 @@ describe('array-set', () => {
 
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('array'))
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string'))
                     .withValue('array')
                     .build();

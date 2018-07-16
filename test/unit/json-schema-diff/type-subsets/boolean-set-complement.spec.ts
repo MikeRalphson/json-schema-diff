@@ -19,7 +19,7 @@ describe('boolean-set', () => {
             const emptyBooleanSet = createEmptyBooleanSetWithOrigins([
                 schemaOriginBuilder
                     .withType('source')
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('string')
             ]).build();
 
@@ -29,7 +29,7 @@ describe('boolean-set', () => {
                 representationBuilder
                     .withDestinationValues([])
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string'))
                     .withValue('boolean')
                     .build()

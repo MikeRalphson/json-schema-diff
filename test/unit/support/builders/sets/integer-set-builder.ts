@@ -34,9 +34,9 @@ export const createAllIntegerSetWithOrigins = (origins: SchemaOriginBuilder[]): 
         .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['integer'])));
 
 export const emptyIntegerSetBuilder = createEmptyIntegerSetWithOrigins([
-    schemaOriginBuilder.withPath('.type').withValue('string')
+    schemaOriginBuilder.withPath(['type']).withValue('string')
 ]);
 
 export const allIntegerSetBuilder = createAllIntegerSetWithOrigins([
-    schemaOriginBuilder.withPath('.type').withValue('integer')
+    schemaOriginBuilder.withPath(['type']).withValue('integer')
 ]);

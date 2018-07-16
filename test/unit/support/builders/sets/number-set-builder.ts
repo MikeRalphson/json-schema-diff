@@ -35,12 +35,12 @@ export const createAllNumberSetWithOrigins = (origins: SchemaOriginBuilder[]): N
 
 export const emptyNumberSetBuilder = createEmptyNumberSetWithOrigins(
     [schemaOriginBuilder
-        .withPath('.type')
+        .withPath(['type'])
         .withValue('string')
 ]);
 
 export const allNumberSetBuilder = createAllNumberSetWithOrigins([
     schemaOriginBuilder
-    .withPath('.type')
+    .withPath(['type'])
     .withValue('number')
 ]);

@@ -16,7 +16,7 @@ describe('number-set', () => {
         it('should return an all number set when complementing an empty number set', () => {
             const emptyNumberSet = createEmptyNumberSetWithOrigins([schemaOriginBuilder
                 .withType('source')
-                .withPath('.type')
+                .withPath(['type'])
                 .withValue('string')]
             ).build();
 
@@ -26,7 +26,7 @@ describe('number-set', () => {
                 representationBuilder
                     .withDestinationValues([])
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string'))
                     .withValue('number')
                     .build()

@@ -33,14 +33,14 @@ describe('json-set', () => {
 
             it('should keep track of the schema origins when complementing an all json set', () => {
                 const allJsonSet = allJsonSetBuilder.withOrigins([
-                    schemaOriginBuilder.withType('source').withPath('.type').withValue(undefined)
+                    schemaOriginBuilder.withType('source').withPath(['type']).withValue(undefined)
                 ]).build();
 
                 const result = allJsonSet.complement();
 
                 const baseRepresentation = representationBuilder
                     .withSourceValues([representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(undefined)
                     ])
                     .withDestinationValues([]);
@@ -80,14 +80,14 @@ describe('json-set', () => {
 
             it('should keep track of the schema origins when complementing an empty json set', () => {
                 const emptyJsonSet = emptyJsonSetBuilder.withOrigins([
-                    schemaOriginBuilder.withType('source').withPath('').withValue(false)
+                    schemaOriginBuilder.withType('source').withPath([]).withValue(false)
                 ]).build();
 
                 const result = emptyJsonSet.complement();
 
                 const baseRepresentation = representationBuilder
                     .withSourceValues([representationValueBuilder
-                        .withPath('')
+                        .withPath([])
                         .withValue(false)
                     ])
                     .withDestinationValues([]);

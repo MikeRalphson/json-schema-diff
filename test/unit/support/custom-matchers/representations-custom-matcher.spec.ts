@@ -13,11 +13,11 @@ describe('toContainRepresentations', () => {
 
     const createWellKnownRepresentationWithValue = (value: any): Representation => ({
         destinationValues: [{
-            path: '.type',
+            path: ['type'],
             value: ''
         }],
         sourceValues: [{
-            path: '.type',
+            path: ['type'],
             value: ''
         }],
         type: 'type',
@@ -128,11 +128,11 @@ describe('toContainRepresentations', () => {
         it('should pass when the actual representation match expected and sourceValues array is in different order',
             () => {
                 const sourceValueA: RepresentationValue = {
-                    path: '.type',
+                    path: ['type'],
                     value: 'string'
                 };
                 const sourceValueB: RepresentationValue = {
-                    path: '.additionalProperties',
+                    path: ['additionalProperties'],
                     value: true
                 };
 
@@ -158,11 +158,11 @@ describe('toContainRepresentations', () => {
         it('should pass when the actual representations match expected and destinationValues array has different order',
             () => {
                 const destinationValueA: RepresentationValue = {
-                    path: '.type',
+                    path: ['type'],
                     value: 'string'
                 };
                 const destinationValueB: RepresentationValue = {
-                    path: '.additionalProperties',
+                    path: ['additionalProperties'],
                     value: true
                 };
 
@@ -188,11 +188,11 @@ describe('toContainRepresentations', () => {
         it('should fail when actual representations match expected but sourceValues.value array has different order',
             () => {
                 const sourceValueA: RepresentationValue = {
-                    path: '.type',
+                    path: ['type'],
                     value: ['string', 'boolean']
                 };
                 const sourceValueB: RepresentationValue = {
-                    path: '.type',
+                    path: ['type'],
                     value: ['boolean', 'string']
                 };
 

@@ -18,7 +18,7 @@ describe('integer-set', () => {
         it('should return an all integer set when complementing an empty integer set', () => {
             const emptyIntegerSet = createEmptyIntegerSetWithOrigins([schemaOriginBuilder
                 .withType('source')
-                .withPath('.type')
+                .withPath(['type'])
                 .withValue('string')]).build();
 
             const result = emptyIntegerSet.complement();
@@ -27,7 +27,7 @@ describe('integer-set', () => {
                 representationBuilder
                     .withDestinationValues([])
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string'))
                     .withValue('integer')
                     .build()

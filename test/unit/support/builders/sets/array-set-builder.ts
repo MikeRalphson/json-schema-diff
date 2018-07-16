@@ -35,12 +35,12 @@ export const createAllArraySetWithOrigins = (origins: SchemaOriginBuilder[]): Ar
 
 export const emptyArraySetBuilder = createEmptyArraySetWithOrigins([
     schemaOriginBuilder
-        .withPath('.type')
+        .withPath(['type'])
         .withValue('string')
 ]);
 
 export const allArraySetBuilder = createAllArraySetWithOrigins([
     schemaOriginBuilder
-        .withPath('.type')
+        .withPath(['type'])
         .withValue('array')
 ]);

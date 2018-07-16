@@ -28,14 +28,14 @@ describe('number-set', () => {
             it('should merge schema origins when empty and empty number sets are unioned', () => {
                 const emptyNumberSetSource = createEmptyNumberSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('string')
                 ]).build();
 
                 const emptyNumberSetDestination = createEmptyNumberSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
                 ]).build();
@@ -44,7 +44,7 @@ describe('number-set', () => {
                     .union(emptyNumberSetDestination).complement();
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('string');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -75,14 +75,14 @@ describe('number-set', () => {
             it('should merge schema origins when all and all number sets are unioned', () => {
                 const allNumberSetSource = createAllNumberSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('number')
                 ]).build();
 
                 const allNumberSetDestination = createAllNumberSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('number')
                 ]).build();
@@ -90,7 +90,7 @@ describe('number-set', () => {
                 const resultNumberSet = allNumberSetSource.union(allNumberSetDestination);
 
                 const representationValue = representationValueBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('number');
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValue)
@@ -121,14 +121,14 @@ describe('number-set', () => {
             it('should merge schema origins when empty and all number sets are unioned', () => {
                 const emptyNumberSet = createEmptyNumberSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('source')
                         .withValue('string')
                 ]).build();
 
                 const allNumberSet = createAllNumberSetWithOrigins([
                     schemaOriginBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withType('destination')
                         .withValue('number')
                 ]).build();
@@ -137,10 +137,10 @@ describe('number-set', () => {
 
                 const expectedRepresentation = representationBuilder
                     .withDestinationValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('number'))
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string'))
                     .withValue('number')
                     .build();

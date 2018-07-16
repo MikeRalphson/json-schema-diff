@@ -41,7 +41,7 @@ export const emptyObjectSetBuilder = objectSetBuilder
         parsedSchemaKeywordsBuilder
             .withType(parsedTypeKeywordBuilder
                 .withOrigins([schemaOriginBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('string')])
                 .withParsedValue(['string'])));
 
@@ -51,12 +51,12 @@ export const allObjectSetBuilder = objectSetBuilder
             .withAdditionalProperties(allJsonSetBuilder
                 .withOrigins([
                     schemaOriginBuilder
-                        .withPath('.additionalProperties')
+                        .withPath(['additionalProperties'])
                         .withValue(undefined)
                 ]))
             .withType(parsedTypeKeywordBuilder
                 .withOrigins([schemaOriginBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('object')])
                 .withParsedValue(['object'])));
 
@@ -67,16 +67,16 @@ export const someObjectSetBuilder = objectSetBuilder
                 .withOrigins([
                     schemaOriginBuilder
                         .withValue(false)
-                        .withPath('.additionalProperties')]))
+                        .withPath(['additionalProperties'])]))
             .withProperties({
                 name: allJsonSetBuilder
                     .withOrigins([
                         schemaOriginBuilder
                             .withValue(true)
-                            .withPath('.properties.name')])
+                            .withPath(['properties', 'name'])])
             })
             .withType(parsedTypeKeywordBuilder
                 .withOrigins([schemaOriginBuilder
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('object')])
                 .withParsedValue(['object'])));

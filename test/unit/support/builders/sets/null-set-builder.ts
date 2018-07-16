@@ -35,12 +35,12 @@ export const createAllNullSetWithOrigins = (origins: SchemaOriginBuilder[]): Nul
 
 export const emptyNullSetBuilder = createEmptyNullSetWithOrigins([
     schemaOriginBuilder
-        .withPath('.type')
+        .withPath(['type'])
         .withValue('string')
 ]);
 
 export const allNullSetBuilder = createAllNullSetWithOrigins([
     schemaOriginBuilder
-        .withPath('.type')
+        .withPath(['type'])
         .withValue('null')
 ]);

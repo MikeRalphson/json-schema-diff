@@ -69,12 +69,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['string'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['string', 'number'])
                 )
                 .withValue('number')
@@ -93,12 +93,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['number', 'array'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('number')
                 )
                 .withValue('array')
@@ -117,12 +117,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['number', 'boolean'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('number')
                 )
                 .withValue('boolean')
@@ -141,12 +141,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['number', 'integer'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('number')
                 )
                 .withValue('integer')
@@ -165,12 +165,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['number', 'null'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('number')
                 )
                 .withValue('null')
@@ -189,12 +189,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['string', 'number'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string')
                 )
                 .withValue('number')
@@ -213,15 +213,15 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValues([
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['number', 'object']),
                     diffResultDifferenceValueBuilder
-                        .withPath('.additionalProperties')
+                        .withPath(['additionalProperties'])
                         .withValue(undefined)
                 ])
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('number')
                 )
                 .withValue('object')
@@ -240,12 +240,12 @@ describe('differ', () => {
             const difference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['number', 'string'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('number')
                 )
                 .withValue('string')
@@ -264,12 +264,12 @@ describe('differ', () => {
             const differenceBuilder = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string')
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('number')
                 );
 
@@ -304,12 +304,12 @@ describe('differ', () => {
             const differenceBuilder = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['number'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['number', 'string', 'boolean'])
                 )
                 .withTypeRemoveType();
@@ -334,12 +334,12 @@ describe('differ', () => {
             const differenceBuilder = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['number', 'string', 'boolean'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['number'])
                 )
                 .withTypeAddType();
@@ -364,12 +364,12 @@ describe('differ', () => {
             const removedDifference = diffResultDifferenceBuilder
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['integer', 'number', 'object', 'null', 'boolean', 'array'])
                 )
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(undefined)
                 )
                 .withValue('string')
@@ -393,13 +393,13 @@ describe('differ', () => {
             const addDifference = diffResultDifferenceBuilder
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue(['string', 'array', 'number', 'integer', 'boolean', 'null'])
                 )
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
                         .withValue(true)
-                        .withPath('')
+                        .withPath([])
                 )
                 .withValue('object')
                 .withTypeAddType()
@@ -418,11 +418,11 @@ describe('differ', () => {
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
                         .withValue('integer')
-                        .withPath('.type'))
+                        .withPath(['type']))
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
                         .withValue(false)
-                        .withPath(''))
+                        .withPath([]))
                 .withTypeRemoveType()
                 .withValue('integer')
                 .build();
@@ -452,11 +452,11 @@ describe('differ', () => {
                 .withSourceValues([
                     diffResultDifferenceValueBuilder
                         .withValue('array')
-                        .withPath('.properties.name.type')])
+                        .withPath(['properties', 'name', 'type'])])
                 .withDestinationValues([
                     diffResultDifferenceValueBuilder
                         .withValue('string')
-                        .withPath('.properties.name.type')]);
+                        .withPath(['properties', 'name', 'type'])]);
 
             const removeDifference = baseDifference
                 .withTypeRemoveType()
@@ -486,18 +486,18 @@ describe('differ', () => {
                 .withSourceValues([
                     diffResultDifferenceValueBuilder
                         .withValue('object')
-                        .withPath('.type'),
+                        .withPath(['type']),
                     diffResultDifferenceValueBuilder
                         .withValue(true)
-                        .withPath('.additionalProperties')
+                        .withPath(['additionalProperties'])
                 ])
                 .withDestinationValues([
                     diffResultDifferenceValueBuilder
                         .withValue('object')
-                        .withPath('.type'),
+                        .withPath(['type']),
                     diffResultDifferenceValueBuilder
                         .withValue(false)
-                        .withPath('.additionalProperties')
+                        .withPath(['additionalProperties'])
                 ])
                 .withTypeRemoveType();
             expect(diffResult).toContainDifferences([
@@ -542,11 +542,11 @@ describe('differ', () => {
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
                         .withValue('string')
-                        .withPath('.properties.id.type'))
+                        .withPath(['properties', 'id', 'type']))
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
                         .withValue('number')
-                        .withPath('.properties.id.type'))
+                        .withPath(['properties', 'id', 'type']))
                 .withTypeRemoveType()
                 .withValue('string')
                 .build();
@@ -555,11 +555,11 @@ describe('differ', () => {
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
                         .withValue('string')
-                        .withPath('.properties.id.type'))
+                        .withPath(['properties', 'id', 'type']))
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
                         .withValue('number')
-                        .withPath('.properties.id.type'))
+                        .withPath(['properties', 'id', 'type']))
                 .withTypeAddType()
                 .withValue('number')
                 .build();
@@ -596,11 +596,11 @@ describe('differ', () => {
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
                         .withValue('string')
-                        .withPath('.properties.id.type'))
+                        .withPath(['properties', 'id', 'type']))
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
                         .withValue('number')
-                        .withPath('.properties.id.type'))
+                        .withPath(['properties', 'id', 'type']))
                 .withTypeRemoveType()
                 .withValue('string')
                 .build();
@@ -609,11 +609,11 @@ describe('differ', () => {
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
                         .withValue('string')
-                        .withPath('.properties.id.type'))
+                        .withPath(['properties', 'id', 'type']))
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
                         .withValue('number')
-                        .withPath('.properties.id.type'))
+                        .withPath(['properties', 'id', 'type']))
                 .withTypeAddType()
                 .withValue('number')
                 .build();
@@ -671,11 +671,11 @@ describe('differ', () => {
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
                         .withValue('string')
-                        .withPath('.properties.id.properties.content.type'))
+                        .withPath(['properties', 'id', 'properties', 'content', 'type']))
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
                         .withValue('number')
-                        .withPath('.properties.id.properties.content.type'))
+                        .withPath(['properties', 'id', 'properties', 'content', 'type']))
                 .withTypeRemoveType()
                 .withValue('string')
                 .build();
@@ -684,11 +684,11 @@ describe('differ', () => {
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
                         .withValue('string')
-                        .withPath('.properties.id.properties.content.type'))
+                        .withPath(['properties', 'id', 'properties', 'content', 'type']))
                 .withDestinationValue(
                     diffResultDifferenceValueBuilder
                         .withValue('number')
-                        .withPath('.properties.id.properties.content.type'))
+                        .withPath(['properties', 'id', 'properties', 'content', 'type']))
                 .withTypeAddType()
                 .withValue('number')
                 .build();

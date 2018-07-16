@@ -19,7 +19,7 @@ describe('array-set', () => {
             const emptyArraySet = createEmptyArraySetWithOrigins([
                 schemaOriginBuilder
                     .withType('source')
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('string')
             ]).build();
 
@@ -29,7 +29,7 @@ describe('array-set', () => {
                 representationBuilder
                     .withDestinationValues([])
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string'))
                     .withValue('array')
                     .build()

@@ -15,7 +15,7 @@ describe('string-set', () => {
         it('should return an all string set when complementing an empty string set', () => {
             const emptyStringSet = createEmptyStringSetWithOrigins([schemaOriginBuilder
                 .withType('source')
-                .withPath('.type')
+                .withPath(['type'])
                 .withValue('number')]).build();
 
             const result = emptyStringSet.complement();
@@ -24,7 +24,7 @@ describe('string-set', () => {
                 representationBuilder
                     .withDestinationValues([])
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('number'))
                     .withValue('string')
                     .build()

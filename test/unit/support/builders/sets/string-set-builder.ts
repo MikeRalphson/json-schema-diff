@@ -34,9 +34,9 @@ export const createEmptyStringSetWithOrigins = (origins: SchemaOriginBuilder[]):
         .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['number'])));
 
 export const emptyStringSetBuilder = createEmptyStringSetWithOrigins([
-    schemaOriginBuilder.withPath('.type').withValue('number')
+    schemaOriginBuilder.withPath(['type']).withValue('number')
 ]);
 
 export const allStringSetBuilder = createAllStringSetWithOrigins([
-    schemaOriginBuilder.withPath('.type').withValue('string')
+    schemaOriginBuilder.withPath(['type']).withValue('string')
 ]);

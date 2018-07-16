@@ -125,11 +125,11 @@ describe('json-schema-diff', () => {
                 diffResultDifferenceBuilder
                     .withSourceValue(
                         diffResultDifferenceValueBuilder
-                            .withPath('.type')
+                            .withPath(['type'])
                             .withValue('object'))
                     .withDestinationValue(
                         diffResultDifferenceValueBuilder
-                            .withPath('.type')
+                            .withPath(['type'])
                             .withValue(['string', 'object'])
                     )
                     .withValue('string')
@@ -148,11 +148,11 @@ describe('json-schema-diff', () => {
                     .withTypeRemoveType()
                     .withDestinationValue(
                         diffResultDifferenceValueBuilder
-                            .withPath('.type')
+                            .withPath(['type'])
                             .withValue('object'))
                     .withSourceValue(
                         diffResultDifferenceValueBuilder
-                            .withPath('.type')
+                            .withPath(['type'])
                             .withValue(['string', 'object'])
                     )
                     .withValue('string')

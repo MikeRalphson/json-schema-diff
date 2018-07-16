@@ -19,4 +19,4 @@ export class EmptyJsonSetBuilder {
 }
 
 export const emptyJsonSetBuilder = EmptyJsonSetBuilder.defaultEmptyJsonSetBuilder()
-    .withOrigins([schemaOriginBuilder.withType('source').withPath('').withValue(false)]);
+    .withOrigins([schemaOriginBuilder.withType('source').withPath([]).withValue(false)]);

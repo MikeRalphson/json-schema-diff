@@ -35,12 +35,12 @@ export const createAllBooleanSetWithOrigins = (origins: SchemaOriginBuilder[]): 
 
 export const emptyBooleanSetBuilder = createEmptyBooleanSetWithOrigins([
     schemaOriginBuilder
-        .withPath('.type')
+        .withPath(['type'])
         .withValue('string')
 ]);
 
 export const allBooleanSetBuilder = createAllBooleanSetWithOrigins([
     schemaOriginBuilder
-        .withPath('.type')
+        .withPath(['type'])
         .withValue('boolean')
 ]);

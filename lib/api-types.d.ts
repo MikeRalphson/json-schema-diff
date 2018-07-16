@@ -1,8 +1,10 @@
 // tslint:disable:no-namespace
 
 declare namespace JsonSchemaDiff {
+    export type Path = Array<string | number>;
+
     export interface DiffResultDifferenceValue {
-        path: string;
+        path: Path;
         value: any;
     }
 

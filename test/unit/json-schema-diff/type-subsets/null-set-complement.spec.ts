@@ -18,7 +18,7 @@ describe('null-set', () => {
             const emptyIntegerSet = createEmptyNullSetWithOrigins([
                 schemaOriginBuilder
                     .withType('source')
-                    .withPath('.type')
+                    .withPath(['type'])
                     .withValue('string')
             ]).build();
 
@@ -28,7 +28,7 @@ describe('null-set', () => {
                 representationBuilder
                     .withDestinationValues([])
                     .withSourceValue(representationValueBuilder
-                        .withPath('.type')
+                        .withPath(['type'])
                         .withValue('string'))
                     .withValue('null')
                     .build()
