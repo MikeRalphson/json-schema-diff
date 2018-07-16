@@ -1,15 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class SchemaLocation {
-    constructor(schemaOriginType, path) {
-        this.schemaOriginType = schemaOriginType;
-        this.path = path;
+    constructor(type, pathSegments) {
+        this.type = type;
+        this.pathSegments = pathSegments;
     }
     static createRoot(schemaOriginType) {
-        return new SchemaLocation(schemaOriginType, '');
+        return new SchemaLocation(schemaOriginType, []);
     }
-    child(subPath) {
-        return new SchemaLocation(this.schemaOriginType, `${this.path}.${subPath}`);
+    get path() {
+        return [...this.pathSegments];
+    }
+    get schemaOriginType() {
+        return this.type;
+    }
+    child(pathSegment) {
+        return new SchemaLocation(this.type, [...this.pathSegments, pathSegment]);
     }
 }
 exports.SchemaLocation = SchemaLocation;

@@ -17,9 +17,10 @@ const toSimpleTypeArray = (type) => {
 const parseSchemaProperties = (schema, location) => {
     const objectSetProperties = {};
     if (schema.properties) {
+        const propertiesLocation = location.child('properties');
         for (const propertyName of Object.keys(schema.properties)) {
             const propertySchema = schema.properties[propertyName];
-            const propertyLocation = location.child(`properties.${propertyName}`);
+            const propertyLocation = propertiesLocation.child(propertyName);
             objectSetProperties[propertyName] = parseWithLocation(propertySchema, propertyLocation);
         }
     }
@@ -28,7 +29,7 @@ const parseSchemaProperties = (schema, location) => {
 const parseType = (schema, location) => {
     const types = toSimpleTypeArray(schema.type);
     const schemaOrigins = [{
-            path: `${location.path}.type`,
+            path: location.child('type').path,
             type: location.schemaOriginType,
             value: schema.type
         }];

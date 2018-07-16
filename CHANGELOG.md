@@ -1,3 +1,13 @@
+<a name="0.8.0"></a>
+# [0.8.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.7.0...0.8.0) (2018-07-16)
+
+
+### Features
+
+* changed public api to return locations as arrays instead of strings ([f86a5dd](https://bitbucket.org/atlassian/json-schema-diff/commits/f86a5dd))
+
+
+
 <a name="0.7.0"></a>
 # [0.7.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.6.0...0.7.0) (2018-07-12)
 
