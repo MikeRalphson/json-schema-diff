@@ -15,7 +15,7 @@ interface ParsedPropertiesBuilder {
 
 export class ParsedSchemaKeywordsBuilder {
     public static defaultParsedSchemaKeywordsBuilder() {
-        return new ParsedSchemaKeywordsBuilder(parsedTypeKeywordBuilder, emptyJsonSetBuilder, {});
+        return new ParsedSchemaKeywordsBuilder(parsedTypeKeywordBuilder, emptyJsonSetBuilder.withOrigins([]), {});
     }
 
     private constructor(

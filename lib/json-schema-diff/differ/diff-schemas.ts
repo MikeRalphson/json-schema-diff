@@ -30,7 +30,7 @@ export const dereferenceSchema = async (schema: JsonSchema): Promise<JsonSchema>
     const refParser = new RefParser();
     return isBoolean(schema)
         ? schema
-        : await refParser.dereference(schema as any) as JsonSchema;
+        : await refParser.dereference(schema as object, {dereference: {circular: false}}) as JsonSchema;
 };
 
 export const diffSchemas = async (sourceSchema: JsonSchema,

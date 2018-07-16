@@ -1,19 +1,16 @@
-import {SchemaOriginType} from '../../../../lib/json-schema-diff/parser/json-set/set';
-import {
-    parsedSchemaKeywordsBuilder
-} from '../../support/builders/parsed-schema-keywords/parsed-schema-keywords-builder';
 import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {allJsonSetBuilder} from '../../support/builders/sets/all-json-set-builder';
-import {EmptyJsonSetBuilder, emptyJsonSetBuilder} from '../../support/builders/sets/empty-json-set-builder';
+import {emptyJsonSetBuilder} from '../../support/builders/sets/empty-json-set-builder';
 import {
-    allObjectSetBuilder, emptyObjectSetBuilder,
-    objectSetBuilder, someObjectSetBuilder
+    allObjectSetBuilder,
+    emptyObjectSetBuilder,
+    someObjectSetBuilder
 } from '../../support/builders/sets/object-set-builder';
 import {someJsonSetBuilder} from '../../support/builders/sets/some-json-set-builder';
-import {stringSetBuilder} from '../../support/builders/sets/string-set-builder';
+import {allStringSetBuilder} from '../../support/builders/sets/string-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
 declare function expect<T>(actual: T): CustomMatchers<T>;
@@ -25,157 +22,54 @@ describe('object-set', () => {
 
     describe('union', () => {
         describe('empty and empty', () => {
-            it('should union empty and empty object sets resulting in another empty object set', () => {
-                const emptyObjectSetSource = emptyObjectSetBuilder.build();
+            it('should union empty and empty object sets resulting in empty object set with merged schema origins',
+                () => {
+                const emptyObjectSetSource = emptyObjectSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
+                    schemaOriginBuilder
+                        .withPath(['.type'])
+                        .withType('source')
+                        .withValue('integer')
+                ])).build();
+                const emptyObjectSetDestination = emptyObjectSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
+                    schemaOriginBuilder
+                        .withPath(['.type'])
+                        .withType('destination')
+                        .withValue('string')
+                ])).build();
 
-                const emptyObjectSetDestination = emptyObjectSetBuilder.build();
+                const complementOfResult = emptyObjectSetSource.union(emptyObjectSetDestination).complement();
 
-                const resultObjectSet = emptyObjectSetSource.union(emptyObjectSetDestination);
-
-                expect(resultObjectSet.toRepresentations()).toContainRepresentations([]);
-            });
-
-            it('should merge type schema origins when empty and empty object sets are unioned', () => {
-                const emptyObjectSetSource = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withType(
-                                parsedTypeKeywordBuilder
-                                    .withParsedValue(['string'])
-                                    .withOrigins([
-                                        schemaOriginBuilder
-                                            .withPath(['type'])
-                                            .withType('source')
-                                            .withValue('integer')
-                                    ])))
-                    .build();
-
-                const emptyObjectSetDestination = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withType(
-                                parsedTypeKeywordBuilder
-                                    .withParsedValue(['string'])
-                                    .withOrigins([
-                                        schemaOriginBuilder
-                                            .withPath(['type'])
-                                            .withType('destination')
-                                            .withValue('string')
-                                    ])))
-                    .build();
-
-                const resultComplementOfUnion = emptyObjectSetSource.union(emptyObjectSetDestination).complement();
-
-                const representation = representationBuilder
+                const rootTypeRepresentation = representationBuilder
                     .withSourceValue(representationValueBuilder
-                        .withPath(['type'])
+                        .withPath(['.type'])
                         .withValue('integer'))
                     .withDestinationValue(representationValueBuilder
-                        .withPath(['type'])
+                        .withPath(['.type'])
                         .withValue('string'))
                     .withValue('object')
                     .build();
 
-                expect(resultComplementOfUnion.toRepresentations()).toContainRepresentations([representation]);
-            });
-
-            it('should ignore additional properties origins when empty and empty object sets are unioned', () => {
-                const emptyAdditionalPropertiesWithOriginType = (type: SchemaOriginType): EmptyJsonSetBuilder =>
-                    emptyJsonSetBuilder
-                        .withOrigins([
-                            schemaOriginBuilder
-                                .withPath(['additionalProperties'])
-                                .withType(type)
-                                .withValue(false)]);
-
-                const emptyObjectSetSource = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyAdditionalPropertiesWithOriginType('source'))
-                            .withType(parsedTypeKeywordBuilder
-                                .withParsedValue(['integer'])
-                                .withOrigins([])))
-                    .build();
-
-                const emptyObjectSetDestination = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyAdditionalPropertiesWithOriginType('destination'))
-                            .withType(parsedTypeKeywordBuilder
-                                .withParsedValue(['string'])
-                                .withOrigins([])))
-                    .build();
-
-                const resultObjectSet = emptyObjectSetSource.union(emptyObjectSetDestination);
-
-                expect(resultObjectSet.complement().toRepresentations()).toContainRepresentations([
-                    representationBuilder
-                        .withDestinationValues([])
-                        .withSourceValues([])
-                        .withValue('object')
-                        .build()
+                expect(complementOfResult.toRepresentations()).toContainRepresentations([
+                    rootTypeRepresentation
                 ]);
             });
         });
 
         describe('all and all', () => {
-            it('should union all and all object sets resulting in another all object set', () => {
-                const sourceAllObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([]))
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
+            it('should union all and all object sets resulting in all object set with merged schema origins', () => {
+                const sourceAllObjectSet = allObjectSetBuilder
+                    .withType(parsedTypeKeywordBuilder.withOrigins([schemaOriginBuilder
+                        .withPath(['.type'])
+                        .withType('source')
+                        .withValue('object')
+                    ])).build();
 
-                const destinationAllObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([]))
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const resultObjectSet = sourceAllObjectSet.union(destinationAllObjectSet);
-
-                const representation = representationBuilder
-                    .withSourceValues([])
-                    .withDestinationValues([])
-                    .withValue('object')
-                    .build();
-                expect(resultObjectSet.toRepresentations()).toContainRepresentations([representation]);
-            });
-
-            it('should keep track of type schema origins when unioning all and all object sets', () => {
-                const sourceAllObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([]))
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withPath(['type'])
-                                    .withType('source')
-                                    .withValue('object')])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const destinationAllObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([]))
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withPath(['type'])
-                                    .withType('destination')
-                                    .withValue('object')])
-                                .withParsedValue(['object']))
-                    ).build();
+                const destinationAllObjectSet = allObjectSetBuilder
+                    .withType(parsedTypeKeywordBuilder.withOrigins([schemaOriginBuilder
+                        .withPath(['.type'])
+                        .withType('destination')
+                        .withValue('object')
+                    ])).build();
 
                 const resultObjectSet = sourceAllObjectSet.union(destinationAllObjectSet);
 
@@ -183,177 +77,53 @@ describe('object-set', () => {
                     .withSourceValues([
                         representationValueBuilder
                             .withValue('object')
-                            .withPath(['type'])])
+                            .withPath(['.type'])])
                     .withDestinationValues([
                         representationValueBuilder
                             .withValue('object')
-                            .withPath(['type'])])
+                            .withPath(['.type'])])
                     .withValue('object')
                     .build();
-                expect(resultObjectSet.toRepresentations()).toContainRepresentations([representation]);
+
+                expect(resultObjectSet.toRepresentations()).toContainRepresentations([
+                    representation
+                ]);
             });
-            it('should keep track of additional properties schema origins when unioning all and all object sets',
-                () => {
-                    const sourceAllObjectSet = objectSetBuilder
-                        .withParsedSchemaKeywords(
-                            parsedSchemaKeywordsBuilder
-                                .withAdditionalProperties(allJsonSetBuilder
-                                    .withOrigins([
-                                        schemaOriginBuilder
-                                            .withPath(['additionalProperties'])
-                                            .withType('source')
-                                            .withValue(true)
-                                    ]))
-                                .withType(parsedTypeKeywordBuilder
-                                    .withOrigins([])
-                                    .withParsedValue(['object']))
-                        ).build();
-
-                    const destinationAllObjectSet = objectSetBuilder
-                        .withParsedSchemaKeywords(
-                            parsedSchemaKeywordsBuilder
-                                .withAdditionalProperties(allJsonSetBuilder
-                                    .withOrigins([
-                                        schemaOriginBuilder
-                                            .withPath(['additionalProperties'])
-                                            .withType('destination')
-                                            .withValue(undefined)
-                                    ]))
-                                .withType(parsedTypeKeywordBuilder
-                                    .withOrigins([])
-                                    .withParsedValue(['object']))
-                        ).build();
-
-                    const resultObjectSet = sourceAllObjectSet.union(destinationAllObjectSet);
-
-                    const representation = representationBuilder
-                        .withSourceValues([
-                            representationValueBuilder
-                                .withValue(true)
-                                .withPath(['additionalProperties'])])
-                        .withDestinationValues([
-                            representationValueBuilder
-                                .withValue(undefined)
-                                .withPath(['additionalProperties'])])
-                        .withValue('object')
-                        .build();
-                    expect(resultObjectSet.toRepresentations()).toContainRepresentations([representation]);
-                });
         });
 
         describe('empty and all', () => {
-            it('should union empty and all object sets and return all object set', () => {
-                const emptyObjectSetSource = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withType(
-                                parsedTypeKeywordBuilder
-                                    .withParsedValue(['string'])
-                                    .withOrigins([])))
-                    .build();
-
-                const allObjectSetDestination = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([]))
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const resultObjectSet = emptyObjectSetSource.union(allObjectSetDestination);
-
-                const representation = representationBuilder
-                    .withSourceValues([])
-                    .withDestinationValues([])
-                    .withValue('object')
-                    .build();
-
-                expect(resultObjectSet.toRepresentations()).toContainRepresentations([representation]);
-            });
-
-            it('should keep track of type schema origins when unioning empty and all object sets', () => {
-                const emptyObjectSetSource = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withType(
-                                parsedTypeKeywordBuilder
-                                    .withParsedValue(['string'])
-                                    .withOrigins([schemaOriginBuilder
-                                        .withType('source')
-                                        .withValue('string')
-                                        .withPath(['type'])])))
-                    .build();
-
-                const allObjectSetDestination = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([]))
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withType('destination')
-                                    .withValue('object')
-                                    .withPath(['type'])])
-                                .withParsedValue(['object']))
-                    ).build();
+            it('should union empty and all object sets resulting in all object set with merged schema origins', () => {
+                const emptyObjectSetSource = emptyObjectSetBuilder.withType(
+                    parsedTypeKeywordBuilder.withOrigins([schemaOriginBuilder
+                    .withType('source')
+                    .withValue('string')
+                    .withPath(['.type'])
+                ])).build();
+                const allObjectSetDestination = allObjectSetBuilder
+                    .withType(parsedTypeKeywordBuilder.withOrigins([schemaOriginBuilder
+                        .withType('destination')
+                        .withValue('object')
+                        .withPath(['.type'])
+                    ])).build();
 
                 const resultObjectSet = emptyObjectSetSource.union(allObjectSetDestination);
 
                 const representation = representationBuilder
                     .withSourceValues([representationValueBuilder
                         .withValue('string')
-                        .withPath(['type'])])
+                        .withPath(['.type'])])
                     .withDestinationValues([representationValueBuilder
                         .withValue('object')
-                        .withPath(['type'])])
+                        .withPath(['.type'])])
                     .withValue('object')
                     .build();
-
-                expect(resultObjectSet.toRepresentations()).toContainRepresentations([representation]);
+                expect(resultObjectSet.toRepresentations()).toContainRepresentations([
+                    representation
+                ]);
             });
-
-            it('should keep track of additional properties schema origins when unioning empty and all object sets',
-                () => {
-                    const emptyObjectSetSource = objectSetBuilder
-                        .withParsedSchemaKeywords(
-                            parsedSchemaKeywordsBuilder
-                                .withType(
-                                    parsedTypeKeywordBuilder
-                                        .withParsedValue(['string'])
-                                        .withOrigins([])))
-                        .build();
-
-                    const allObjectSetDestination = objectSetBuilder
-                        .withParsedSchemaKeywords(
-                            parsedSchemaKeywordsBuilder
-                                .withAdditionalProperties(allJsonSetBuilder
-                                    .withOrigins([schemaOriginBuilder
-                                        .withType('destination')
-                                        .withValue(true)
-                                        .withPath(['additionalProperties'])]))
-                                .withType(parsedTypeKeywordBuilder
-                                    .withOrigins([])
-                                    .withParsedValue(['object']))
-                        ).build();
-
-                    const resultObjectSet = emptyObjectSetSource.union(allObjectSetDestination);
-
-                    const representation = representationBuilder
-                        .withSourceValues([])
-                        .withDestinationValues([representationValueBuilder
-                            .withValue(true)
-                            .withPath(['additionalProperties'])])
-                        .withValue('object')
-                        .build();
-
-                    expect(resultObjectSet.toRepresentations()).toContainRepresentations([representation]);
-                });
 
             it('should return the same result regardless the order of the operands', () => {
                 const emptyObjectSet = emptyObjectSetBuilder.build();
-
                 const allObjectSet = allObjectSetBuilder.build();
 
                 const resultAllWithEmpty = allObjectSet.union(emptyObjectSet);
@@ -365,80 +135,31 @@ describe('object-set', () => {
         });
 
         describe('empty and some', () => {
-            it('should union empty and some object sets and return some object set', () => {
-                const emptyObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withType(
-                                parsedTypeKeywordBuilder
-                                    .withParsedValue(['string'])
-                                    .withOrigins([])))
+            it('should union empty and some object sets and return some object set with merged schema origins', () => {
+                const emptyObjectSet = emptyObjectSetBuilder.withType(
+                    parsedTypeKeywordBuilder.withOrigins([schemaOriginBuilder
+                        .withPath(['.type'])
+                        .withValue('string')
+                        .withType('source')
+                    ])).build();
+
+                const someObjectSet = someObjectSetBuilder
+                    .withType(parsedTypeKeywordBuilder
+                        .withOrigins([schemaOriginBuilder
+                            .withPath(['.type'])
+                            .withValue('object')
+                            .withType('destination')])
+                        .withParsedValue(['object']))
                     .build();
-
-                const someObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyJsonSetBuilder
-                                .withOrigins([]))
-                            .withProperties({
-                                name: emptyJsonSetBuilder
-                                    .withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const resultObjectSet = emptyObjectSet.union(someObjectSet);
-
-                const representations = representationBuilder
-                    .withSourceValues([])
-                    .withDestinationValues([])
-                    .withValue('object')
-                    .build();
-
-                expect(resultObjectSet.toRepresentations()).toContainRepresentations([representations]);
-
-            });
-
-            it('should keep track of type origins when unioning empty and some object sets', () => {
-                const emptyObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withType(
-                                parsedTypeKeywordBuilder
-                                    .withParsedValue(['string'])
-                                    .withOrigins([schemaOriginBuilder
-                                        .withPath(['type'])
-                                        .withValue('string')
-                                        .withType('source')])))
-                    .build();
-
-                const someObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyJsonSetBuilder
-                                .withOrigins([]))
-                            .withProperties({
-                                name: emptyJsonSetBuilder
-                                    .withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withPath(['type'])
-                                    .withValue('object')
-                                    .withType('destination')])
-                                .withParsedValue(['object']))
-                    ).build();
 
                 const resultObjectSet = emptyObjectSet.union(someObjectSet);
 
                 const representations = representationBuilder
                     .withSourceValues([representationValueBuilder
-                        .withPath(['type'])
+                        .withPath(['.type'])
                         .withValue('string')])
                     .withDestinationValues([representationValueBuilder
-                        .withPath(['type'])
+                        .withPath(['.type'])
                         .withValue('object')])
                     .withValue('object')
                     .build();
@@ -447,58 +168,39 @@ describe('object-set', () => {
             });
 
             it('should keep track of some object set properties origins when unioning with empty', () => {
-                const emptyObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withType(
-                                parsedTypeKeywordBuilder
-                                    .withParsedValue(['number'])
-                                    .withOrigins([schemaOriginBuilder
-                                        .withType('source')
-                                        .withPath(['type'])
-                                        .withValue('number')])))
-                    .build();
-
+                const emptyObjectSet = emptyObjectSetBuilder.withType(
+                    parsedTypeKeywordBuilder.withOrigins([schemaOriginBuilder
+                        .withPath(['.type'])
+                        .withValue('string')
+                        .withType('source')
+                    ])).build();
                 const jsonSetOfStrings = someJsonSetBuilder
-                    .withStringSet(stringSetBuilder
-                        .withParsedSchemaKeywords(
-                            parsedSchemaKeywordsBuilder
-                                .withType(parsedTypeKeywordBuilder
-                                    .withOrigins([schemaOriginBuilder
-                                        .withValue('string')
-                                        .withPath(['properties', 'name', 'additionalProperties', 'type'])
-                                        .withType('destination')])
-                                    .withParsedValue(['string']))
-                        ));
-
-                const someObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyJsonSetBuilder
-                                .withOrigins([]))
-                            .withProperties({
-                                name: jsonSetOfStrings
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
+                    .withStringSet(allStringSetBuilder
+                        .withType(parsedTypeKeywordBuilder
+                            .withOrigins([schemaOriginBuilder
+                                .withValue('string')
+                                .withPath(['.properties.name.additionalProperties.type'])
+                                .withType('destination')])));
+                const someObjectSet = someObjectSetBuilder
+                    .withAdditionalProperties(emptyJsonSetBuilder)
+                    .withProperties({
+                        name: jsonSetOfStrings
+                    })
+                    .build();
 
                 const resultObjectSet = emptyObjectSet.union(someObjectSet);
 
-                const expectedSourceValue = representationValueBuilder.withValue('number').withPath(['type']);
-
                 const rootTypeRepresentation = representationBuilder
-                    .withSourceValue(expectedSourceValue)
+                    .withSourceValue(representationValueBuilder.withValue('string').withPath(['.type']))
                     .withDestinationValues([])
                     .withValue('object')
                     .build();
 
                 const propertiesRepresentation = representationBuilder
-                    .withSourceValue(expectedSourceValue)
+                    .withSourceValues([])
                     .withDestinationValue(representationValueBuilder
                         .withValue('string')
-                        .withPath(['properties', 'name', 'additionalProperties', 'type']))
+                        .withPath(['.properties.name.additionalProperties.type']))
                     .withValue('string')
                     .build();
 
@@ -508,35 +210,17 @@ describe('object-set', () => {
             });
 
             it('should keep track of some object set additionalProperties origins when unioning with empty', () => {
-                const emptyObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['string']))
-                    ).build();
-
-                const jsonSetOfString = someJsonSetBuilder
-                    .withStringSet(stringSetBuilder
-                        .withParsedSchemaKeywords(
-                            parsedSchemaKeywordsBuilder
-                                .withType(parsedTypeKeywordBuilder
-                                    .withOrigins([schemaOriginBuilder
-                                        .withValue('string')
-                                        .withPath(['additionalProperties', 'type'])
-                                        .withType('destination')])
-                                    .withParsedValue(['string']))
-                        ));
-
-                const someObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(jsonSetOfString)
-                            .withProperties({})
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
+                const emptyObjectSet = emptyObjectSetBuilder.build();
+                const jsonSetOfStrings = someJsonSetBuilder
+                    .withStringSet(allStringSetBuilder
+                        .withType(parsedTypeKeywordBuilder
+                            .withOrigins([schemaOriginBuilder
+                                .withValue('string')
+                                .withPath(['.additionalProperties.type'])
+                                .withType('destination')])));
+                const someObjectSet = someObjectSetBuilder
+                    .withAdditionalProperties(jsonSetOfStrings)
+                    .build();
 
                 const resultObjectSet = emptyObjectSet.union(someObjectSet);
 
@@ -550,7 +234,7 @@ describe('object-set', () => {
                     .withSourceValues([])
                     .withDestinationValue(
                         representationValueBuilder
-                            .withPath(['additionalProperties', 'type'])
+                            .withPath(['.additionalProperties.type'])
                             .withValue('string'))
                     .withValue('string')
                     .build();
@@ -563,7 +247,6 @@ describe('object-set', () => {
 
             it('should return the same result regardless the order of the operands', () => {
                 const emptyObjectSet = emptyObjectSetBuilder.build();
-
                 const someObjectSet = someObjectSetBuilder.build();
 
                 const resultSomeAndEmpty = someObjectSet.union(emptyObjectSet);
@@ -575,175 +258,38 @@ describe('object-set', () => {
         });
 
         describe('all and some', () => {
-            it('should union all and some object sets and return all object set', () => {
-                const allObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([]))
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const someObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyJsonSetBuilder
-                                .withOrigins([]))
-                            .withProperties({
-                                name: emptyJsonSetBuilder
-                                    .withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const resultObjectSet = allObjectSet.union(someObjectSet);
-
-                const representations = representationBuilder
-                    .withSourceValues([])
-                    .withDestinationValues([])
-                    .withValue('object')
+            it('should union all and some object sets and return all object set with merged schema origins', () => {
+                const allObjectSet = allObjectSetBuilder
+                    .withType(parsedTypeKeywordBuilder.withOrigins([schemaOriginBuilder
+                        .withType('source')
+                        .withPath(['.type'])
+                        .withValue('object')
+                    ]))
                     .build();
 
-                expect(resultObjectSet.toRepresentations()).toContainRepresentations([representations]);
-            });
-
-            it('should keep track of the type schema origins', () => {
-                const allObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([]))
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withType('source')
-                                    .withPath(['type'])
-                                    .withValue('object')])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const someObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyJsonSetBuilder
-                                .withOrigins([]))
-                            .withProperties({
-                                name: emptyJsonSetBuilder
-                                    .withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withType('destination')
-                                    .withPath(['type'])
-                                    .withValue('object')])
-                                .withParsedValue(['object']))
-                    ).build();
+                const someObjectSet = someObjectSetBuilder
+                    .withType(parsedTypeKeywordBuilder
+                        .withOrigins([schemaOriginBuilder
+                            .withType('destination')
+                            .withPath(['.type'])
+                            .withValue('object')])
+                        .withParsedValue(['object']))
+                    .build();
 
                 const resultObjectSet = allObjectSet.union(someObjectSet);
 
-                const representations = representationBuilder
+                const representation = representationBuilder
                     .withSourceValue(representationValueBuilder
-                        .withPath(['type'])
+                        .withPath(['.type'])
                         .withValue('object'))
                     .withDestinationValue(representationValueBuilder
-                        .withPath(['type'])
+                        .withPath(['.type'])
                         .withValue('object'))
                     .withValue('object')
                     .build();
-
-                expect(resultObjectSet.toRepresentations()).toContainRepresentations([representations]);
-            });
-
-            it('should keep track of additional properties of some and all object sets', () => {
-                const allObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withType('source')
-                                    .withPath(['additionalProperties'])
-                                    .withValue(true)
-                                ]))
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const someObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyJsonSetBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withType('destination')
-                                    .withPath(['additionalProperties'])
-                                    .withValue(false)]))
-                            .withProperties({
-                                name: emptyJsonSetBuilder
-                                    .withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const resultObjectSet = allObjectSet.union(someObjectSet);
-
-                const representations = representationBuilder
-                    .withSourceValue(representationValueBuilder
-                        .withPath(['additionalProperties'])
-                        .withValue(true))
-                    .withDestinationValue(representationValueBuilder
-                        .withPath(['additionalProperties'])
-                        .withValue(false))
-                    .withValue('object')
-                    .build();
-
-                expect(resultObjectSet.toRepresentations()).toContainRepresentations([representations]);
-            });
-
-            it('should keep track of properties origins of some object set', () => {
-                const allObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([]))
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const someObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyJsonSetBuilder
-                                .withOrigins([]))
-                            .withProperties({
-                                name: emptyJsonSetBuilder
-                                    .withOrigins([schemaOriginBuilder
-                                        .withType('destination')
-                                        .withPath(['properties', 'name'])
-                                        .withValue(false)
-                                    ])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const resultObjectSet = allObjectSet.union(someObjectSet);
-
-                const representations = representationBuilder
-                    .withSourceValues([])
-                    .withDestinationValue(representationValueBuilder
-                        .withPath(['properties', 'name'])
-                        .withValue(false))
-                    .withValue('object')
-                    .build();
-
-                expect(resultObjectSet.toRepresentations()).toContainRepresentations([representations]);
+                expect(resultObjectSet.toRepresentations()).toContainRepresentations([
+                    representation
+                ]);
             });
 
             it('should return the same result regardless the order of the operands', () => {
@@ -761,87 +307,55 @@ describe('object-set', () => {
 
         describe('some and some', () => {
             it('should track type schema origins when some and some object sets are unioned', () => {
-                const firstSomeObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withProperties({
-                                name: emptyJsonSetBuilder
-                                    .withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withType('source')
-                                    .withValue('object')
-                                    .withPath(['type'])])
-                                .withParsedValue(['object']))
-                    ).build();
+                const firstSomeObjectSet = someObjectSetBuilder
+                    .withType(parsedTypeKeywordBuilder
+                        .withOrigins([schemaOriginBuilder
+                            .withType('source')
+                            .withValue('object')
+                            .withPath(['.type'])])
+                        .withParsedValue(['object']))
+                    .build();
 
-                const secondSomeObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withProperties({
-                                name: emptyJsonSetBuilder
-                                    .withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withType('destination')
-                                    .withValue('object')
-                                    .withPath(['type'])])
-                                .withParsedValue(['object']))
-                    ).build();
+                const secondSomeObjectSet = someObjectSetBuilder
+                    .withType(parsedTypeKeywordBuilder
+                        .withOrigins([schemaOriginBuilder
+                            .withType('destination')
+                            .withValue('object')
+                            .withPath(['.type'])])
+                        .withParsedValue(['object']))
+                    .build();
 
-                const result = firstSomeObjectSet.union(secondSomeObjectSet);
+                const resultObjectSet = firstSomeObjectSet.union(secondSomeObjectSet);
 
                 const representation = representationBuilder
                     .withSourceValue(representationValueBuilder
                         .withValue('object')
-                        .withPath(['type']))
+                        .withPath(['.type']))
                     .withDestinationValue(representationValueBuilder
                         .withValue('object')
-                        .withPath(['type']))
+                        .withPath(['.type']))
                     .withValue('object')
                     .build();
-
-                expect(result.toRepresentations()).toContainRepresentations([representation]);
+                expect(resultObjectSet.toRepresentations()).toContainRepresentations([representation]);
             });
 
             it('should track additionalProperties origins when some and some object sets are unioned', () => {
-                const firstSomeObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyJsonSetBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withPath(['additionalProperties'])
-                                    .withValue(false)
-                                    .withType('source')]))
-                            .withProperties({
-                                name: emptyJsonSetBuilder
-                                    .withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
+                const firstSomeObjectSet = someObjectSetBuilder
+                    .withAdditionalProperties(emptyJsonSetBuilder
+                        .withOrigins([schemaOriginBuilder
+                            .withPath(['.additionalProperties'])
+                            .withValue(false)
+                            .withType('source')]))
+                    .build();
 
-                const secondSomeObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withPath(['additionalProperties'])
-                                    .withValue(true)
-                                    .withType('destination')]))
-                            .withProperties({
-                                name: emptyJsonSetBuilder
-                                    .withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const result = firstSomeObjectSet.union(secondSomeObjectSet);
+                const secondSomeObjectSet = someObjectSetBuilder
+                    .withAdditionalProperties(allJsonSetBuilder
+                        .withOrigins([schemaOriginBuilder
+                            .withPath(['.additionalProperties'])
+                            .withValue(true)
+                            .withType('destination')]))
+                    .build();
+                const resultObjectSet = firstSomeObjectSet.union(secondSomeObjectSet);
 
                 const rootTypeRepresentation = representationBuilder
                     .withSourceValues([])
@@ -851,13 +365,13 @@ describe('object-set', () => {
 
                 const baseAdditionalPropertiesRepresentation = representationBuilder
                     .withSourceValue(representationValueBuilder
-                        .withPath(['additionalProperties'])
+                        .withPath(['.additionalProperties'])
                         .withValue(false))
                     .withDestinationValue(representationValueBuilder
-                        .withPath(['additionalProperties'])
+                        .withPath(['.additionalProperties'])
                         .withValue(true));
 
-                expect(result.toRepresentations()).toContainRepresentations([
+                expect(resultObjectSet.toRepresentations()).toContainRepresentations([
                     baseAdditionalPropertiesRepresentation.withValue('array').build(),
                     baseAdditionalPropertiesRepresentation.withValue('boolean').build(),
                     baseAdditionalPropertiesRepresentation.withValue('integer').build(),
@@ -871,49 +385,34 @@ describe('object-set', () => {
 
             it('should union same properties and track its origins when some and some object sets are unioned',
                 () => {
-                    const firstSomeObjectSet = objectSetBuilder
-                        .withParsedSchemaKeywords(
-                            parsedSchemaKeywordsBuilder
-                                .withAdditionalProperties(
-                                    emptyJsonSetBuilder
-                                        .withOrigins([]))
-                                .withProperties({
-                                    name: emptyJsonSetBuilder
-                                        .withOrigins([schemaOriginBuilder
-                                            .withPath(['properties', 'name'])
-                                            .withValue(false)
-                                            .withType('source')])
-                                })
-                                .withType(parsedTypeKeywordBuilder
-                                    .withOrigins([])
-                                    .withParsedValue(['object']))
-                        ).build();
+                    const firstSomeObjectSet = someObjectSetBuilder
+                        .withProperties({
+                            name: emptyJsonSetBuilder
+                                .withOrigins([schemaOriginBuilder
+                                    .withPath(['.properties.name'])
+                                    .withValue(false)
+                                    .withType('source')])
+                        })
+                        .build();
 
-                    const secondSomeObjectSet = objectSetBuilder
-                        .withParsedSchemaKeywords(
-                            parsedSchemaKeywordsBuilder
-                                .withAdditionalProperties(emptyJsonSetBuilder
-                                    .withOrigins([]))
-                                .withProperties({
-                                    name: allJsonSetBuilder
-                                        .withOrigins([schemaOriginBuilder
-                                            .withPath(['properties', 'name'])
-                                            .withValue(true)
-                                            .withType('destination')])
-                                })
-                                .withType(parsedTypeKeywordBuilder
-                                    .withOrigins([])
-                                    .withParsedValue(['object']))
-                        ).build();
+                    const secondSomeObjectSet = someObjectSetBuilder
+                        .withProperties({
+                            name: allJsonSetBuilder
+                                .withOrigins([schemaOriginBuilder
+                                    .withPath(['.properties.name'])
+                                    .withValue(true)
+                                    .withType('destination')])
+                        })
+                        .build();
 
-                    const result = firstSomeObjectSet.union(secondSomeObjectSet);
+                    const resultObjectSet = firstSomeObjectSet.union(secondSomeObjectSet);
 
                     const basePropertyNameRepresentation = representationBuilder
                         .withSourceValue(representationValueBuilder
-                            .withPath(['properties', 'name'])
+                            .withPath(['.properties.name'])
                             .withValue(false))
                         .withDestinationValue(representationValueBuilder
-                            .withPath(['properties', 'name'])
+                            .withPath(['.properties.name'])
                             .withValue(true));
 
                     const rootTypeRepresentation = representationBuilder
@@ -922,7 +421,7 @@ describe('object-set', () => {
                         .withValue('object')
                         .build();
 
-                    expect(result.toRepresentations()).toContainRepresentations([
+                    expect(resultObjectSet.toRepresentations()).toContainRepresentations([
                         basePropertyNameRepresentation.withValue('array').build(),
                         basePropertyNameRepresentation.withValue('boolean').build(),
                         basePropertyNameRepresentation.withValue('integer').build(),
@@ -936,61 +435,45 @@ describe('object-set', () => {
 
             it('should union source schema properties with destination additional properties, ' +
                 'if they are missing in destination schema', () => {
-                const firstSomeObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyJsonSetBuilder
-                                .withOrigins([]))
-                            .withProperties({
-                                lastName: emptyJsonSetBuilder,
-                                propertyMissingInDestination: allJsonSetBuilder
-                                    .withOrigins([schemaOriginBuilder
-                                        .withValue(true)
-                                        .withPath(['properties', 'propertyMissingInDestination'])
-                                        .withType('source')])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
+                const firstSomeObjectSet = someObjectSetBuilder
+                    .withAdditionalProperties(emptyJsonSetBuilder.withOrigins([]))
+                    .withProperties({
+                        lastName: emptyJsonSetBuilder,
+                        propertyMissingInDestination: allJsonSetBuilder
+                            .withOrigins([schemaOriginBuilder
+                                .withValue(true)
+                                .withPath(['.properties.propertyMissingInDestination.additionalProperties'])
+                                .withType('source')])
+                    })
+                    .build();
                 const jsonSetOfStrings = someJsonSetBuilder
-                    .withStringSet(stringSetBuilder
-                        .withParsedSchemaKeywords(
-                            parsedSchemaKeywordsBuilder
-                                .withType(parsedTypeKeywordBuilder
-                                    .withOrigins([schemaOriginBuilder
-                                        .withValue('string')
-                                        .withPath(['additionalProperties', 'type'])
-                                        .withType('destination')])
-                                    .withParsedValue(['string']))
-                        ));
-                const secondSomeObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(jsonSetOfStrings)
-                            .withProperties({
-                                lastName: emptyJsonSetBuilder
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
+                    .withStringSet(allStringSetBuilder
+                        .withType(parsedTypeKeywordBuilder
+                            .withOrigins([schemaOriginBuilder
+                                .withValue('string')
+                                .withPath(['.additionalProperties.type'])
+                                .withType('destination')])));
+                const secondSomeObjectSet = someObjectSetBuilder
+                    .withAdditionalProperties(jsonSetOfStrings)
+                    .withProperties({
+                        lastName: emptyJsonSetBuilder
+                    })
+                    .build();
 
-                const result = firstSomeObjectSet.union(secondSomeObjectSet);
+                const resultObjectSet = firstSomeObjectSet.union(secondSomeObjectSet);
 
                 const baseMissingPropertyRepresentation = representationBuilder
                     .withSourceValue(representationValueBuilder
-                        .withPath(['properties', 'propertyMissingInDestination'])
+                        .withPath(['.properties.propertyMissingInDestination.additionalProperties'])
                         .withValue(true))
                     .withDestinationValue(representationValueBuilder
-                        .withPath(['additionalProperties', 'type'])
+                        .withPath(['.additionalProperties.type'])
                         .withValue('string'));
 
                 const additionalPropertiesRepresentation = representationBuilder
                     .withSourceValues([])
                     .withDestinationValue(representationValueBuilder
-                        .withPath(['additionalProperties', 'type'])
+                        .withPath(['.additionalProperties.type'])
                         .withValue('string'))
                     .withValue('string')
                     .build();
@@ -1001,7 +484,7 @@ describe('object-set', () => {
                     .withValue('object')
                     .build();
 
-                expect(result.toRepresentations()).toContainRepresentations([
+                expect(resultObjectSet.toRepresentations()).toContainRepresentations([
                     baseMissingPropertyRepresentation.withValue('array').build(),
                     baseMissingPropertyRepresentation.withValue('boolean').build(),
                     baseMissingPropertyRepresentation.withValue('integer').build(),
@@ -1014,62 +497,47 @@ describe('object-set', () => {
                 ]);
             });
 
-            it('should union destination schema properties with source additional properties, ' +
+            it('should union destination schema properties with source schema additional properties, ' +
                 'if they are missing in source schema', () => {
                 const jsonSetOfStrings = someJsonSetBuilder
-                    .withStringSet(stringSetBuilder
-                        .withParsedSchemaKeywords(
-                            parsedSchemaKeywordsBuilder
-                                .withType(parsedTypeKeywordBuilder
-                                    .withOrigins([schemaOriginBuilder
-                                        .withValue('string')
-                                        .withPath(['additionalProperties', 'type'])
-                                        .withType('source')])
-                                    .withParsedValue(['string']))
-                        ));
+                    .withStringSet(allStringSetBuilder
+                        .withType(parsedTypeKeywordBuilder
+                            .withOrigins([schemaOriginBuilder
+                                .withValue('string')
+                                .withPath(['.additionalProperties.type'])
+                                .withType('source')])));
+                const firstSomeObjectSet = someObjectSetBuilder
+                    .withAdditionalProperties(jsonSetOfStrings)
+                    .withProperties({
+                        lastName: emptyJsonSetBuilder.withOrigins([])
+                    })
+                    .build();
 
-                const firstSomeObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(jsonSetOfStrings)
-                            .withProperties({
-                                lastName: emptyJsonSetBuilder.withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
+                const secondSomeObjectSet = someObjectSetBuilder
+                    .withAdditionalProperties(emptyJsonSetBuilder.withOrigins([]))
+                    .withProperties({
+                        lastName: emptyJsonSetBuilder,
+                        propertyMissingInSource: allJsonSetBuilder
+                            .withOrigins([schemaOriginBuilder
+                                .withValue(true)
+                                .withPath(['.properties.propertyMissingInSource'])
+                                .withType('destination')])
+                    })
+                    .build();
 
-                const secondSomeObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyJsonSetBuilder.withOrigins([]))
-                            .withProperties({
-                                lastName: emptyJsonSetBuilder,
-                                propertyMissingInSource: allJsonSetBuilder
-                                    .withOrigins([schemaOriginBuilder
-                                        .withValue(true)
-                                        .withPath(['properties', 'propertyMissingInSource'])
-                                        .withType('destination')])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const result = firstSomeObjectSet.union(secondSomeObjectSet);
+                const resultObjectSet = firstSomeObjectSet.union(secondSomeObjectSet);
 
                 const baseMissingPropertyRepresentation = representationBuilder
                     .withSourceValue(representationValueBuilder
-                        .withPath(['additionalProperties', 'type'])
+                        .withPath(['.additionalProperties.type'])
                         .withValue('string'))
                     .withDestinationValue(representationValueBuilder
-                        .withPath(['properties', 'propertyMissingInSource'])
+                        .withPath(['.properties.propertyMissingInSource'])
                         .withValue(true));
 
                 const additionalPropertiesRepresentation = representationBuilder
                     .withSourceValue(representationValueBuilder
-                        .withPath(['additionalProperties', 'type'])
+                        .withPath(['.additionalProperties.type'])
                         .withValue('string'))
                     .withDestinationValues([])
                     .withValue('string')
@@ -1081,7 +549,7 @@ describe('object-set', () => {
                     .withValue('object')
                     .build();
 
-                expect(result.toRepresentations()).toContainRepresentations([
+                expect(resultObjectSet.toRepresentations()).toContainRepresentations([
                     baseMissingPropertyRepresentation.withValue('array').build(),
                     baseMissingPropertyRepresentation.withValue('boolean').build(),
                     baseMissingPropertyRepresentation.withValue('integer').build(),

@@ -1,46 +1,50 @@
-import {createNumberSet} from '../../../../../lib/json-schema-diff/parser/json-set/json-subset/number-set';
+import {AllNumberSet, EmptyNumberSet} from '../../../../../lib/json-schema-diff/parser/json-set/json-subset/number-set';
 import {Set} from '../../../../../lib/json-schema-diff/parser/json-set/set';
 import {
     parsedSchemaKeywordsBuilder,
     ParsedSchemaKeywordsBuilder
 } from '../parsed-schema-keywords/parsed-schema-keywords-builder';
-import {parsedTypeKeywordBuilder} from '../parsed-schema-keywords/parsed-type-keyword-builder';
-import {SchemaOriginBuilder, schemaOriginBuilder} from '../parsed-schema-keywords/schema-origin-builder';
+import {
+    ParsedTypeKeywordBuilder,
+    parsedTypeKeywordBuilder
+} from '../parsed-schema-keywords/parsed-type-keyword-builder';
 
 export class NumberSetBuilder {
     public static defaultNumberSetBuilder(): NumberSetBuilder {
-        return new NumberSetBuilder(parsedSchemaKeywordsBuilder);
+        return new NumberSetBuilder(parsedSchemaKeywordsBuilder, 'all');
     }
 
-    private constructor(private readonly parsedSchemaKeywords: ParsedSchemaKeywordsBuilder) {}
+    public static defaultAllBooleanSetBuilder(): NumberSetBuilder {
+        return new NumberSetBuilder(
+            parsedSchemaKeywordsBuilder.withType(parsedTypeKeywordBuilder.withOrigins([]).withParsedValue(['number'])),
+            'all'
+        );
+    }
 
-    public withParsedSchemaKeywords(parsedSchemaKeywords: ParsedSchemaKeywordsBuilder): NumberSetBuilder {
-        return new NumberSetBuilder(parsedSchemaKeywords);
+    public static defaultEmptyBooleanSetBuilder(): NumberSetBuilder {
+        return new NumberSetBuilder(
+            parsedSchemaKeywordsBuilder.withType(parsedTypeKeywordBuilder.withOrigins([]).withParsedValue(['string'])),
+            'empty'
+        );
+    }
+
+    protected constructor(
+        private readonly parsedSchemaKeywords: ParsedSchemaKeywordsBuilder,
+        private readonly type: 'empty' | 'all'
+    ) {}
+
+    public withType(parsedTypeKeyword: ParsedTypeKeywordBuilder): NumberSetBuilder {
+        return new NumberSetBuilder(this.parsedSchemaKeywords.withType(parsedTypeKeyword), this.type);
     }
 
     public build(): Set<'number'> {
-        return createNumberSet(this.parsedSchemaKeywords.build());
+        const keywords = this.parsedSchemaKeywords.build();
+        return this.type === 'all'
+            ? new AllNumberSet(keywords.type.origins)
+            : new EmptyNumberSet(keywords.type.origins);
     }
 }
 
-export const numberSetBuilder = NumberSetBuilder.defaultNumberSetBuilder();
+export const emptyNumberSetBuilder = NumberSetBuilder.defaultEmptyBooleanSetBuilder();
 
-export const createEmptyNumberSetWithOrigins = (origins: SchemaOriginBuilder[]): NumberSetBuilder =>
-    numberSetBuilder.withParsedSchemaKeywords(parsedSchemaKeywordsBuilder
-        .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['string'])));
-
-export const createAllNumberSetWithOrigins = (origins: SchemaOriginBuilder[]): NumberSetBuilder =>
-    numberSetBuilder.withParsedSchemaKeywords(parsedSchemaKeywordsBuilder
-        .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['number'])));
-
-export const emptyNumberSetBuilder = createEmptyNumberSetWithOrigins(
-    [schemaOriginBuilder
-        .withPath(['type'])
-        .withValue('string')
-]);
-
-export const allNumberSetBuilder = createAllNumberSetWithOrigins([
-    schemaOriginBuilder
-    .withPath(['type'])
-    .withValue('number')
-]);
+export const allNumberSetBuilder = NumberSetBuilder.defaultAllBooleanSetBuilder();

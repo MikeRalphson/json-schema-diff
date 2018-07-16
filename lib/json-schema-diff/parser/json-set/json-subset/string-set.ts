@@ -1,17 +1,20 @@
 // tslint:disable:max-classes-per-file
 
-import {ParsedSchemaKeywords, Representation, SchemaOrigin, Set} from '../set';
-import {isTypeSupported} from './is-type-supported';
+import {
+    Representation, SchemaOrigin, Set, toDestinationRepresentationValues,
+    toSourceRepresentationValues
+} from '../set';
 
-type StringSet = Set<'string'> & {
+interface StringSet extends Set<'string'> {
     intersectWithAll(otherAllSet: AllStringSet): StringSet;
     intersectWithEmpty(otherEmptySet: EmptyStringSet): StringSet;
     unionWithAll(otherAllSet: AllStringSet): StringSet;
     unionWithEmpty(otherEmptySet: EmptyStringSet): StringSet;
-};
+}
 
-class AllStringSet implements StringSet {
+export class AllStringSet implements StringSet {
     public readonly setType = 'string';
+    public readonly type = 'all';
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
@@ -43,26 +46,23 @@ class AllStringSet implements StringSet {
         return new AllStringSet(mergedSchemaOrigins);
     }
 
-    public withAdditionalOrigins(origins: SchemaOrigin[]): StringSet {
-        return new AllStringSet(this.schemaOrigins.concat(origins));
-    }
-
     public complement(): StringSet {
         return new EmptyStringSet(this.schemaOrigins);
     }
 
     public toRepresentations(): Representation[] {
         return [{
-            destinationValues: Set.toDestinationRepresentationValues(this.schemaOrigins),
-            sourceValues: Set.toSourceRepresentationValues(this.schemaOrigins),
+            destinationValues: toDestinationRepresentationValues(this.schemaOrigins),
+            sourceValues: toSourceRepresentationValues(this.schemaOrigins),
             type: 'type',
             value: 'string'
         }];
     }
 }
 
-class EmptyStringSet implements StringSet {
+export class EmptyStringSet implements StringSet {
     public readonly setType = 'string';
+    public readonly type = 'empty';
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
@@ -94,10 +94,6 @@ class EmptyStringSet implements StringSet {
         return new EmptyStringSet(mergedSchemaOrigins);
     }
 
-    public withAdditionalOrigins(origins: SchemaOrigin[]): StringSet {
-        return new EmptyStringSet(this.schemaOrigins.concat(origins));
-    }
-
     public complement(): StringSet {
         return new AllStringSet(this.schemaOrigins);
     }
@@ -106,8 +102,3 @@ class EmptyStringSet implements StringSet {
         return [];
     }
 }
-
-export const createStringSet = (parsedSchemaKeywords: ParsedSchemaKeywords): Set<'string'> =>
-    isTypeSupported(parsedSchemaKeywords, 'string')
-        ? new AllStringSet(parsedSchemaKeywords.type.origins)
-        : new EmptyStringSet(parsedSchemaKeywords.type.origins);

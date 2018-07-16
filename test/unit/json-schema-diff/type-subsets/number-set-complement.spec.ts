@@ -1,8 +1,8 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
-import {allNullSetBuilder} from '../../support/builders/sets/null-set-builder';
-import {createEmptyNumberSetWithOrigins} from '../../support/builders/sets/number-set-builder';
+import {allNumberSetBuilder, emptyNumberSetBuilder} from '../../support/builders/sets/number-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
 declare function expect<T>(actual: T): CustomMatchers<T>;
@@ -14,11 +14,12 @@ describe('number-set', () => {
 
     describe('complement', () => {
         it('should return an all number set when complementing an empty number set', () => {
-            const emptyNumberSet = createEmptyNumberSetWithOrigins([schemaOriginBuilder
-                .withType('source')
-                .withPath(['type'])
-                .withValue('string')]
-            ).build();
+            const emptyNumberSet = emptyNumberSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
+                schemaOriginBuilder
+                    .withType('source')
+                    .withPath(['type'])
+                    .withValue('string')]
+                )).build();
 
             const result = emptyNumberSet.complement();
 
@@ -34,7 +35,7 @@ describe('number-set', () => {
         });
 
         it('should return an empty number set when complementing an all number set', () => {
-            const allNumberSet = allNullSetBuilder.build();
+            const allNumberSet = allNumberSetBuilder.build();
 
             const result = allNumberSet.complement();
 

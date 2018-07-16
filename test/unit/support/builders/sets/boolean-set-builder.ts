@@ -1,46 +1,49 @@
-import {createBooleanSet} from '../../../../../lib/json-schema-diff/parser/json-set/json-subset/boolean-set';
+import {
+    AllBooleanSet,
+    EmptyBooleanSet
+} from '../../../../../lib/json-schema-diff/parser/json-set/json-subset/boolean-set';
 import {Set} from '../../../../../lib/json-schema-diff/parser/json-set/set';
 import {
     parsedSchemaKeywordsBuilder,
     ParsedSchemaKeywordsBuilder
 } from '../parsed-schema-keywords/parsed-schema-keywords-builder';
-import {parsedTypeKeywordBuilder} from '../parsed-schema-keywords/parsed-type-keyword-builder';
-import {SchemaOriginBuilder, schemaOriginBuilder} from '../parsed-schema-keywords/schema-origin-builder';
+import {
+    ParsedTypeKeywordBuilder,
+    parsedTypeKeywordBuilder
+} from '../parsed-schema-keywords/parsed-type-keyword-builder';
 
 export class BooleanSetBuilder {
-    public static defaultBooleanSetBuilder(): BooleanSetBuilder {
-        return new BooleanSetBuilder(parsedSchemaKeywordsBuilder);
+    public static defaultAllBooleanSetBuilder(): BooleanSetBuilder {
+        return new BooleanSetBuilder(
+            parsedSchemaKeywordsBuilder.withType(parsedTypeKeywordBuilder.withOrigins([]).withParsedValue(['boolean'])),
+            'all'
+        );
     }
 
-    private constructor(private readonly parsedSchemaKeywords: ParsedSchemaKeywordsBuilder) {}
+    public static defaultEmptyBooleanSetBuilder(): BooleanSetBuilder {
+        return new BooleanSetBuilder(
+            parsedSchemaKeywordsBuilder.withType(parsedTypeKeywordBuilder.withOrigins([]).withParsedValue(['string'])),
+            'empty'
+        );
+    }
 
-    public withParsedSchemaKeywords(parsedSchemaKeywords: ParsedSchemaKeywordsBuilder): BooleanSetBuilder {
-        return new BooleanSetBuilder(parsedSchemaKeywords);
+    protected constructor(
+        private readonly parsedSchemaKeywords: ParsedSchemaKeywordsBuilder,
+        private readonly type: 'empty' | 'all'
+    ) {}
+
+    public withType(parsedTypeKeyword: ParsedTypeKeywordBuilder): BooleanSetBuilder {
+        return new BooleanSetBuilder(this.parsedSchemaKeywords.withType(parsedTypeKeyword), this.type);
     }
 
     public build(): Set<'boolean'> {
-        return createBooleanSet(this.parsedSchemaKeywords.build());
+        const keywords = this.parsedSchemaKeywords.build();
+        return this.type === 'all'
+            ? new AllBooleanSet(keywords.type.origins)
+            : new EmptyBooleanSet(keywords.type.origins);
     }
 }
 
-export const booleanSetBuilder = BooleanSetBuilder.defaultBooleanSetBuilder();
+export const emptyBooleanSetBuilder = BooleanSetBuilder.defaultEmptyBooleanSetBuilder();
 
-export const createEmptyBooleanSetWithOrigins = (origins: SchemaOriginBuilder[]): BooleanSetBuilder =>
-    booleanSetBuilder.withParsedSchemaKeywords(parsedSchemaKeywordsBuilder
-        .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['string'])));
-
-export const createAllBooleanSetWithOrigins = (origins: SchemaOriginBuilder[]): BooleanSetBuilder =>
-    booleanSetBuilder.withParsedSchemaKeywords(parsedSchemaKeywordsBuilder
-        .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['boolean'])));
-
-export const emptyBooleanSetBuilder = createEmptyBooleanSetWithOrigins([
-    schemaOriginBuilder
-        .withPath(['type'])
-        .withValue('string')
-]);
-
-export const allBooleanSetBuilder = createAllBooleanSetWithOrigins([
-    schemaOriginBuilder
-        .withPath(['type'])
-        .withValue('boolean')
-]);
+export const allBooleanSetBuilder = BooleanSetBuilder.defaultAllBooleanSetBuilder();

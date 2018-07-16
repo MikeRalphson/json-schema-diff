@@ -1,86 +1,116 @@
 // tslint:disable:max-classes-per-file
 
 import _ = require('lodash');
-import {AllJsonSet} from '../json-set';
 import {
-    ParsedPropertiesKeyword,
-    ParsedSchemaKeywords, Representation, SchemaOrigin,
-    Set
+    ParsedPropertiesKeyword, Representation, SchemaOrigin, Set,
+    toDestinationRepresentationValues, toSourceRepresentationValues
 } from '../set';
-import {isTypeSupported} from './is-type-supported';
 
-type ObjectSet = Set<'object'> & {
+export interface ObjectSet extends Set<'object'> {
+    additionalProperties: Set<'json'>;
+    properties: ParsedPropertiesKeyword;
     intersectWithAll(otherAllSet: AllObjectSet): ObjectSet;
     intersectWithEmpty(otherEmptySet: EmptyObjectSet): ObjectSet;
     intersectWithSome(otherSomeSet: SomeObjectSet): ObjectSet;
     unionWithAll(otherAllSet: AllObjectSet): ObjectSet;
     unionWithEmpty(otherEmptySet: EmptyObjectSet): ObjectSet;
     unionWithSome(otherSomeSet: SomeObjectSet): ObjectSet;
-};
+    getProperty(propertyName: string): Set<'json'>;
+    getPropertyNames(): string[];
+}
 
 const getUniquePropertyNames = (thisPropertyNames: string[], otherPropertyNames: string[]): string[] =>
     _.uniq(thisPropertyNames.concat(otherPropertyNames));
 
-class AllObjectSet implements ObjectSet {
+export class AllObjectSet implements ObjectSet {
     public readonly setType = 'object';
+    public readonly type = 'all';
 
-    public constructor(public readonly schemaOrigins: SchemaOrigin[]) {
-    }
+    public constructor(
+        public readonly schemaOrigins: SchemaOrigin[],
+        public readonly properties: ParsedPropertiesKeyword,
+        public additionalProperties: Set<'json'>
+    ) {}
 
     public intersect(otherSet: ObjectSet): ObjectSet {
         return otherSet.intersectWithAll(this);
     }
 
     public intersectWithSome(otherSomeObjectSet: SomeObjectSet): ObjectSet {
-        return otherSomeObjectSet.withAdditionalOrigins(this.schemaOrigins);
+        return intersectAllAndSome(this, otherSomeObjectSet);
     }
 
     public intersectWithAll(otherAllSet: AllObjectSet): ObjectSet {
-        return otherAllSet.withAdditionalOrigins(this.schemaOrigins);
+        return new AllObjectSet(
+            this.schemaOrigins.concat(otherAllSet.schemaOrigins),
+            intersectProperties(this, otherAllSet),
+            this.additionalProperties.intersect(otherAllSet.additionalProperties)
+        );
     }
 
     public intersectWithEmpty(otherEmptySet: EmptyObjectSet): ObjectSet {
-        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
+        return intersectEmptyWithOtherObjectSet(otherEmptySet, this);
     }
 
     public union(otherSet: ObjectSet): ObjectSet {
         return otherSet.unionWithAll(this);
     }
 
-    public unionWithAll(otherAllObjectSet: AllObjectSet): ObjectSet {
-        return this.withAdditionalOrigins(otherAllObjectSet.schemaOrigins);
+    public unionWithAll(otherAllSet: AllObjectSet): ObjectSet {
+        return unionAllWithOtherObjectSet(otherAllSet, this);
     }
 
     public unionWithEmpty(otherEmptySet: EmptyObjectSet): ObjectSet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+        return new AllObjectSet(
+            this.schemaOrigins.concat(otherEmptySet.schemaOrigins),
+            unionProperties(this, otherEmptySet),
+            this.additionalProperties.union(otherEmptySet.additionalProperties)
+        );
     }
 
     public unionWithSome(otherSomeSet: SomeObjectSet): ObjectSet {
-        return this.withAdditionalOrigins(otherSomeSet.getAllSchemaOrigins());
-    }
-
-    public withAdditionalOrigins(origins: SchemaOrigin[]): ObjectSet {
-        return new AllObjectSet(this.schemaOrigins.concat(origins));
+        return unionAllWithOtherObjectSet(this, otherSomeSet);
     }
 
     public complement(): ObjectSet {
-        return new EmptyObjectSet(this.schemaOrigins);
+        return new EmptyObjectSet(
+            this.schemaOrigins,
+            complementProperties(this),
+            this.additionalProperties.complement()
+        );
     }
 
     public toRepresentations(): Representation[] {
         return [{
-            destinationValues: Set.toDestinationRepresentationValues(this.schemaOrigins),
-            sourceValues: Set.toSourceRepresentationValues(this.schemaOrigins),
+            destinationValues: toDestinationRepresentationValues(
+                this.schemaOrigins
+            ),
+            sourceValues: toSourceRepresentationValues(
+                this.schemaOrigins
+            ),
             type: 'type',
             value: 'object'
         }];
     }
+
+    public getPropertyNames(): string[] {
+        return Object.keys(this.properties);
+    }
+
+    public getProperty(propertyName: string): Set<'json'> {
+        return this.properties[propertyName] ? this.properties[propertyName] : this.additionalProperties;
+    }
 }
 
-class EmptyObjectSet implements ObjectSet {
+export class EmptyObjectSet implements ObjectSet {
     public readonly setType = 'object';
+    public readonly type = 'empty';
 
-    public constructor(public readonly schemaOrigins: SchemaOrigin[]) {
+    public constructor(
+        public readonly schemaOrigins: SchemaOrigin[],
+        public readonly properties: ParsedPropertiesKeyword,
+        public additionalProperties: Set<'json'>
+    ) {
     }
 
     public intersect(otherSet: ObjectSet): ObjectSet {
@@ -88,15 +118,15 @@ class EmptyObjectSet implements ObjectSet {
     }
 
     public intersectWithAll(otherAllSet: AllObjectSet): ObjectSet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
+        return intersectEmptyWithOtherObjectSet(this, otherAllSet);
     }
 
     public intersectWithSome(otherSomeSet: SomeObjectSet): ObjectSet {
-        return this.withAdditionalOrigins(otherSomeSet.getAllSchemaOrigins());
+        return intersectEmptyWithOtherObjectSet(this, otherSomeSet);
     }
 
     public intersectWithEmpty(otherEmptySet: EmptyObjectSet): ObjectSet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+        return intersectEmptyWithOtherObjectSet(this, otherEmptySet);
     }
 
     public union(otherSet: ObjectSet): ObjectSet {
@@ -104,32 +134,45 @@ class EmptyObjectSet implements ObjectSet {
     }
 
     public unionWithAll(otherAllSet: AllObjectSet): ObjectSet {
-        return otherAllSet.withAdditionalOrigins(this.schemaOrigins);
+        return unionAllWithOtherObjectSet(otherAllSet, this);
     }
 
     public unionWithEmpty(otherEmptySet: EmptyObjectSet): ObjectSet {
-        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
+        return new EmptyObjectSet(
+            this.schemaOrigins.concat(otherEmptySet.schemaOrigins),
+            unionProperties(this, otherEmptySet),
+            this.additionalProperties.intersect(otherEmptySet.additionalProperties)
+        );
     }
 
     public unionWithSome(otherSomeSet: SomeObjectSet): ObjectSet {
-        return otherSomeSet.withAdditionalOrigins(this.schemaOrigins);
-    }
-
-    public withAdditionalOrigins(origins: SchemaOrigin[]): ObjectSet {
-        return new EmptyObjectSet(this.schemaOrigins.concat(origins));
+        return unionSomeAndEmpty(otherSomeSet, this);
     }
 
     public complement(): ObjectSet {
-        return new AllObjectSet(this.schemaOrigins);
+        return new AllObjectSet(
+            this.schemaOrigins,
+            complementProperties(this),
+            this.additionalProperties.complement()
+        );
     }
 
     public toRepresentations(): Representation[] {
         return [];
     }
+
+    public getProperty(propertyName: string): Set<'json'> {
+        return this.properties[propertyName] ? this.properties[propertyName] : this.additionalProperties;
+    }
+
+    public getPropertyNames(): string[] {
+        return Object.keys(this.properties);
+    }
 }
 
-class SomeObjectSet implements ObjectSet {
+export class SomeObjectSet implements ObjectSet {
     public readonly setType = 'object';
+    public readonly type = 'some';
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[],
                        public readonly properties: ParsedPropertiesKeyword,
@@ -142,54 +185,44 @@ class SomeObjectSet implements ObjectSet {
 
     public intersectWithSome(otherSomeSet: SomeObjectSet): ObjectSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherSomeSet.schemaOrigins);
-        const mergedProperties = this.intersectPropertiesWithOtherSomeSetProperties(otherSomeSet);
+        const mergedProperties = intersectProperties(this, otherSomeSet);
         const mergedAdditionalProperties = this.additionalProperties.intersect(otherSomeSet.additionalProperties);
 
         return new SomeObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
     }
 
     public intersectWithAll(otherAllSet: AllObjectSet): ObjectSet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
+        return intersectAllAndSome(otherAllSet, this);
     }
 
     public intersectWithEmpty(otherEmptySet: EmptyObjectSet): ObjectSet {
-        return otherEmptySet.withAdditionalOrigins(this.getAllSchemaOrigins());
+        return intersectEmptyWithOtherObjectSet(otherEmptySet, this);
     }
 
     public union(otherSet: ObjectSet): ObjectSet {
         return otherSet.unionWithSome(this);
-
     }
 
     public unionWithAll(otherAllSet: AllObjectSet): ObjectSet {
-        return otherAllSet.withAdditionalOrigins(this.getAllSchemaOrigins());
+        return unionAllWithOtherObjectSet(otherAllSet, this);
     }
 
     public unionWithEmpty(otherEmptySet: EmptyObjectSet): ObjectSet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+        return unionSomeAndEmpty(this, otherEmptySet);
     }
 
     public unionWithSome(otherSomeSet: SomeObjectSet): ObjectSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherSomeSet.schemaOrigins);
-        const mergedProperties = this.unionPropertiesWithOtherSomeSetProperties(otherSomeSet);
+        const mergedProperties = unionProperties(this, otherSomeSet);
         const mergedAdditionalProperties = this.additionalProperties.union(otherSomeSet.additionalProperties);
 
         return new SomeObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
     }
 
-    public withAdditionalOrigins(schemaOrigins: SchemaOrigin[]): ObjectSet {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(schemaOrigins);
-        const mergedProperties = this.getPropertiesWithAdditionalSchemaOrigins(schemaOrigins);
-        const mergedAdditionalProperties = this.additionalProperties.withAdditionalOrigins(schemaOrigins);
-
-        return new SomeObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
-    }
-
     public complement(): ObjectSet {
-        const complementedProperties = this.complementProperties();
         return new SomeObjectSet(
             this.schemaOrigins,
-            complementedProperties,
+            complementProperties(this),
             this.additionalProperties.complement()
         );
     }
@@ -202,8 +235,8 @@ class SomeObjectSet implements ObjectSet {
 
         representations.push(...this.additionalProperties.toRepresentations());
         representations.push({
-            destinationValues: Set.toDestinationRepresentationValues(this.schemaOrigins),
-            sourceValues: Set.toSourceRepresentationValues(this.schemaOrigins),
+            destinationValues: toDestinationRepresentationValues(this.schemaOrigins),
+            sourceValues: toSourceRepresentationValues(this.schemaOrigins),
             type: 'type',
             value: 'object'
         });
@@ -211,73 +244,74 @@ class SomeObjectSet implements ObjectSet {
         return representations;
     }
 
-    public getAllSchemaOrigins(): SchemaOrigin[] {
-        const propertiesOrigins = this.getPropertyNames()
-            .reduce<SchemaOrigin[]>((acc, propName) => acc.concat(this.properties[propName].schemaOrigins),
-                []);
-
-        return this.schemaOrigins.concat(propertiesOrigins).concat(this.additionalProperties.schemaOrigins);
-    }
-
-    private getProperty(propertyName: string): Set<'json'> {
+    public getProperty(propertyName: string): Set<'json'> {
         return this.properties[propertyName] ? this.properties[propertyName] : this.additionalProperties;
     }
 
-    private complementProperties(): ParsedPropertiesKeyword {
-        const complementedProperties: ParsedPropertiesKeyword = {};
-        this.getPropertyNames().forEach((property) => {
-            complementedProperties[property] = this.properties[property].complement();
-        });
-        return complementedProperties;
-    }
-
-    private getPropertyNames(): string[] {
+    public getPropertyNames(): string[] {
         return Object.keys(this.properties);
-    }
-
-    private intersectPropertiesWithOtherSomeSetProperties(otherSomeSet: SomeObjectSet): ParsedPropertiesKeyword {
-        const mergedProperties: ParsedPropertiesKeyword = {};
-        const allPropertyNames = getUniquePropertyNames(this.getPropertyNames(), otherSomeSet.getPropertyNames());
-        allPropertyNames.forEach((propertyName) => {
-            mergedProperties[propertyName] = this.getProperty(propertyName)
-                .intersect(otherSomeSet.getProperty(propertyName));
-        });
-        return mergedProperties;
-    }
-
-    private unionPropertiesWithOtherSomeSetProperties(otherSomeSet: SomeObjectSet): ParsedPropertiesKeyword {
-        const mergedProperties: ParsedPropertiesKeyword = {};
-        const allPropertyNames = getUniquePropertyNames(this.getPropertyNames(), otherSomeSet.getPropertyNames());
-        allPropertyNames.forEach((propertyName) => {
-            mergedProperties[propertyName] = this.getProperty(propertyName)
-                .union(otherSomeSet.getProperty(propertyName));
-        });
-        return mergedProperties;
-    }
-
-    private getPropertiesWithAdditionalSchemaOrigins(schemaOrigins: SchemaOrigin[]) {
-        const mergedProperties: ParsedPropertiesKeyword = {};
-        this.getPropertyNames().forEach((property) => {
-            mergedProperties[property] = this.properties[property].withAdditionalOrigins(schemaOrigins);
-        });
-        return mergedProperties;
     }
 }
 
-const supportsAllObjects = (parsedSchemaKeywords: ParsedSchemaKeywords): boolean =>
-    Object.keys(parsedSchemaKeywords.properties).length === 0
-    && parsedSchemaKeywords.additionalProperties instanceof AllJsonSet;
+const unionProperties = (objectSet1: ObjectSet, objectSet2: ObjectSet) => {
+    const mergedProperties: ParsedPropertiesKeyword = {};
+    const allPropertyNames = getUniquePropertyNames(objectSet1.getPropertyNames(), objectSet2.getPropertyNames());
+    allPropertyNames.forEach((propertyName) => {
+        mergedProperties[propertyName] = objectSet1.getProperty(propertyName)
+            .union(objectSet2.getProperty(propertyName));
+    });
+    return mergedProperties;
+};
 
-export const createObjectSet = (parsedSchemaKeywords: ParsedSchemaKeywords): ObjectSet => {
-    if (isTypeSupported(parsedSchemaKeywords, 'object')) {
-        return supportsAllObjects(parsedSchemaKeywords)
-            ? new AllObjectSet(
-                parsedSchemaKeywords.type.origins.concat(parsedSchemaKeywords.additionalProperties.schemaOrigins)
-            )
-            : new SomeObjectSet(
-                parsedSchemaKeywords.type.origins,
-                parsedSchemaKeywords.properties,
-                parsedSchemaKeywords.additionalProperties);
-    }
-    return new EmptyObjectSet(parsedSchemaKeywords.type.origins);
+const intersectProperties = (objectSet1: ObjectSet, objectSet2: ObjectSet) => {
+    const mergedProperties: ParsedPropertiesKeyword = {};
+    const allPropertyNames = getUniquePropertyNames(objectSet1.getPropertyNames(), objectSet2.getPropertyNames());
+    allPropertyNames.forEach((propertyName) => {
+        mergedProperties[propertyName] = objectSet1.getProperty(propertyName)
+            .intersect(objectSet2.getProperty(propertyName));
+    });
+    return mergedProperties;
+};
+
+const intersectAllAndSome = (allObjectSet: ObjectSet, someObjectSet: ObjectSet): SomeObjectSet => {
+    const mergedSchemaOrigins = allObjectSet.schemaOrigins.concat(someObjectSet.schemaOrigins);
+    const mergedProperties = intersectProperties(allObjectSet, someObjectSet);
+    const mergedAdditionalProperties = allObjectSet.additionalProperties.intersect(someObjectSet.additionalProperties);
+
+    return new SomeObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
+};
+
+const intersectEmptyWithOtherObjectSet = (
+    emptyObjectSet: EmptyObjectSet, otherObjectSet: ObjectSet
+): EmptyObjectSet => {
+    const mergedSchemaOrigins = emptyObjectSet.schemaOrigins.concat(otherObjectSet.schemaOrigins);
+    const mergedProperties = intersectProperties(emptyObjectSet, otherObjectSet);
+    const mergedAdditionalProperties = emptyObjectSet.additionalProperties
+        .intersect(otherObjectSet.additionalProperties);
+
+    return new EmptyObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
+};
+
+const unionAllWithOtherObjectSet = (allObjectSet: AllObjectSet, otherObjectSet: ObjectSet): AllObjectSet => {
+    const mergedSchemaOrigins = allObjectSet.schemaOrigins.concat(otherObjectSet.schemaOrigins);
+    const mergedProperties = unionProperties(allObjectSet, otherObjectSet);
+    const mergedAdditionalProperties = allObjectSet.additionalProperties.union(otherObjectSet.additionalProperties);
+
+    return new AllObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
+};
+
+const unionSomeAndEmpty = (someObjectSet: SomeObjectSet, emptyObjectSet: EmptyObjectSet): SomeObjectSet => {
+    const mergedSchemaOrigins = someObjectSet.schemaOrigins.concat(emptyObjectSet.schemaOrigins);
+    const mergedProperties = unionProperties(someObjectSet, emptyObjectSet);
+    const mergedAdditionalProperties = someObjectSet.additionalProperties.union(emptyObjectSet.additionalProperties);
+
+    return new SomeObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
+};
+
+const complementProperties = (objectSet: ObjectSet): ParsedPropertiesKeyword => {
+    const complementedProperties: ParsedPropertiesKeyword = {};
+    objectSet.getPropertyNames().forEach((property) => {
+        complementedProperties[property] = objectSet.properties[property].complement();
+    });
+    return complementedProperties;
 };

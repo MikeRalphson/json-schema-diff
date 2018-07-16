@@ -1,18 +1,21 @@
 // tslint:disable:max-classes-per-file
 
-import {ParsedSchemaKeywords, Representation, SchemaOrigin, Set} from '../set';
-import {isTypeSupported} from './is-type-supported';
+import {
+    Representation, SchemaOrigin, Set, toDestinationRepresentationValues,
+    toSourceRepresentationValues
+} from '../set';
 
-type IntegerSet = Set<'integer'> & {
+interface IntegerSet extends  Set<'integer'> {
     readonly schemaOrigins: SchemaOrigin[];
     intersectWithAll(otherAllSet: AllIntegerSet): IntegerSet;
     intersectWithEmpty(otherEmptySet: EmptyIntegerSet): IntegerSet;
     unionWithAll(otherAllSet: AllIntegerSet): IntegerSet;
     unionWithEmpty(otherEmptySet: EmptyIntegerSet): IntegerSet;
-};
+}
 
-class AllIntegerSet implements IntegerSet {
+export class AllIntegerSet implements IntegerSet {
     public readonly setType = 'integer';
+    public readonly type = 'all';
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
@@ -25,7 +28,7 @@ class AllIntegerSet implements IntegerSet {
     }
 
     public intersectWithEmpty(otherEmptySet: EmptyIntegerSet): IntegerSet {
-        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
+        return new EmptyIntegerSet(this.schemaOrigins.concat(otherEmptySet.schemaOrigins));
     }
 
     public union(otherSet: IntegerSet): IntegerSet {
@@ -44,22 +47,23 @@ class AllIntegerSet implements IntegerSet {
         return new EmptyIntegerSet(this.schemaOrigins);
     }
 
-    public withAdditionalOrigins(origins: SchemaOrigin[]): IntegerSet {
-        return new AllIntegerSet(this.schemaOrigins.concat(origins));
-    }
-
     public toRepresentations(): Representation[] {
         return [{
-            destinationValues: Set.toDestinationRepresentationValues(this.schemaOrigins),
-            sourceValues: Set.toSourceRepresentationValues(this.schemaOrigins),
+            destinationValues: toDestinationRepresentationValues(this.schemaOrigins),
+            sourceValues: toSourceRepresentationValues(this.schemaOrigins),
             type: 'type',
             value: 'integer'
         }];
     }
+
+    private withAdditionalOrigins(origins: SchemaOrigin[]): IntegerSet {
+        return new AllIntegerSet(this.schemaOrigins.concat(origins));
+    }
 }
 
-class EmptyIntegerSet implements IntegerSet {
+export class EmptyIntegerSet implements IntegerSet {
     public readonly setType = 'integer';
+    public readonly type = 'empty';
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
@@ -80,7 +84,7 @@ class EmptyIntegerSet implements IntegerSet {
     }
 
     public unionWithAll(otherAllSet: AllIntegerSet): IntegerSet {
-        return otherAllSet.withAdditionalOrigins(this.schemaOrigins);
+        return new AllIntegerSet(this.schemaOrigins.concat(otherAllSet.schemaOrigins));
     }
 
     public unionWithEmpty(otherEmptySet: IntegerSet): IntegerSet {
@@ -91,16 +95,11 @@ class EmptyIntegerSet implements IntegerSet {
         return new AllIntegerSet(this.schemaOrigins);
     }
 
-    public withAdditionalOrigins(origins: SchemaOrigin[]): IntegerSet {
-        return new EmptyIntegerSet(this.schemaOrigins.concat(origins));
-    }
-
     public toRepresentations(): Representation[] {
         return [];
     }
-}
 
-export const createIntegerSet = (parsedSchemaKeywords: ParsedSchemaKeywords): Set<'integer'> =>
-    isTypeSupported(parsedSchemaKeywords, 'integer')
-        ? new AllIntegerSet(parsedSchemaKeywords.type.origins)
-        : new EmptyIntegerSet(parsedSchemaKeywords.type.origins);
+    private withAdditionalOrigins(origins: SchemaOrigin[]): IntegerSet {
+        return new EmptyIntegerSet(this.schemaOrigins.concat(origins));
+    }
+}

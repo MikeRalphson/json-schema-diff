@@ -1,8 +1,9 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {
-    allArraySetBuilder, createAllArraySetWithOrigins, createEmptyArraySetWithOrigins, emptyArraySetBuilder
+    allArraySetBuilder, emptyArraySetBuilder
 } from '../../support/builders/sets/array-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
@@ -26,19 +27,19 @@ describe('array-set', () => {
             });
 
             it('should merge schema origins when empty and empty array sets are intersected', () => {
-                const emptyArraySetSource = createEmptyArraySetWithOrigins([
+                const emptyArraySetSource = emptyArraySetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const emptyArraySetDestination = createEmptyArraySetWithOrigins([
+                const emptyArraySetDestination = emptyArraySetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
                 const complementOfIntersection = emptyArraySetSource.intersect(emptyArraySetDestination).complement();
 
@@ -57,9 +58,9 @@ describe('array-set', () => {
 
         describe('all and all', () => {
             it('should intersect all and all array sets resulting in another all array set', () => {
-                const allArraySetSource = createAllArraySetWithOrigins([]).build();
+                const allArraySetSource = allArraySetBuilder.build();
 
-                const allArraySetDestination = createAllArraySetWithOrigins([]).build();
+                const allArraySetDestination = allArraySetBuilder.build();
 
                 const resultArraySet = allArraySetSource.intersect(allArraySetDestination);
 
@@ -72,19 +73,19 @@ describe('array-set', () => {
             });
 
             it('should merge schema origins when all and all array sets are intersected', () => {
-                const allArraySetSource = createAllArraySetWithOrigins([
+                const allArraySetSource = allArraySetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('array')
-                ]).build();
+                ])).build();
 
-                const allArraySetDestination = createAllArraySetWithOrigins([
+                const allArraySetDestination = allArraySetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('array')
-                ]).build();
+                ])).build();
 
                 const resultArraySet = allArraySetSource.intersect(allArraySetDestination);
 
@@ -113,19 +114,19 @@ describe('array-set', () => {
             });
 
             it('should merge schema origins when empty and all array sets are intersected', () => {
-                const emptyArraySetSource = createEmptyArraySetWithOrigins([
+                const emptyArraySetSource = emptyArraySetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const allArraySetDestination = createAllArraySetWithOrigins([
+                const allArraySetDestination = allArraySetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('array')
-                ]).build();
+                ])).build();
 
                 const complementOfIntersection = emptyArraySetSource.intersect(allArraySetDestination).complement();
 

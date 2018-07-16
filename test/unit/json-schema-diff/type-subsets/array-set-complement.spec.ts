@@ -1,9 +1,10 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {
     allArraySetBuilder,
-    createEmptyArraySetWithOrigins
+    emptyArraySetBuilder
 } from '../../support/builders/sets/array-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
@@ -16,12 +17,12 @@ describe('array-set', () => {
 
     describe('complement', () => {
         it('should return an all array set when complementing an empty array set', () => {
-            const emptyArraySet = createEmptyArraySetWithOrigins([
+            const emptyArraySet = emptyArraySetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                 schemaOriginBuilder
                     .withType('source')
                     .withPath(['type'])
                     .withValue('string')
-            ]).build();
+            ])).build();
 
             const result = emptyArraySet.complement();
 

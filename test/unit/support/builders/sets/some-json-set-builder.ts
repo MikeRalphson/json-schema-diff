@@ -1,13 +1,18 @@
-import {createSomeJsonSet} from '../../../../../lib/json-schema-diff/parser/json-set/json-set';
+import {SomeJsonSet} from '../../../../../lib/json-schema-diff/parser/json-set/json-set';
 import {Set} from '../../../../../lib/json-schema-diff/parser/json-set/set';
+import {parsedTypeKeywordBuilder} from '../parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../parsed-schema-keywords/schema-origin-builder';
-import {arraySetBuilder, ArraySetBuilder} from './array-set-builder';
-import {booleanSetBuilder, BooleanSetBuilder} from './boolean-set-builder';
-import {integerSetBuilder, IntegerSetBuilder} from './integer-set-builder';
-import {nullSetBuilder, NullSetBuilder} from './null-set-builder';
-import {numberSetBuilder, NumberSetBuilder} from './number-set-builder';
-import {objectSetBuilder, ObjectSetBuilder} from './object-set-builder';
-import {createAllStringSetWithOrigins, stringSetBuilder, StringSetBuilder} from './string-set-builder';
+import {ArraySetBuilder, emptyArraySetBuilder} from './array-set-builder';
+import {BooleanSetBuilder, emptyBooleanSetBuilder} from './boolean-set-builder';
+import {emptyIntegerSetBuilder, IntegerSetBuilder} from './integer-set-builder';
+import {emptyNullSetBuilder, NullSetBuilder} from './null-set-builder';
+import {emptyNumberSetBuilder, NumberSetBuilder} from './number-set-builder';
+import {emptyObjectSetBuilder, ObjectSetBuilder} from './object-set-builder';
+import {
+    allStringSetBuilder,
+    emptyStringSetBuilder,
+    StringSetBuilder
+} from './string-set-builder';
 
 interface Subsets {
     array: ArraySetBuilder;
@@ -22,13 +27,13 @@ interface Subsets {
 export class SomeJsonSetBuilder {
     public static defaultSomeJsonSetBuilder(): SomeJsonSetBuilder {
         return new SomeJsonSetBuilder({
-            array: arraySetBuilder,
-            boolean: booleanSetBuilder,
-            integer: integerSetBuilder,
-            null: nullSetBuilder,
-            number: numberSetBuilder,
-            object: objectSetBuilder,
-            string: stringSetBuilder
+            array: emptyArraySetBuilder,
+            boolean: emptyBooleanSetBuilder,
+            integer: emptyIntegerSetBuilder,
+            null: emptyNullSetBuilder,
+            number: emptyNumberSetBuilder,
+            object: emptyObjectSetBuilder,
+            string: emptyStringSetBuilder
         });
     }
 
@@ -119,7 +124,7 @@ export class SomeJsonSetBuilder {
     }
 
     public build(): Set<'json'> {
-        return createSomeJsonSet({
+        return new SomeJsonSet({
             array: this.subsets.array.build(),
             boolean: this.subsets.boolean.build(),
             integer: this.subsets.integer.build(),
@@ -134,6 +139,6 @@ export class SomeJsonSetBuilder {
 export const someJsonSetBuilder = SomeJsonSetBuilder.defaultSomeJsonSetBuilder();
 
 export const someJsonSetOfStrings = someJsonSetBuilder
-    .withStringSet(createAllStringSetWithOrigins([
-        schemaOriginBuilder.withType('destination').withPath(['type']).withValue('string')
-    ]));
+    .withStringSet(allStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
+        schemaOriginBuilder.withType('destination').withPath(['.type']).withValue('string')
+    ])));

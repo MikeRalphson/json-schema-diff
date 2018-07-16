@@ -1,8 +1,9 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {
-    allNullSetBuilder, createEmptyNullSetWithOrigins
+    allNullSetBuilder, emptyNullSetBuilder
 } from '../../support/builders/sets/null-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
@@ -15,12 +16,12 @@ describe('null-set', () => {
 
     describe('complement', () => {
         it('should return an all null set when complementing an empty null set', () => {
-            const emptyIntegerSet = createEmptyNullSetWithOrigins([
+            const emptyIntegerSet = emptyNullSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                 schemaOriginBuilder
                     .withType('source')
                     .withPath(['type'])
                     .withValue('string')
-            ]).build();
+            ])).build();
 
             const result = emptyIntegerSet.complement();
 

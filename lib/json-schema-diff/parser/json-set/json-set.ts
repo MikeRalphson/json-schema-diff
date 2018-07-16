@@ -1,18 +1,29 @@
 // tslint:disable:max-classes-per-file
 
-import {allSchemaTypes, Representation, SchemaOrigin, Set} from './set';
+import {createAllObjectSet, createEmptyObjectSet} from '../set-factories/create-object-set';
+import {AllArraySet, EmptyArraySet} from './json-subset/array-set';
+import {AllBooleanSet, EmptyBooleanSet} from './json-subset/boolean-set';
+import {AllIntegerSet, EmptyIntegerSet} from './json-subset/integer-set';
+import {AllNullSet, EmptyNullSet} from './json-subset/null-set';
+import {AllNumberSet, EmptyNumberSet} from './json-subset/number-set';
+import {AllStringSet, EmptyStringSet} from './json-subset/string-set';
+import {
+    allSchemaTypes, Representation, SchemaOrigin, Set, toDestinationRepresentationValues,
+    toSourceRepresentationValues
+} from './set';
 
-type JsonSet = Set<'json'> & {
+interface JsonSet extends Set<'json'> {
     intersectWithAll(otherSet: AllJsonSet): JsonSet;
     unionWithAll(otherSet: AllJsonSet): JsonSet;
     intersectWithEmpty(otherSet: EmptyJsonSet): JsonSet;
     unionWithEmpty(otherSet: EmptyJsonSet): JsonSet;
     intersectWithSome(otherSet: SomeJsonSet): JsonSet;
     unionWithSome(otherSet: SomeJsonSet): JsonSet;
-};
+}
 
 export class AllJsonSet implements JsonSet {
     public readonly setType = 'json';
+    public readonly type = 'all';
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
@@ -25,15 +36,23 @@ export class AllJsonSet implements JsonSet {
     }
 
     public intersectWithAll(other: AllJsonSet): JsonSet {
-        return other.withAdditionalOrigins(this.schemaOrigins);
+        return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public intersectWithEmpty(other: EmptyJsonSet): JsonSet {
-        return other.withAdditionalOrigins(this.schemaOrigins);
+        return new EmptyJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public intersectWithSome(other: SomeJsonSet): JsonSet {
-        return other.withAdditionalOrigins(this.schemaOrigins);
+        return new SomeJsonSet({
+            array: other.subsets.array.intersect(new AllArraySet(this.schemaOrigins)),
+            boolean: other.subsets.boolean.intersect(new AllBooleanSet(this.schemaOrigins)),
+            integer: other.subsets.integer.intersect(new AllIntegerSet(this.schemaOrigins)),
+            null: other.subsets.null.intersect(new AllNullSet(this.schemaOrigins)),
+            number: other.subsets.number.intersect(new AllNumberSet(this.schemaOrigins)),
+            object: other.subsets.object.intersect(createAllObjectSet(this)),
+            string: other.subsets.string.intersect(new AllStringSet(this.schemaOrigins))
+        });
     }
 
     public union(other: JsonSet): JsonSet {
@@ -41,35 +60,32 @@ export class AllJsonSet implements JsonSet {
     }
 
     public unionWithSome(other: SomeJsonSet): JsonSet {
-        return this.withAdditionalOrigins(other.schemaOrigins);
+        return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public unionWithAll(other: AllJsonSet): JsonSet {
-        return this.withAdditionalOrigins(other.schemaOrigins);
+        return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public unionWithEmpty(other: EmptyJsonSet): JsonSet {
-        return this.withAdditionalOrigins(other.schemaOrigins);
+        return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public toRepresentations(): Representation[] {
         return allSchemaTypes
-            .map<Representation>((value) => ({
-                destinationValues: Set.toDestinationRepresentationValues(this.schemaOrigins),
-                sourceValues: Set.toSourceRepresentationValues(this.schemaOrigins),
+            .map((value): Representation => ({
+                destinationValues: toDestinationRepresentationValues(this.schemaOrigins),
+                sourceValues: toSourceRepresentationValues(this.schemaOrigins),
                 type: 'type',
                 value
             })
         );
     }
-
-    public withAdditionalOrigins(otherOrigins: SchemaOrigin[]): JsonSet {
-        return new AllJsonSet(this.schemaOrigins.concat(otherOrigins));
-    }
 }
 
-class EmptyJsonSet implements JsonSet {
+export class EmptyJsonSet implements JsonSet {
     public readonly setType = 'json';
+    public readonly type = 'empty';
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
@@ -82,15 +98,15 @@ class EmptyJsonSet implements JsonSet {
     }
 
     public intersectWithEmpty(other: EmptyJsonSet): JsonSet {
-        return this.withAdditionalOrigins(other.schemaOrigins);
+        return new EmptyJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public intersectWithAll(other: AllJsonSet): JsonSet {
-        return this.withAdditionalOrigins(other.schemaOrigins);
+        return new EmptyJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public intersectWithSome(other: SomeJsonSet): JsonSet {
-        return this.withAdditionalOrigins(other.schemaOrigins);
+        return new EmptyJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public union(other: JsonSet): JsonSet {
@@ -98,31 +114,27 @@ class EmptyJsonSet implements JsonSet {
     }
 
     public unionWithEmpty(other: EmptyJsonSet): JsonSet {
-        return other.withAdditionalOrigins(this.schemaOrigins);
+        return new EmptyJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public unionWithSome(other: SomeJsonSet): JsonSet {
-        return other.withAdditionalOrigins(this.schemaOrigins);
+        return other.unionWithEmpty(this);
     }
 
     public unionWithAll(other: AllJsonSet): JsonSet {
-        return other.withAdditionalOrigins(this.schemaOrigins);
+        return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public toRepresentations(): Representation[] {
         return [];
     }
-
-    public withAdditionalOrigins(otherOrigins: SchemaOrigin[]): JsonSet {
-        return new EmptyJsonSet(this.schemaOrigins.concat(otherOrigins));
-    }
 }
 
-class SomeJsonSet implements JsonSet {
+export class SomeJsonSet implements JsonSet {
     public readonly setType = 'json';
+    public readonly type = 'some';
 
-    public constructor(public readonly subsets: Subsets) {
-    }
+    public constructor(public readonly subsets: Subsets) {}
 
     public get schemaOrigins(): SchemaOrigin[] {
         return Object.keys(this.subsets).reduce(
@@ -149,11 +161,19 @@ class SomeJsonSet implements JsonSet {
     }
 
     public intersectWithAll(other: AllJsonSet): JsonSet {
-        return this.withAdditionalOrigins(other.schemaOrigins);
+        return new SomeJsonSet({
+            array: this.subsets.array.intersect(new AllArraySet(other.schemaOrigins)),
+            boolean: this.subsets.boolean.intersect(new AllBooleanSet(other.schemaOrigins)),
+            integer: this.subsets.integer.intersect(new AllIntegerSet(other.schemaOrigins)),
+            null: this.subsets.null.intersect(new AllNullSet(other.schemaOrigins)),
+            number: this.subsets.number.intersect(new AllNumberSet(other.schemaOrigins)),
+            object: this.subsets.object.intersect(createAllObjectSet(other)),
+            string: this.subsets.string.intersect(new AllStringSet(other.schemaOrigins))
+        });
     }
 
     public intersectWithEmpty(other: EmptyJsonSet): JsonSet {
-        return other.withAdditionalOrigins(this.schemaOrigins);
+        return new EmptyJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public intersectWithSome(other: SomeJsonSet): JsonSet {
@@ -173,7 +193,15 @@ class SomeJsonSet implements JsonSet {
     }
 
     public unionWithEmpty(other: EmptyJsonSet): JsonSet {
-        return this.withAdditionalOrigins(other.schemaOrigins);
+        return new SomeJsonSet({
+            array: this.subsets.array.union(new EmptyArraySet(other.schemaOrigins)),
+            boolean: this.subsets.boolean.union(new EmptyBooleanSet(other.schemaOrigins)),
+            integer: this.subsets.integer.union(new EmptyIntegerSet(other.schemaOrigins)),
+            null: this.subsets.null.union(new EmptyNullSet(other.schemaOrigins)),
+            number: this.subsets.number.union(new EmptyNumberSet(other.schemaOrigins)),
+            object: this.subsets.object.union(createEmptyObjectSet(this)),
+            string: this.subsets.string.union(new EmptyStringSet(other.schemaOrigins))
+        });
     }
 
     public unionWithSome(other: SomeJsonSet): JsonSet {
@@ -189,7 +217,7 @@ class SomeJsonSet implements JsonSet {
     }
 
     public unionWithAll(other: AllJsonSet): JsonSet {
-        return other.withAdditionalOrigins(this.schemaOrigins);
+        return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public toRepresentations(): Representation[] {
@@ -198,18 +226,6 @@ class SomeJsonSet implements JsonSet {
                 allRepresentations.concat(this.subsets[subsetName].toRepresentations()),
             []
         );
-    }
-
-    public withAdditionalOrigins(otherOrigins: SchemaOrigin[]): JsonSet {
-        return new SomeJsonSet({
-            array: this.subsets.array.withAdditionalOrigins(otherOrigins),
-            boolean: this.subsets.boolean.withAdditionalOrigins(otherOrigins),
-            integer: this.subsets.integer.withAdditionalOrigins(otherOrigins),
-            null: this.subsets.null.withAdditionalOrigins(otherOrigins),
-            number: this.subsets.number.withAdditionalOrigins(otherOrigins),
-            object: this.subsets.object.withAdditionalOrigins(otherOrigins),
-            string: this.subsets.string.withAdditionalOrigins(otherOrigins)
-        });
     }
 }
 
@@ -222,15 +238,3 @@ export interface Subsets {
     object: Set<'object'>;
     string: Set<'string'>;
 }
-
-export const createSomeJsonSet = (subsets: Subsets): Set<'json'> => {
-    return new SomeJsonSet(subsets);
-};
-
-export const createAllJsonSet = (schemaOrigins: SchemaOrigin[]): Set<'json'> => {
-    return new AllJsonSet(schemaOrigins);
-};
-
-export const createEmptyJsonSet = (schemaOrigins: SchemaOrigin[]): Set<'json'> => {
-    return new EmptyJsonSet(schemaOrigins);
-};

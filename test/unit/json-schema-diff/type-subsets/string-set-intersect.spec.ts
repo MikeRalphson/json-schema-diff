@@ -1,10 +1,9 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {
     allStringSetBuilder,
-    createAllStringSetWithOrigins,
-    createEmptyStringSetWithOrigins,
     emptyStringSetBuilder
 } from '../../support/builders/sets/string-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
@@ -29,20 +28,20 @@ describe('string-set', () => {
             });
 
             it('should merge schema origins when empty and empty string sets are intersected', () => {
-                const firstEmptyStringSet = createEmptyStringSetWithOrigins([
+                const firstEmptyStringSet = emptyStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('number')
-                    ])
+                    ]))
                 .build();
 
-                const secondEmptyStringSet = createEmptyStringSetWithOrigins([
+                const secondEmptyStringSet = emptyStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('number')
-                ])
+                ]))
                 .build();
 
                 const complementOfIntersection = firstEmptyStringSet
@@ -64,9 +63,9 @@ describe('string-set', () => {
 
         describe('all and all', () => {
             it('should intersect all and all string sets resulting in another all string set', () => {
-                const firstAllStringSet = createAllStringSetWithOrigins([]).build();
+                const firstAllStringSet = allStringSetBuilder.build();
 
-                const secondAllStringSet = createAllStringSetWithOrigins([]).build();
+                const secondAllStringSet = allStringSetBuilder.build();
 
                 const result = firstAllStringSet.intersect(secondAllStringSet);
 
@@ -79,19 +78,19 @@ describe('string-set', () => {
             });
 
             it('should merge schema origins when all and all string sets are intersected', () => {
-                const firstAllStringSet = createAllStringSetWithOrigins([
+                const firstAllStringSet = allStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const secondAllStringSet = createAllStringSetWithOrigins([
+                const secondAllStringSet = allStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
                 const result = firstAllStringSet.intersect(secondAllStringSet);
 
@@ -120,19 +119,19 @@ describe('string-set', () => {
             });
 
             it('should merge schema origins when empty and all string sets are intersected', () => {
-                const emptyStringSet = createEmptyStringSetWithOrigins([
+                const emptyStringSet = emptyStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('number')
-                ]).build();
+                ])).build();
 
-                const allStringSet = createAllStringSetWithOrigins([
+                const allStringSet = allStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
                 const complementOfTheResult = emptyStringSet.intersect(allStringSet).complement();
 

@@ -1,42 +1,50 @@
-import {createStringSet} from '../../../../../lib/json-schema-diff/parser/json-set/json-subset/string-set';
+import {AllStringSet, EmptyStringSet} from '../../../../../lib/json-schema-diff/parser/json-set/json-subset/string-set';
 import {Set} from '../../../../../lib/json-schema-diff/parser/json-set/set';
 import {
     parsedSchemaKeywordsBuilder,
     ParsedSchemaKeywordsBuilder
 } from '../parsed-schema-keywords/parsed-schema-keywords-builder';
-import {parsedTypeKeywordBuilder} from '../parsed-schema-keywords/parsed-type-keyword-builder';
-import {SchemaOriginBuilder, schemaOriginBuilder} from '../parsed-schema-keywords/schema-origin-builder';
+import {
+    ParsedTypeKeywordBuilder,
+    parsedTypeKeywordBuilder
+} from '../parsed-schema-keywords/parsed-type-keyword-builder';
 
 export class StringSetBuilder {
     public static defaultStringSetBuilder(): StringSetBuilder {
-        return new StringSetBuilder(parsedSchemaKeywordsBuilder);
+        return new StringSetBuilder(parsedSchemaKeywordsBuilder, 'all');
     }
 
-    private constructor(private readonly parsedSchemaKeywords: ParsedSchemaKeywordsBuilder) {}
+    public static defaultAllStringSetBuilder(): StringSetBuilder {
+        return new StringSetBuilder(
+            parsedSchemaKeywordsBuilder.withType(parsedTypeKeywordBuilder.withOrigins([]).withParsedValue(['string'])),
+            'all'
+        );
+    }
 
-    public withParsedSchemaKeywords(parsedSchemaKeywords: ParsedSchemaKeywordsBuilder): StringSetBuilder {
-        return new StringSetBuilder(parsedSchemaKeywords);
+    public static defaultEmptyStringSetBuilder(): StringSetBuilder {
+        return new StringSetBuilder(
+            parsedSchemaKeywordsBuilder.withType(parsedTypeKeywordBuilder.withOrigins([]).withParsedValue(['number'])),
+            'empty'
+        );
+    }
+
+    protected constructor(
+        private readonly parsedSchemaKeywords: ParsedSchemaKeywordsBuilder,
+        private readonly type: 'empty' | 'all'
+    ) {}
+
+    public withType(parsedTypeKeyword: ParsedTypeKeywordBuilder): StringSetBuilder {
+        return new StringSetBuilder(this.parsedSchemaKeywords.withType(parsedTypeKeyword), this.type);
     }
 
     public build(): Set<'string'> {
-        return createStringSet(this.parsedSchemaKeywords.build());
+        const keywords = this.parsedSchemaKeywords.build();
+        return this.type === 'all'
+            ? new AllStringSet(keywords.type.origins)
+            : new EmptyStringSet(keywords.type.origins);
     }
 }
 
-export const stringSetBuilder = StringSetBuilder.defaultStringSetBuilder();
+export const emptyStringSetBuilder = StringSetBuilder.defaultEmptyStringSetBuilder();
 
-export const createAllStringSetWithOrigins = (origins: SchemaOriginBuilder[]): StringSetBuilder =>
-    stringSetBuilder.withParsedSchemaKeywords(parsedSchemaKeywordsBuilder
-        .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['string'])));
-
-export const createEmptyStringSetWithOrigins = (origins: SchemaOriginBuilder[]): StringSetBuilder =>
-    stringSetBuilder.withParsedSchemaKeywords(parsedSchemaKeywordsBuilder
-        .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['number'])));
-
-export const emptyStringSetBuilder = createEmptyStringSetWithOrigins([
-    schemaOriginBuilder.withPath(['type']).withValue('number')
-]);
-
-export const allStringSetBuilder = createAllStringSetWithOrigins([
-    schemaOriginBuilder.withPath(['type']).withValue('string')
-]);
+export const allStringSetBuilder = StringSetBuilder.defaultAllStringSetBuilder();

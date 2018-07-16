@@ -1,8 +1,9 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {
-    allNullSetBuilder, createAllNullSetWithOrigins, createEmptyNullSetWithOrigins, emptyNullSetBuilder
+    allNullSetBuilder, emptyNullSetBuilder
 } from '../../support/builders/sets/null-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
@@ -26,19 +27,19 @@ describe('null-set', () => {
             });
 
             it('should merge schema origins when empty and empty null sets are unioned', () => {
-                const emptyNullSetSource = createEmptyNullSetWithOrigins([
+                const emptyNullSetSource = emptyNullSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const emptyNullSetDestination = createEmptyNullSetWithOrigins([
+                const emptyNullSetDestination = emptyNullSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
                 const complementOfUnion = emptyNullSetSource.union(emptyNullSetDestination).complement();
 
@@ -57,9 +58,9 @@ describe('null-set', () => {
 
         describe('all and all', () => {
             it('should union all and all null sets resulting in another all null set', () => {
-                const allNullSetSource = createAllNullSetWithOrigins([]).build();
+                const allNullSetSource = allNullSetBuilder.build();
 
-                const allNullSetDestination = createAllNullSetWithOrigins([]).build();
+                const allNullSetDestination = allNullSetBuilder.build();
 
                 const resultNullSet = allNullSetSource.union(allNullSetDestination);
 
@@ -72,19 +73,19 @@ describe('null-set', () => {
             });
 
             it('should merge schema origins when all and all null sets are unioned', () => {
-                const allNullSetSource = createAllNullSetWithOrigins([
+                const allNullSetSource = allNullSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('null')
-                ]).build();
+                ])).build();
 
-                const allNullSetDestination = createAllNullSetWithOrigins([
+                const allNullSetDestination = allNullSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('null')
-                ]).build();
+                ])).build();
 
                 const resultNullSet = allNullSetSource.union(allNullSetDestination);
 
@@ -103,9 +104,9 @@ describe('null-set', () => {
 
         describe('all and empty', () => {
             it('should union empty and all null sets resulting in another all null set', () => {
-                const emptyNullSetSource = createEmptyNullSetWithOrigins([]).build();
+                const emptyNullSetSource = emptyNullSetBuilder.build();
 
-                const allNullSetDestination = createAllNullSetWithOrigins([]).build();
+                const allNullSetDestination = allNullSetBuilder.build();
 
                 const resultNullSet = emptyNullSetSource.union(allNullSetDestination);
 
@@ -118,19 +119,19 @@ describe('null-set', () => {
             });
 
             it('should merge schema origins when empty and all null sets are unioned', () => {
-                const emptyNullSetSource = createEmptyNullSetWithOrigins([
+                const emptyNullSetSource = emptyNullSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const allNullSetDestination = createAllNullSetWithOrigins([
+                const allNullSetDestination = allNullSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('null')
-                ]).build();
+                ])).build();
 
                 const result = emptyNullSetSource.union(allNullSetDestination);
 

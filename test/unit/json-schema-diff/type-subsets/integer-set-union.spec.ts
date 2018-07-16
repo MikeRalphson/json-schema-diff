@@ -1,8 +1,9 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {
-    allIntegerSetBuilder, createAllIntegerSetWithOrigins, createEmptyIntegerSetWithOrigins, emptyIntegerSetBuilder
+    allIntegerSetBuilder, emptyIntegerSetBuilder
 } from '../../support/builders/sets/integer-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
@@ -26,19 +27,21 @@ describe('integer-set', () => {
             });
 
             it('should merge schema origins when empty and empty integer sets are unioned', () => {
-                const emptyIntegerSetSource = createEmptyIntegerSetWithOrigins([
-                    schemaOriginBuilder
-                        .withPath(['type'])
-                        .withType('source')
-                        .withValue('string')
-                ]).build();
+                const emptyIntegerSetSource = emptyIntegerSetBuilder
+                    .withType(parsedTypeKeywordBuilder.withOrigins([
+                        schemaOriginBuilder
+                            .withPath(['type'])
+                            .withType('source')
+                            .withValue('string')
+                    ])).build();
 
-                const emptyIntegerSetDestination = createEmptyIntegerSetWithOrigins([
-                    schemaOriginBuilder
-                        .withPath(['type'])
-                        .withType('destination')
-                        .withValue('string')
-                ]).build();
+                const emptyIntegerSetDestination = emptyIntegerSetBuilder
+                    .withType(parsedTypeKeywordBuilder.withOrigins([
+                        schemaOriginBuilder
+                            .withPath(['type'])
+                            .withType('destination')
+                            .withValue('string')
+                    ])).build();
 
                 const complementOfUnion = emptyIntegerSetSource.union(emptyIntegerSetDestination).complement();
 
@@ -57,9 +60,9 @@ describe('integer-set', () => {
 
         describe('all and all', () => {
             it('should union all and all integer sets resulting in another all integer set', () => {
-                const allIntegerSetSource = createAllIntegerSetWithOrigins([]).build();
+                const allIntegerSetSource = allIntegerSetBuilder.build();
 
-                const allIntegerSetDestination = createAllIntegerSetWithOrigins([]).build();
+                const allIntegerSetDestination = allIntegerSetBuilder.build();
 
                 const resultIntegerSet = allIntegerSetSource.union(allIntegerSetDestination);
 
@@ -72,19 +75,19 @@ describe('integer-set', () => {
             });
 
             it('should merge schema origins when all and all integer sets are unioned', () => {
-                const allIntegerSetSource = createAllIntegerSetWithOrigins([
+                const allIntegerSetSource = allIntegerSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('integer')
-                ]).build();
+                ])).build();
 
-                const allIntegerSetDestination = createAllIntegerSetWithOrigins([
+                const allIntegerSetDestination = allIntegerSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('integer')
-                ]).build();
+                ])).build();
 
                 const resultIntegerSet = allIntegerSetSource.union(allIntegerSetDestination);
 
@@ -103,9 +106,9 @@ describe('integer-set', () => {
 
         describe('all and empty', () => {
             it('should union empty and all integer sets resulting in another all integer set', () => {
-                const emptyIntegerSetSource = createEmptyIntegerSetWithOrigins([]).build();
+                const emptyIntegerSetSource = emptyIntegerSetBuilder.build();
 
-                const allIntegerSetDestination = createAllIntegerSetWithOrigins([]).build();
+                const allIntegerSetDestination = allIntegerSetBuilder.build();
 
                 const resultIntegerSet = emptyIntegerSetSource.union(allIntegerSetDestination);
 
@@ -118,19 +121,19 @@ describe('integer-set', () => {
             });
 
             it('should merge schema origins when empty and all integer sets are unioned', () => {
-                const emptyIntegerSetSource = createEmptyIntegerSetWithOrigins([
+                const emptyIntegerSetSource = emptyIntegerSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const allIntegerSetDestination = createAllIntegerSetWithOrigins([
+                const allIntegerSetDestination = allIntegerSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('integer')
-                ]).build();
+                ])).build();
 
                 const resultIntegerSet = emptyIntegerSetSource.union(allIntegerSetDestination);
 

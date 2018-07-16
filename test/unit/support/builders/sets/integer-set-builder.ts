@@ -1,42 +1,53 @@
-import {createIntegerSet} from '../../../../../lib/json-schema-diff/parser/json-set/json-subset/integer-set';
+import {
+    AllIntegerSet,
+    EmptyIntegerSet
+} from '../../../../../lib/json-schema-diff/parser/json-set/json-subset/integer-set';
 import {Set} from '../../../../../lib/json-schema-diff/parser/json-set/set';
 import {
     parsedSchemaKeywordsBuilder,
     ParsedSchemaKeywordsBuilder
 } from '../parsed-schema-keywords/parsed-schema-keywords-builder';
-import {parsedTypeKeywordBuilder} from '../parsed-schema-keywords/parsed-type-keyword-builder';
-import {SchemaOriginBuilder, schemaOriginBuilder} from '../parsed-schema-keywords/schema-origin-builder';
+import {
+    ParsedTypeKeywordBuilder,
+    parsedTypeKeywordBuilder
+} from '../parsed-schema-keywords/parsed-type-keyword-builder';
 
 export class IntegerSetBuilder {
-    public static defaultIntegerSetBuilder(): IntegerSetBuilder {
-        return new IntegerSetBuilder(parsedSchemaKeywordsBuilder);
+    public static defaultAllIntegerSetBuilder(): IntegerSetBuilder {
+        return new IntegerSetBuilder(
+            parsedSchemaKeywordsBuilder.withType(parsedTypeKeywordBuilder.withOrigins([]).withParsedValue(['integer'])),
+            'all'
+        );
     }
 
-    private constructor(private readonly parsedSchemaKeywords: ParsedSchemaKeywordsBuilder) {}
+    public static defaultEmptyIntegerSetBuilder(): IntegerSetBuilder {
+        return new IntegerSetBuilder(
+            parsedSchemaKeywordsBuilder.withType(parsedTypeKeywordBuilder.withOrigins([]).withParsedValue(['string'])),
+            'empty'
+        );
+    }
+
+    protected constructor(
+        private readonly parsedSchemaKeywords: ParsedSchemaKeywordsBuilder,
+        private readonly type: 'empty' | 'all'
+    ) {}
 
     public withParsedSchemaKeywords(parsedSchemaKeywords: ParsedSchemaKeywordsBuilder): IntegerSetBuilder {
-        return new IntegerSetBuilder(parsedSchemaKeywords);
+        return new IntegerSetBuilder(parsedSchemaKeywords, this.type);
+    }
+
+    public withType(parsedTypeKeyword: ParsedTypeKeywordBuilder): IntegerSetBuilder {
+        return new IntegerSetBuilder(this.parsedSchemaKeywords.withType(parsedTypeKeyword), this.type);
     }
 
     public build(): Set<'integer'> {
-        return createIntegerSet(this.parsedSchemaKeywords.build());
+        const keywords = this.parsedSchemaKeywords.build();
+        return this.type === 'all'
+            ? new AllIntegerSet(keywords.type.origins)
+            : new EmptyIntegerSet(keywords.type.origins);
     }
 }
 
-export const integerSetBuilder = IntegerSetBuilder.defaultIntegerSetBuilder();
+export const emptyIntegerSetBuilder = IntegerSetBuilder.defaultEmptyIntegerSetBuilder();
 
-export const createEmptyIntegerSetWithOrigins = (origins: SchemaOriginBuilder[]): IntegerSetBuilder =>
-    integerSetBuilder.withParsedSchemaKeywords(parsedSchemaKeywordsBuilder
-        .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['string'])));
-
-export const createAllIntegerSetWithOrigins = (origins: SchemaOriginBuilder[]): IntegerSetBuilder =>
-    integerSetBuilder.withParsedSchemaKeywords(parsedSchemaKeywordsBuilder
-        .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['integer'])));
-
-export const emptyIntegerSetBuilder = createEmptyIntegerSetWithOrigins([
-    schemaOriginBuilder.withPath(['type']).withValue('string')
-]);
-
-export const allIntegerSetBuilder = createAllIntegerSetWithOrigins([
-    schemaOriginBuilder.withPath(['type']).withValue('integer')
-]);
+export const allIntegerSetBuilder = IntegerSetBuilder.defaultAllIntegerSetBuilder();

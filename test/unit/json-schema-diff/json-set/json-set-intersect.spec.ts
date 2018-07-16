@@ -1,21 +1,21 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {allJsonSetBuilder} from '../../support/builders/sets/all-json-set-builder';
-import {createAllArraySetWithOrigins} from '../../support/builders/sets/array-set-builder';
-import {createAllBooleanSetWithOrigins} from '../../support/builders/sets/boolean-set-builder';
+import {allArraySetBuilder} from '../../support/builders/sets/array-set-builder';
+import {allBooleanSetBuilder} from '../../support/builders/sets/boolean-set-builder';
 import {emptyJsonSetBuilder} from '../../support/builders/sets/empty-json-set-builder';
-import {createAllIntegerSetWithOrigins} from '../../support/builders/sets/integer-set-builder';
-import {createAllNullSetWithOrigins} from '../../support/builders/sets/null-set-builder';
-import {createAllNumberSetWithOrigins} from '../../support/builders/sets/number-set-builder';
+import {allIntegerSetBuilder} from '../../support/builders/sets/integer-set-builder';
+import {allNullSetBuilder} from '../../support/builders/sets/null-set-builder';
+import {allNumberSetBuilder} from '../../support/builders/sets/number-set-builder';
 import {
-    createAllObjectSetWithOrigins,
-    createEmptyObjectSetWithOrigins
+    allObjectSetBuilder,
+    emptyObjectSetBuilder
 } from '../../support/builders/sets/object-set-builder';
 import {someJsonSetBuilder, someJsonSetOfStrings} from '../../support/builders/sets/some-json-set-builder';
 import {
-    createAllStringSetWithOrigins,
-    createEmptyStringSetWithOrigins
+    allStringSetBuilder, emptyStringSetBuilder
 } from '../../support/builders/sets/string-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
@@ -143,7 +143,7 @@ describe('json-set', () => {
                 const allJsonSet = allJsonSetBuilder.withOrigins([]).build();
 
                 const jsonSetOfStrings = someJsonSetBuilder
-                    .withStringSet(createAllStringSetWithOrigins([]))
+                    .withStringSet(allStringSetBuilder)
                     .build();
 
                 const result = allJsonSet.intersect(jsonSetOfStrings);
@@ -163,12 +163,12 @@ describe('json-set', () => {
                 ]).build();
 
                 const jsonSetOfStrings = someJsonSetBuilder
-                    .withStringSet(createAllStringSetWithOrigins([
+                    .withStringSet(allStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                         schemaOriginBuilder
                             .withType('destination')
                             .withPath(['definitions', 'otherSchema', 'type'])
                             .withValue('string')
-                    ]))
+                    ])))
                     .build();
 
                 const result = allJsonSet.intersect(jsonSetOfStrings);
@@ -189,13 +189,12 @@ describe('json-set', () => {
             });
 
             it('should return the same result regardless the order of the operands', () => {
-                const allJsonSet = allJsonSetBuilder.build();
+                const allJsonSet = allJsonSetBuilder;
 
-                const someJsonSet = someJsonSetOfStrings.build();
+                const someJsonSet = someJsonSetOfStrings;
 
-                const resultSomeAndAll = someJsonSet.intersect(allJsonSet);
-                const resultAllAndSome = allJsonSet.intersect(someJsonSet);
-
+                const resultSomeAndAll = someJsonSet.build().intersect(allJsonSet.build());
+                const resultAllAndSome = allJsonSet.build().intersect(someJsonSet.build());
                 expect(resultSomeAndAll.toRepresentations())
                     .toContainRepresentations(resultAllAndSome.toRepresentations());
             });
@@ -263,12 +262,12 @@ describe('json-set', () => {
                     .build();
 
                 const someJsonSet = someJsonSetBuilder
-                    .withStringSet(createAllStringSetWithOrigins([
+                    .withStringSet(allStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                         schemaOriginBuilder
                             .withType('destination')
                             .withPath(['definitions', 'otherSchema', 'type'])
                             .withValue('string')
-                    ]))
+                    ])))
                     .build();
 
                 const complementOfIntersection = emptyJsonSet.intersect(someJsonSet).complement();
@@ -311,23 +310,23 @@ describe('json-set', () => {
         describe('some and some', () => {
             it('should return another some json set with intersected sub sets', () => {
                 const firstSomeJsonSet = someJsonSetBuilder
-                    .withArraySet(createAllArraySetWithOrigins([]))
-                    .withBooleanSet(createAllBooleanSetWithOrigins([]))
-                    .withIntegerSet(createAllIntegerSetWithOrigins([]))
-                    .withNullSet(createAllNullSetWithOrigins([]))
-                    .withNumberSet(createAllNumberSetWithOrigins([]))
-                    .withObjectSet(createEmptyObjectSetWithOrigins([]))
-                    .withStringSet(createEmptyStringSetWithOrigins([]))
+                    .withArraySet(allArraySetBuilder)
+                    .withBooleanSet(allBooleanSetBuilder)
+                    .withIntegerSet(allIntegerSetBuilder)
+                    .withNullSet(allNullSetBuilder)
+                    .withNumberSet(allNumberSetBuilder)
+                    .withObjectSet(emptyObjectSetBuilder)
+                    .withStringSet(emptyStringSetBuilder)
                     .build();
 
                 const secondSomeJsonSet = someJsonSetBuilder
-                    .withArraySet(createAllArraySetWithOrigins([]))
-                    .withBooleanSet(createAllBooleanSetWithOrigins([]))
-                    .withIntegerSet(createAllIntegerSetWithOrigins([]))
-                    .withNullSet(createAllNullSetWithOrigins([]))
-                    .withNumberSet(createAllNumberSetWithOrigins([]))
-                    .withObjectSet(createAllObjectSetWithOrigins([]))
-                    .withStringSet(createAllStringSetWithOrigins([]))
+                    .withArraySet(allArraySetBuilder)
+                    .withBooleanSet(allBooleanSetBuilder)
+                    .withIntegerSet(allIntegerSetBuilder)
+                    .withNullSet(allNullSetBuilder)
+                    .withNumberSet(allNumberSetBuilder)
+                    .withObjectSet(allObjectSetBuilder)
+                    .withStringSet(allStringSetBuilder)
                     .build();
 
                 const result = firstSomeJsonSet.intersect(secondSomeJsonSet);
@@ -346,5 +345,4 @@ describe('json-set', () => {
             });
         });
     });
-
 });

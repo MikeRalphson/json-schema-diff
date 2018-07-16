@@ -1,8 +1,9 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {
-    allNumberSetBuilder, createAllNumberSetWithOrigins, createEmptyNumberSetWithOrigins, emptyNumberSetBuilder
+    allNumberSetBuilder, emptyNumberSetBuilder
 } from '../../support/builders/sets/number-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
@@ -26,19 +27,19 @@ describe('number-set', () => {
             });
 
             it('should merge schema origins when empty and empty number sets are intersected', () => {
-                const emptyNumberSetSource = createEmptyNumberSetWithOrigins([
+                const emptyNumberSetSource = emptyNumberSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const emptyNumberSetDestination = createEmptyNumberSetWithOrigins([
+                const emptyNumberSetDestination = emptyNumberSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
                 const complementOfIntersection = emptyNumberSetSource
                     .intersect(emptyNumberSetDestination)
@@ -59,9 +60,9 @@ describe('number-set', () => {
 
         describe('all and all', () => {
             it('should intersect all and all number sets resulting in another all number set', () => {
-                const allNumberSetSource = createAllNumberSetWithOrigins([]).build();
+                const allNumberSetSource = allNumberSetBuilder.build();
 
-                const allNumberSetDestination = createAllNumberSetWithOrigins([]).build();
+                const allNumberSetDestination = allNumberSetBuilder.build();
 
                 const resultNumberSet = allNumberSetSource.intersect(allNumberSetDestination);
 
@@ -74,19 +75,19 @@ describe('number-set', () => {
             });
 
             it('should merge schema origins when all and all number sets are intersected', () => {
-                const allNumberSetSource = createAllNumberSetWithOrigins([
+                const allNumberSetSource = allNumberSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('number')
-                ]).build();
+                ])).build();
 
-                const allNumberSetDestination = createAllNumberSetWithOrigins([
+                const allNumberSetDestination = allNumberSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('number')
-                ]).build();
+                ])).build();
 
                 const resultNumberSet = allNumberSetSource.intersect(allNumberSetDestination);
 
@@ -115,19 +116,19 @@ describe('number-set', () => {
             });
 
             it('should merge schema origins when empty and all number sets are intersected', () => {
-                const emptyNumberSetSource = createEmptyNumberSetWithOrigins([
+                const emptyNumberSetSource = emptyNumberSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const allNumberSetDestination = createAllNumberSetWithOrigins([
+                const allNumberSetDestination = allNumberSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('number')
-                ]).build();
+                ])).build();
 
                 const complementOfTheResult = emptyNumberSetSource.intersect(allNumberSetDestination).complement();
 

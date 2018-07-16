@@ -1,9 +1,10 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {
     allIntegerSetBuilder,
-    createEmptyIntegerSetWithOrigins
+    emptyIntegerSetBuilder
 } from '../../support/builders/sets/integer-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
@@ -16,10 +17,12 @@ describe('integer-set', () => {
 
     describe('complement', () => {
         it('should return an all integer set when complementing an empty integer set', () => {
-            const emptyIntegerSet = createEmptyIntegerSetWithOrigins([schemaOriginBuilder
-                .withType('source')
-                .withPath(['type'])
-                .withValue('string')]).build();
+            const emptyIntegerSet = emptyIntegerSetBuilder.withType(
+                parsedTypeKeywordBuilder.withOrigins([schemaOriginBuilder
+                    .withType('source')
+                    .withPath(['type'])
+                    .withValue('string')]))
+                .build();
 
             const result = emptyIntegerSet.complement();
 

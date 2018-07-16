@@ -1,17 +1,20 @@
 // tslint:disable:max-classes-per-file
 
-import {ParsedSchemaKeywords, Representation, SchemaOrigin, Set} from '../set';
-import {isTypeSupported} from './is-type-supported';
+import {
+    Representation, SchemaOrigin, Set, toDestinationRepresentationValues,
+    toSourceRepresentationValues
+} from '../set';
 
-type NumberSet = Set<'number'> & {
+interface NumberSet extends Set<'number'> {
     intersectWithAll(otherAllSet: AllNumberSet): NumberSet;
     intersectWithEmpty(otherEmptySet: EmptyNumberSet): NumberSet;
     unionWithAll(otherAllSet: AllNumberSet): NumberSet;
     unionWithEmpty(otherEmptySet: EmptyNumberSet): NumberSet;
-};
+}
 
-class AllNumberSet implements NumberSet {
+export class AllNumberSet implements NumberSet {
     public readonly setType = 'number';
+    public readonly type = 'all';
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
@@ -44,22 +47,23 @@ class AllNumberSet implements NumberSet {
         return new EmptyNumberSet(this.schemaOrigins);
     }
 
-    public withAdditionalOrigins(origins: SchemaOrigin[]): NumberSet {
-        return new AllNumberSet(this.schemaOrigins.concat(origins));
-    }
-
     public toRepresentations(): Representation[] {
         return [{
-            destinationValues: Set.toDestinationRepresentationValues(this.schemaOrigins),
-            sourceValues: Set.toSourceRepresentationValues(this.schemaOrigins),
+            destinationValues: toDestinationRepresentationValues(this.schemaOrigins),
+            sourceValues: toSourceRepresentationValues(this.schemaOrigins),
             type: 'type',
             value: 'number'
         }];
     }
+
+    private withAdditionalOrigins(origins: SchemaOrigin[]): NumberSet {
+        return new AllNumberSet(this.schemaOrigins.concat(origins));
+    }
 }
 
-class EmptyNumberSet implements NumberSet {
+export class EmptyNumberSet implements NumberSet {
     public readonly setType = 'number';
+    public readonly type = 'empty';
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
@@ -80,7 +84,7 @@ class EmptyNumberSet implements NumberSet {
     }
 
     public unionWithAll(otherAllSet: AllNumberSet): NumberSet {
-        return otherAllSet.withAdditionalOrigins(this.schemaOrigins);
+        return new AllNumberSet(this.schemaOrigins.concat(otherAllSet.schemaOrigins));
     }
 
     public unionWithEmpty(otherEmptySet: NumberSet): NumberSet {
@@ -91,16 +95,11 @@ class EmptyNumberSet implements NumberSet {
         return new AllNumberSet(this.schemaOrigins);
     }
 
-    public withAdditionalOrigins(origins: SchemaOrigin[]): NumberSet {
-        return new EmptyNumberSet(this.schemaOrigins.concat(origins));
-    }
-
     public toRepresentations(): Representation[] {
         return [];
     }
-}
 
-export const createNumberSet = (parsedSchemaKeywords: ParsedSchemaKeywords): Set<'number'> =>
-    isTypeSupported(parsedSchemaKeywords, 'number')
-        ? new AllNumberSet(parsedSchemaKeywords.type.origins)
-        : new EmptyNumberSet(parsedSchemaKeywords.type.origins);
+    private withAdditionalOrigins(origins: SchemaOrigin[]): NumberSet {
+        return new EmptyNumberSet(this.schemaOrigins.concat(origins));
+    }
+}

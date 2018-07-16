@@ -1,13 +1,14 @@
-import {
-    parsedSchemaKeywordsBuilder
-} from '../../support/builders/parsed-schema-keywords/parsed-schema-keywords-builder';
 import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {allJsonSetBuilder} from '../../support/builders/sets/all-json-set-builder';
 import {emptyJsonSetBuilder} from '../../support/builders/sets/empty-json-set-builder';
-import {allObjectSetBuilder, objectSetBuilder} from '../../support/builders/sets/object-set-builder';
+import {
+    allObjectSetBuilder,
+    emptyObjectSetBuilder,
+    someObjectSetBuilder
+} from '../../support/builders/sets/object-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
 declare function expect<T>(actual: T): CustomMatchers<T>;
@@ -19,20 +20,16 @@ describe('object-set', () => {
 
     describe('complement', () => {
         it('should return an all object set when complementing an empty object set', () => {
-            const emptyObjectSet = objectSetBuilder
-                .withParsedSchemaKeywords(
-                    parsedSchemaKeywordsBuilder
-                        .withType(parsedTypeKeywordBuilder
-                            .withOrigins([schemaOriginBuilder
-                                .withType('source')
-                                .withPath(['type'])
-                                .withValue('string')])
-                            .withParsedValue(['string']))
-                ).build();
+            const emptyObjectSet = emptyObjectSetBuilder
+                .withType(parsedTypeKeywordBuilder.withOrigins([schemaOriginBuilder
+                    .withType('source')
+                    .withPath(['type'])
+                    .withValue('string')
+                ])).build();
 
-            const result = emptyObjectSet.complement();
+            const resultObjectSet = emptyObjectSet.complement();
 
-            expect(result.toRepresentations()).toContainRepresentations([
+            expect(resultObjectSet.toRepresentations()).toContainRepresentations([
                 representationBuilder
                     .withDestinationValues([])
                     .withSourceValue(representationValueBuilder
@@ -46,32 +43,27 @@ describe('object-set', () => {
         it('should return an empty object set when complementing an all object set', () => {
             const allObjectSet = allObjectSetBuilder.build();
 
-            const result = allObjectSet.complement();
+            const resultObjectSet = allObjectSet.complement();
 
-            expect(result.toRepresentations()).toContainRepresentations([]);
-            expect(allObjectSet.toRepresentations()).toContainRepresentations(result.complement().toRepresentations());
+            expect(resultObjectSet.toRepresentations()).toContainRepresentations([]);
+            expect(allObjectSet.toRepresentations())
+                .toContainRepresentations(resultObjectSet.complement().toRepresentations());
         });
 
         describe('some object set', () => {
             it('should return a some object set with complemented properties', () => {
-                const someObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([]))
-                            .withProperties({
-                                name: emptyJsonSetBuilder
-                                    .withOrigins([schemaOriginBuilder
-                                        .withPath(['properties', 'name'])
-                                        .withValue(false)
-                                        .withType('source')])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
+                const someObjectSet = someObjectSetBuilder
+                    .withProperties({
+                        name: emptyJsonSetBuilder
+                            .withOrigins([schemaOriginBuilder
+                                .withPath(['properties', 'name'])
+                                .withValue(false)
+                                .withType('source')])
+                    })
+                    .withAdditionalProperties(allJsonSetBuilder)
+                    .build();
 
-                const result = someObjectSet.complement();
+                const resultObjectSet = someObjectSet.complement();
 
                 const baseNamePropertyRepresentation = representationBuilder
                     .withSourceValue(representationValueBuilder
@@ -85,7 +77,7 @@ describe('object-set', () => {
                     .withValue('object')
                     .build();
 
-                expect(result.toRepresentations()).toContainRepresentations([
+                expect(resultObjectSet.toRepresentations()).toContainRepresentations([
                     baseNamePropertyRepresentation.withValue('boolean').build(),
                     baseNamePropertyRepresentation.withValue('array').build(),
                     baseNamePropertyRepresentation.withValue('integer').build(),
@@ -98,26 +90,20 @@ describe('object-set', () => {
             });
 
             it('should return a some object set with complemented additional properties', () => {
-                const someObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(emptyJsonSetBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withPath(['additionalProperties'])
-                                    .withValue(false)
-                                    .withType('source')]))
-                            .withProperties({
-                                name: allJsonSetBuilder
-                                    .withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([])
-                                .withParsedValue(['object']))
-                    ).build();
+                const someObjectSet = someObjectSetBuilder
+                    .withAdditionalProperties(emptyJsonSetBuilder
+                        .withOrigins([schemaOriginBuilder
+                            .withPath(['additionalProperties'])
+                            .withValue(false)
+                            .withType('source')]))
+                    .withProperties({
+                        name: allJsonSetBuilder.withOrigins([])
+                    })
+                    .build();
 
-                const result = someObjectSet.complement();
+                const resultObjectSet = someObjectSet.complement();
 
-                const baseAddtionalPropertiesRepresentation = representationBuilder
+                const baseAdditionalPropertiesRepresentation = representationBuilder
                     .withSourceValue(representationValueBuilder
                         .withValue(false)
                         .withPath(['additionalProperties']))
@@ -129,51 +115,17 @@ describe('object-set', () => {
                     .withValue('object')
                     .build();
 
-                expect(result.toRepresentations()).toContainRepresentations([
-                    baseAddtionalPropertiesRepresentation.withValue('boolean').build(),
-                    baseAddtionalPropertiesRepresentation.withValue('array').build(),
-                    baseAddtionalPropertiesRepresentation.withValue('integer').build(),
-                    baseAddtionalPropertiesRepresentation.withValue('null').build(),
-                    baseAddtionalPropertiesRepresentation.withValue('number').build(),
-                    baseAddtionalPropertiesRepresentation.withValue('object').build(),
-                    baseAddtionalPropertiesRepresentation.withValue('string').build(),
+                expect(resultObjectSet.toRepresentations()).toContainRepresentations([
+                    baseAdditionalPropertiesRepresentation.withValue('boolean').build(),
+                    baseAdditionalPropertiesRepresentation.withValue('array').build(),
+                    baseAdditionalPropertiesRepresentation.withValue('integer').build(),
+                    baseAdditionalPropertiesRepresentation.withValue('null').build(),
+                    baseAdditionalPropertiesRepresentation.withValue('number').build(),
+                    baseAdditionalPropertiesRepresentation.withValue('object').build(),
+                    baseAdditionalPropertiesRepresentation.withValue('string').build(),
                     representation
                 ]);
             });
-
-            it('should return a some object', () => {
-                const someObjectSet = objectSetBuilder
-                    .withParsedSchemaKeywords(
-                        parsedSchemaKeywordsBuilder
-                            .withAdditionalProperties(allJsonSetBuilder
-                                .withOrigins([]))
-                            .withProperties({
-                                name: allJsonSetBuilder
-                                    .withOrigins([])
-                            })
-                            .withType(parsedTypeKeywordBuilder
-                                .withOrigins([schemaOriginBuilder
-                                    .withPath(['type'])
-                                    .withValue('object')
-                                    .withType('source')])
-                                .withParsedValue(['object']))
-                    ).build();
-
-                const result = someObjectSet.complement();
-
-                const representation = representationBuilder
-                    .withSourceValues([representationValueBuilder
-                        .withPath(['type'])
-                        .withValue('object')])
-                    .withDestinationValues([])
-                    .withValue('object')
-                    .build();
-
-                expect(result.toRepresentations()).toContainRepresentations([
-                    representation
-                ]);
-            });
-
         });
     });
 });

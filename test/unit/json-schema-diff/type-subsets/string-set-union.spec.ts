@@ -1,10 +1,9 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {
     allStringSetBuilder,
-    createAllStringSetWithOrigins,
-    createEmptyStringSetWithOrigins,
     emptyStringSetBuilder
 } from '../../support/builders/sets/string-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
@@ -29,19 +28,19 @@ describe('string-set', () => {
             });
 
             it('should merge schema origins when empty and empty integer sets are unioned', () => {
-                const firstEmptyStringSet = createEmptyStringSetWithOrigins([
+                const firstEmptyStringSet = emptyStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('number')
-                ]).build();
+                ])).build();
 
-                const secondEmptyStringSet = createEmptyStringSetWithOrigins([
+                const secondEmptyStringSet = emptyStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('number')
-                ]).build();
+                ])).build();
 
                 const complementOfUnion = firstEmptyStringSet.union(secondEmptyStringSet).complement();
 
@@ -60,9 +59,9 @@ describe('string-set', () => {
 
         describe('all and all', () => {
             it('should union all and all string sets resulting in another all string set', () => {
-                const firstAllStringSet = createAllStringSetWithOrigins([]).build();
+                const firstAllStringSet = allStringSetBuilder.build();
 
-                const secondAllStringSet = createAllStringSetWithOrigins([]).build();
+                const secondAllStringSet = allStringSetBuilder.build();
 
                 const result = firstAllStringSet.union(secondAllStringSet);
 
@@ -75,19 +74,19 @@ describe('string-set', () => {
             });
 
             it('should merge schema origins when all and all string sets are unioned', () => {
-                const firstAllStringSet = createAllStringSetWithOrigins([
+                const firstAllStringSet = allStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const secondAllStringSet = createAllStringSetWithOrigins([
+                const secondAllStringSet = allStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
                 const result = firstAllStringSet.union(secondAllStringSet);
 
@@ -106,9 +105,9 @@ describe('string-set', () => {
 
         describe('all and empty', () => {
             it('should union empty and all string sets resulting in another all string set', () => {
-                const emptyStringSet = createEmptyStringSetWithOrigins([]).build();
+                const emptyStringSet = emptyStringSetBuilder.build();
 
-                const allStringSet = createAllStringSetWithOrigins([]).build();
+                const allStringSet = allStringSetBuilder.build();
 
                 const result = emptyStringSet.union(allStringSet);
 
@@ -121,19 +120,19 @@ describe('string-set', () => {
             });
 
             it('should merge schema origins when empty and all string sets are unioned', () => {
-                const emptyStringSet = createEmptyStringSetWithOrigins([
+                const emptyStringSet = emptyStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('number')
-                ]).build();
+                ])).build();
 
-                const allStringSet = createAllStringSetWithOrigins([
+                const allStringSet = allStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
                 const result = emptyStringSet.union(allStringSet);
 

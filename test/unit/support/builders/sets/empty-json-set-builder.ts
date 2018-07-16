@@ -1,6 +1,6 @@
-import {createEmptyJsonSet} from '../../../../../lib/json-schema-diff/parser/json-set/json-set';
 import {Set} from '../../../../../lib/json-schema-diff/parser/json-set/set';
-import {schemaOriginBuilder, SchemaOriginBuilder} from '../parsed-schema-keywords/schema-origin-builder';
+import {createEmptyJsonSet} from '../../../../../lib/json-schema-diff/parser/set-factories/create-json-set';
+import {SchemaOriginBuilder} from '../parsed-schema-keywords/schema-origin-builder';
 
 export class EmptyJsonSetBuilder {
     public static defaultEmptyJsonSetBuilder(): EmptyJsonSetBuilder {
@@ -18,5 +18,4 @@ export class EmptyJsonSetBuilder {
     }
 }
 
-export const emptyJsonSetBuilder = EmptyJsonSetBuilder.defaultEmptyJsonSetBuilder()
-    .withOrigins([schemaOriginBuilder.withType('source').withPath([]).withValue(false)]);
+export const emptyJsonSetBuilder = EmptyJsonSetBuilder.defaultEmptyJsonSetBuilder();

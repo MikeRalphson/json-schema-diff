@@ -1,8 +1,9 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {
-    allBooleanSetBuilder, createAllBooleanSetWithOrigins, createEmptyBooleanSetWithOrigins,
+    allBooleanSetBuilder,
     emptyBooleanSetBuilder
 } from '../../support/builders/sets/boolean-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
@@ -27,19 +28,20 @@ describe('boolean-set', () => {
             });
 
             it('should merge schema origins when empty and empty boolean sets are intersected', () => {
-                const emptyBooleanSetSource = createEmptyBooleanSetWithOrigins([
+                const emptyBooleanSetSource = emptyBooleanSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const emptyBooleanSetDestination = createEmptyBooleanSetWithOrigins([
-                    schemaOriginBuilder
-                        .withPath(['type'])
-                        .withType('destination')
-                        .withValue('string')
-                ]).build();
+                const emptyBooleanSetDestination = emptyBooleanSetBuilder.withType(
+                    parsedTypeKeywordBuilder.withOrigins([
+                        schemaOriginBuilder
+                            .withPath(['type'])
+                            .withType('destination')
+                            .withValue('string')
+                    ])).build();
 
                 const complementOfIntersection = emptyBooleanSetSource
                     .intersect(emptyBooleanSetDestination).complement();
@@ -59,9 +61,9 @@ describe('boolean-set', () => {
 
         describe('all and all', () => {
             it('should intersect all and all boolean sets resulting in another all boolean set', () => {
-                const allBooleanSetSource = createAllBooleanSetWithOrigins([]).build();
+                const allBooleanSetSource = allBooleanSetBuilder.build();
 
-                const allBooleanSetDestination = createAllBooleanSetWithOrigins([]).build();
+                const allBooleanSetDestination = allBooleanSetBuilder.build();
 
                 const resultBooleanSet = allBooleanSetSource.intersect(allBooleanSetDestination);
 
@@ -74,19 +76,19 @@ describe('boolean-set', () => {
             });
 
             it('should merge schema origins when all and all boolean sets are intersected', () => {
-                const allBooleanSetSource = createAllBooleanSetWithOrigins([
+                const allBooleanSetSource = allBooleanSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('boolean')
-                ]).build();
+                ])).build();
 
-                const allBooleanSetDestination = createAllBooleanSetWithOrigins([
+                const allBooleanSetDestination = allBooleanSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('boolean')
-                ]).build();
+                ])).build();
 
                 const resultBooleanSet = allBooleanSetSource.intersect(allBooleanSetDestination);
 
@@ -115,19 +117,19 @@ describe('boolean-set', () => {
             });
 
             it('should merge schema origins when empty and all boolean sets are intersected', () => {
-                const emptyBooleanSetSource = createEmptyBooleanSetWithOrigins([
+                const emptyBooleanSetSource = emptyBooleanSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const allBooleanSetDestination = createAllBooleanSetWithOrigins([
+                const allBooleanSetDestination = allBooleanSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('boolean')
-                ]).build();
+                ])).build();
 
                 const complementOfTheResult = emptyBooleanSetSource.intersect(allBooleanSetDestination).complement();
 

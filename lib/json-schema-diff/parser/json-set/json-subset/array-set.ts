@@ -1,16 +1,20 @@
 // tslint:disable:max-classes-per-file
-import {ParsedSchemaKeywords, Representation, SchemaOrigin, Set} from '../set';
-import {isTypeSupported} from './is-type-supported';
+import {
+    Representation, SchemaOrigin, Set, toDestinationRepresentationValues,
+    toSourceRepresentationValues
+} from '../set';
 
-type ArraySet = Set<'array'> & {
+interface ArraySet extends Set<'array'> {
     intersectWithAll(otherAllSet: AllArraySet): ArraySet;
     intersectWithEmpty(otherEmptySet: EmptyArraySet): ArraySet;
     unionWithAll(otherAllSet: AllArraySet): ArraySet;
     unionWithEmpty(otherEmptySet: EmptyArraySet): ArraySet;
-};
+}
 
-class AllArraySet implements ArraySet {
+export class AllArraySet implements ArraySet {
     public readonly setType = 'array';
+    public readonly type = 'all';
+
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {
     }
 
@@ -23,7 +27,7 @@ class AllArraySet implements ArraySet {
     }
 
     public intersectWithEmpty(otherEmptySet: EmptyArraySet): ArraySet {
-        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
+        return new EmptyArraySet(this.schemaOrigins.concat(otherEmptySet.schemaOrigins));
     }
 
     public union(otherSet: ArraySet): ArraySet {
@@ -42,22 +46,23 @@ class AllArraySet implements ArraySet {
         return new EmptyArraySet(this.schemaOrigins);
     }
 
-    public withAdditionalOrigins(origins: SchemaOrigin[]): ArraySet {
-        return new AllArraySet(this.schemaOrigins.concat(origins));
-    }
-
     public toRepresentations(): Representation[] {
         return [{
-            destinationValues: Set.toDestinationRepresentationValues(this.schemaOrigins),
-            sourceValues: Set.toSourceRepresentationValues(this.schemaOrigins),
+            destinationValues: toDestinationRepresentationValues(this.schemaOrigins),
+            sourceValues: toSourceRepresentationValues(this.schemaOrigins),
             type: 'type',
             value: 'array'
         }];
     }
+
+    private withAdditionalOrigins(origins: SchemaOrigin[]): ArraySet {
+        return new AllArraySet(this.schemaOrigins.concat(origins));
+    }
 }
 
-class EmptyArraySet implements ArraySet {
+export class EmptyArraySet implements ArraySet {
     public readonly setType = 'array';
+    public readonly type = 'empty';
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {
     }
@@ -79,7 +84,7 @@ class EmptyArraySet implements ArraySet {
     }
 
     public unionWithAll(otherAllArraySet: AllArraySet): ArraySet {
-        return otherAllArraySet.withAdditionalOrigins(this.schemaOrigins);
+        return new AllArraySet(this.schemaOrigins.concat(otherAllArraySet.schemaOrigins));
     }
 
     public unionWithEmpty(otherEmptySet: ArraySet): ArraySet {
@@ -90,16 +95,11 @@ class EmptyArraySet implements ArraySet {
         return new AllArraySet(this.schemaOrigins);
     }
 
-    public withAdditionalOrigins(origins: SchemaOrigin[]): ArraySet {
-        return new EmptyArraySet(this.schemaOrigins.concat(origins));
-    }
-
     public toRepresentations(): Representation[] {
         return [];
     }
-}
 
-export const createArraySet = (parsedSchemaKeywords: ParsedSchemaKeywords): Set<'array'> =>
-    isTypeSupported(parsedSchemaKeywords, 'array')
-        ? new AllArraySet(parsedSchemaKeywords.type.origins)
-        : new EmptyArraySet(parsedSchemaKeywords.type.origins);
+    private withAdditionalOrigins(origins: SchemaOrigin[]): ArraySet {
+        return new EmptyArraySet(this.schemaOrigins.concat(origins));
+    }
+}

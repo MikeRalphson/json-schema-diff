@@ -41,33 +41,31 @@ export interface ParsedTypeKeyword {
 
 export const allSchemaTypes: SimpleTypes[] = ['string', 'number', 'boolean', 'integer', 'array', 'object', 'null'];
 
-export abstract class Set<T> {
-    public static toSourceRepresentationValues(schemaOrigins: SchemaOrigin[]): RepresentationValue[] {
-        return Set.toRepresentationValues(schemaOrigins, 'source');
-    }
-
-    public static toDestinationRepresentationValues(schemaOrigins: SchemaOrigin[]): RepresentationValue[] {
-        return Set.toRepresentationValues(schemaOrigins, 'destination');
-    }
-
-    private static toRepresentationValues(
-        schemaOrigins: SchemaOrigin[], origin: SchemaOriginType
-    ): RepresentationValue[] {
-        const representationValuesWithDuplications: RepresentationValue[] = schemaOrigins
-            .filter((schemaOrigin) => schemaOrigin.type === origin)
-            .map((schemaOrigin) => ({
-                path: schemaOrigin.path,
-                value: schemaOrigin.value
-            }));
-
-        return _.uniqWith(representationValuesWithDuplications, _.isEqual);
-    }
-
-    public readonly setType: T;
-    public readonly schemaOrigins: SchemaOrigin[];
-    public abstract intersect(otherSet: Set<T>): Set<T>;
-    public abstract union(otherSet: Set<T>): Set<T>;
-    public abstract complement(): Set<T>;
-    public abstract toRepresentations(): Representation[];
-    public abstract withAdditionalOrigins(origins: SchemaOrigin[]): Set<T>;
+export interface Set<T> {
+    setType: T;
+    type: 'all' | 'empty' | 'some';
+    schemaOrigins: SchemaOrigin[];
+    intersect(otherSet: Set<T>): Set<T>;
+    union(otherSet: Set<T>): Set<T>;
+    complement(): Set<T>;
+    toRepresentations(): Representation[];
 }
+
+export const toSourceRepresentationValues = (schemaOrigins: SchemaOrigin[]): RepresentationValue[] =>
+    toRepresentationValues(schemaOrigins, 'source');
+
+export const toDestinationRepresentationValues = (schemaOrigins: SchemaOrigin[]): RepresentationValue[] =>
+    toRepresentationValues(schemaOrigins, 'destination');
+
+const toRepresentationValues = (
+    schemaOrigins: SchemaOrigin[], origin: SchemaOriginType
+): RepresentationValue[] => {
+    const representationValuesWithDuplications: RepresentationValue[] = schemaOrigins
+        .filter((schemaOrigin) => schemaOrigin.type === origin)
+        .map((schemaOrigin) => ({
+            path: schemaOrigin.path,
+            value: schemaOrigin.value
+        }));
+
+    return _.uniqWith(representationValuesWithDuplications, _.isEqual);
+};

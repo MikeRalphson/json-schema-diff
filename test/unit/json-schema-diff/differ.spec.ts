@@ -214,10 +214,7 @@ describe('differ', () => {
                 .withDestinationValues([
                     diffResultDifferenceValueBuilder
                         .withPath(['type'])
-                        .withValue(['number', 'object']),
-                    diffResultDifferenceValueBuilder
-                        .withPath(['additionalProperties'])
-                        .withValue(undefined)
+                        .withValue(['number', 'object'])
                 ])
                 .withSourceValue(
                     diffResultDifferenceValueBuilder
@@ -485,16 +482,10 @@ describe('differ', () => {
             const baseRemovedDifference = diffResultDifferenceBuilder
                 .withSourceValues([
                     diffResultDifferenceValueBuilder
-                        .withValue('object')
-                        .withPath(['type']),
-                    diffResultDifferenceValueBuilder
                         .withValue(true)
                         .withPath(['additionalProperties'])
                 ])
                 .withDestinationValues([
-                    diffResultDifferenceValueBuilder
-                        .withValue('object')
-                        .withPath(['type']),
                     diffResultDifferenceValueBuilder
                         .withValue(false)
                         .withPath(['additionalProperties'])
@@ -694,6 +685,27 @@ describe('differ', () => {
                 .build();
 
             expect(diffResult).toContainDifferences([removeDifference, addDifference]);
+        });
+
+        it('should fail when schema contains circular references', async () => {
+            const schemaWithCircularReferences: JsonSchema = {
+                additionalProperties: {
+                    $ref: '#/definitions/aDefinition'
+                },
+                definitions: {
+                    aDefinition: {
+                        additionalProperties: {
+                            $ref: '#/definitions/aDefinition'
+                        },
+                        type: 'object'
+                    }
+                },
+                type: 'object'
+            };
+
+            const error = await invokeDiffAndExpectToFail(schemaWithCircularReferences, {});
+
+            expect(error.message).toContain('Circular $ref pointer found');
         });
     });
 });

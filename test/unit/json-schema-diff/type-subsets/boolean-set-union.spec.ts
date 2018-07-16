@@ -1,8 +1,9 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {
-    allBooleanSetBuilder, createAllBooleanSetWithOrigins, createEmptyBooleanSetWithOrigins,
+    allBooleanSetBuilder,
     emptyBooleanSetBuilder
 } from '../../support/builders/sets/boolean-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
@@ -27,19 +28,21 @@ describe('boolean-set', () => {
             });
 
             it('should merge schema origins when empty and empty boolean sets are unioned', () => {
-                const emptyBooleanSetSource = createEmptyBooleanSetWithOrigins([
-                    schemaOriginBuilder
-                        .withPath(['type'])
-                        .withType('source')
-                        .withValue('string')
-                ]).build();
+                const emptyBooleanSetSource = emptyBooleanSetBuilder.withType(
+                    parsedTypeKeywordBuilder.withOrigins([
+                        schemaOriginBuilder
+                            .withPath(['type'])
+                            .withType('source')
+                            .withValue('string')
+                    ])).build();
 
-                const emptyBooleanSetDestination = createEmptyBooleanSetWithOrigins([
-                    schemaOriginBuilder
-                        .withPath(['type'])
-                        .withType('destination')
-                        .withValue('string')
-                ]).build();
+                const emptyBooleanSetDestination = emptyBooleanSetBuilder.withType(
+                    parsedTypeKeywordBuilder.withOrigins([
+                        schemaOriginBuilder
+                            .withPath(['type'])
+                            .withType('destination')
+                            .withValue('string')
+                    ])).build();
 
                 const complementOfUnion = emptyBooleanSetSource.union(emptyBooleanSetDestination).complement();
 
@@ -58,9 +61,9 @@ describe('boolean-set', () => {
 
         describe('all and all', () => {
             it('should union all and all boolean sets resulting in another all boolean set', () => {
-                const allBooleanSetSource = createAllBooleanSetWithOrigins([]).build();
+                const allBooleanSetSource = allBooleanSetBuilder.build();
 
-                const allBooleanSetDestination = createAllBooleanSetWithOrigins([]).build();
+                const allBooleanSetDestination = allBooleanSetBuilder.build();
 
                 const resultBooleanSet = allBooleanSetSource.union(allBooleanSetDestination);
 
@@ -73,19 +76,19 @@ describe('boolean-set', () => {
             });
 
             it('should merge schema origins when all and all boolean sets are unioned', () => {
-                const allBooleanSetSource = createAllBooleanSetWithOrigins([
+                const allBooleanSetSource = allBooleanSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('boolean')
-                ]).build();
+                ])).build();
 
-                const allBooleanSetDestination = createAllBooleanSetWithOrigins([
+                const allBooleanSetDestination = allBooleanSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('boolean')
-                ]).build();
+                ])).build();
 
                 const resultBooleanSet = allBooleanSetSource.union(allBooleanSetDestination);
 
@@ -104,9 +107,9 @@ describe('boolean-set', () => {
 
         describe('all and empty', () => {
             it('should union empty and all boolean sets resulting in another all boolean set', () => {
-                const emptyBooleanSetSource = createEmptyBooleanSetWithOrigins([]).build();
+                const emptyBooleanSetSource = emptyBooleanSetBuilder.build();
 
-                const allBooleanSetDestination = createAllBooleanSetWithOrigins([]).build();
+                const allBooleanSetDestination = allBooleanSetBuilder.build();
 
                 const resultBooleanSet = emptyBooleanSetSource.union(allBooleanSetDestination);
 
@@ -119,19 +122,19 @@ describe('boolean-set', () => {
             });
 
             it('should merge schema origins when empty and all boolean sets are unioned', () => {
-                const emptyBooleanSetSource = createEmptyBooleanSetWithOrigins([
+                const emptyBooleanSetSource = emptyBooleanSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('source')
                         .withValue('string')
-                ]).build();
+                ])).build();
 
-                const allBooleanSetDestination = createAllBooleanSetWithOrigins([
+                const allBooleanSetDestination = allBooleanSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                     schemaOriginBuilder
                         .withPath(['type'])
                         .withType('destination')
                         .withValue('boolean')
-                ]).build();
+                ])).build();
 
                 const resultBooleanSet = emptyBooleanSetSource.union(allBooleanSetDestination);
 

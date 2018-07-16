@@ -1,46 +1,50 @@
-import {createNullSet} from '../../../../../lib/json-schema-diff/parser/json-set/json-subset/null-set';
+import {AllNullSet, EmptyNullSet} from '../../../../../lib/json-schema-diff/parser/json-set/json-subset/null-set';
 import {Set} from '../../../../../lib/json-schema-diff/parser/json-set/set';
 import {
     parsedSchemaKeywordsBuilder,
     ParsedSchemaKeywordsBuilder
 } from '../parsed-schema-keywords/parsed-schema-keywords-builder';
-import {parsedTypeKeywordBuilder} from '../parsed-schema-keywords/parsed-type-keyword-builder';
-import {SchemaOriginBuilder, schemaOriginBuilder} from '../parsed-schema-keywords/schema-origin-builder';
+import {
+    ParsedTypeKeywordBuilder,
+    parsedTypeKeywordBuilder
+} from '../parsed-schema-keywords/parsed-type-keyword-builder';
 
 export class NullSetBuilder {
     public static defaultNullSetBuilder(): NullSetBuilder {
-        return new NullSetBuilder(parsedSchemaKeywordsBuilder);
+        return new NullSetBuilder(parsedSchemaKeywordsBuilder, 'all');
     }
 
-    private constructor(private readonly parsedSchemaKeywords: ParsedSchemaKeywordsBuilder) {}
+    public static defaultAllNullSetBuilder(): NullSetBuilder {
+        return new NullSetBuilder(
+            parsedSchemaKeywordsBuilder.withType(parsedTypeKeywordBuilder.withOrigins([]).withParsedValue(['null'])),
+            'all'
+        );
+    }
 
-    public withParsedSchemaKeywords(parsedSchemaKeywords: ParsedSchemaKeywordsBuilder): NullSetBuilder {
-        return new NullSetBuilder(parsedSchemaKeywords);
+    public static defaultEmptyNullSetBuilder(): NullSetBuilder {
+        return new NullSetBuilder(
+            parsedSchemaKeywordsBuilder.withType(parsedTypeKeywordBuilder.withOrigins([]).withParsedValue(['string'])),
+            'empty'
+        );
+    }
+
+    protected constructor(
+        private readonly parsedSchemaKeywords: ParsedSchemaKeywordsBuilder,
+        private readonly type: 'empty' | 'all'
+    ) {}
+
+    public withType(parsedTypeKeyword: ParsedTypeKeywordBuilder): NullSetBuilder {
+        return new NullSetBuilder(this.parsedSchemaKeywords.withType(parsedTypeKeyword), this.type);
     }
 
     public build(): Set<'null'> {
-        return createNullSet(this.parsedSchemaKeywords.build());
+        const keywords = this.parsedSchemaKeywords.build();
+        return this.type === 'all'
+            ? new AllNullSet(keywords.type.origins)
+            : new EmptyNullSet(keywords.type.origins);
     }
 }
 
-export const nullSetBuilder = NullSetBuilder.defaultNullSetBuilder();
+export const emptyNullSetBuilder = NullSetBuilder.defaultEmptyNullSetBuilder();
 
-export const createEmptyNullSetWithOrigins = (origins: SchemaOriginBuilder[]): NullSetBuilder =>
-    nullSetBuilder.withParsedSchemaKeywords(parsedSchemaKeywordsBuilder
-        .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['string'])));
-
-export const createAllNullSetWithOrigins = (origins: SchemaOriginBuilder[]): NullSetBuilder =>
-    nullSetBuilder.withParsedSchemaKeywords(parsedSchemaKeywordsBuilder
-        .withType(parsedTypeKeywordBuilder.withOrigins(origins).withParsedValue(['null'])));
-
-export const emptyNullSetBuilder = createEmptyNullSetWithOrigins([
-    schemaOriginBuilder
-        .withPath(['type'])
-        .withValue('string')
-]);
-
-export const allNullSetBuilder = createAllNullSetWithOrigins([
-    schemaOriginBuilder
-        .withPath(['type'])
-        .withValue('null')
-]);
+export const allNullSetBuilder = NullSetBuilder.defaultAllNullSetBuilder();

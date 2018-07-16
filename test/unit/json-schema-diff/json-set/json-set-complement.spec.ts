@@ -2,15 +2,17 @@ import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {allJsonSetBuilder} from '../../support/builders/sets/all-json-set-builder';
-import {createEmptyArraySetWithOrigins} from '../../support/builders/sets/array-set-builder';
-import {createAllBooleanSetWithOrigins} from '../../support/builders/sets/boolean-set-builder';
+import {emptyArraySetBuilder} from '../../support/builders/sets/array-set-builder';
+import {allBooleanSetBuilder} from '../../support/builders/sets/boolean-set-builder';
 import {emptyJsonSetBuilder} from '../../support/builders/sets/empty-json-set-builder';
-import {createEmptyIntegerSetWithOrigins} from '../../support/builders/sets/integer-set-builder';
-import {createEmptyNullSetWithOrigins} from '../../support/builders/sets/null-set-builder';
-import {createAllNumberSetWithOrigins} from '../../support/builders/sets/number-set-builder';
-import {createEmptyObjectSetWithOrigins} from '../../support/builders/sets/object-set-builder';
+import {
+    emptyIntegerSetBuilder
+} from '../../support/builders/sets/integer-set-builder';
+import {emptyNullSetBuilder} from '../../support/builders/sets/null-set-builder';
+import {allNumberSetBuilder} from '../../support/builders/sets/number-set-builder';
+import {emptyObjectSetBuilder} from '../../support/builders/sets/object-set-builder';
 import {someJsonSetBuilder} from '../../support/builders/sets/some-json-set-builder';
-import {createAllStringSetWithOrigins} from '../../support/builders/sets/string-set-builder';
+import {allStringSetBuilder} from '../../support/builders/sets/string-set-builder';
 import {customMatchers, CustomMatchers} from '../../support/custom-matchers/custom-matchers';
 
 declare function expect<T>(actual: T): CustomMatchers<T>;
@@ -107,13 +109,13 @@ describe('json-set', () => {
         describe('some', () => {
             it('should complement a some json set and return new some json set with the complemented subtypes', () => {
                 const someJsonSet = someJsonSetBuilder
-                    .withStringSet(createAllStringSetWithOrigins([]))
-                    .withBooleanSet(createAllBooleanSetWithOrigins([]))
-                    .withNumberSet(createAllNumberSetWithOrigins([]))
-                    .withArraySet(createEmptyArraySetWithOrigins([]))
-                    .withIntegerSet(createEmptyIntegerSetWithOrigins([]))
-                    .withNullSet(createEmptyNullSetWithOrigins([]))
-                    .withObjectSet(createEmptyObjectSetWithOrigins([]))
+                    .withStringSet(allStringSetBuilder)
+                    .withBooleanSet(allBooleanSetBuilder)
+                    .withNumberSet(allNumberSetBuilder)
+                    .withArraySet(emptyArraySetBuilder)
+                    .withIntegerSet(emptyIntegerSetBuilder)
+                    .withNullSet(emptyNullSetBuilder)
+                    .withObjectSet(emptyObjectSetBuilder)
                     .build();
 
                 const result = someJsonSet.complement();

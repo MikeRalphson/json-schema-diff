@@ -1,20 +1,20 @@
+import {parsedTypeKeywordBuilder} from '../../support/builders/parsed-schema-keywords/parsed-type-keyword-builder';
 import {schemaOriginBuilder} from '../../support/builders/parsed-schema-keywords/schema-origin-builder';
 import {representationBuilder} from '../../support/builders/representation-builder';
 import {representationValueBuilder} from '../../support/builders/representation-value-builder';
 import {allJsonSetBuilder} from '../../support/builders/sets/all-json-set-builder';
-import {createAllArraySetWithOrigins} from '../../support/builders/sets/array-set-builder';
-import {createAllBooleanSetWithOrigins} from '../../support/builders/sets/boolean-set-builder';
+import {allArraySetBuilder} from '../../support/builders/sets/array-set-builder';
+import {allBooleanSetBuilder} from '../../support/builders/sets/boolean-set-builder';
 import {emptyJsonSetBuilder} from '../../support/builders/sets/empty-json-set-builder';
-import {createAllIntegerSetWithOrigins} from '../../support/builders/sets/integer-set-builder';
-import {createAllNullSetWithOrigins} from '../../support/builders/sets/null-set-builder';
-import {createAllNumberSetWithOrigins} from '../../support/builders/sets/number-set-builder';
+import {allIntegerSetBuilder} from '../../support/builders/sets/integer-set-builder';
+import {allNullSetBuilder} from '../../support/builders/sets/null-set-builder';
+import {allNumberSetBuilder} from '../../support/builders/sets/number-set-builder';
 import {
-    createEmptyObjectSetWithOrigins
+    emptyObjectSetBuilder
 } from '../../support/builders/sets/object-set-builder';
 import {someJsonSetBuilder, someJsonSetOfStrings} from '../../support/builders/sets/some-json-set-builder';
 import {
-    createAllStringSetWithOrigins,
-    createEmptyStringSetWithOrigins
+    allStringSetBuilder, emptyStringSetBuilder
 } from '../../support/builders/sets/string-set-builder';
 import {CustomMatchers, customMatchers} from '../../support/custom-matchers/custom-matchers';
 
@@ -76,6 +76,26 @@ describe('json-set', () => {
                     baseRepresentation.withValue('object').build(),
                     baseRepresentation.withValue('string').build()
                 ]);
+            });
+
+            xit('should return cached result, if schemas were already intersected', () => {
+                const firstAllJsonSet = allJsonSetBuilder.withOrigins([]).build();
+                const secondAllJsonSet = allJsonSetBuilder.withOrigins([]).build();
+
+                const resultFromFirstIntersection = firstAllJsonSet.union(secondAllJsonSet);
+                const resultFromSecondIntersection = firstAllJsonSet.union(secondAllJsonSet);
+
+                expect(resultFromFirstIntersection).toBe(resultFromSecondIntersection);
+            });
+
+            xit('should cached result on the other schema', () => {
+                const firstAllJsonSet = allJsonSetBuilder.withOrigins([]).build();
+                const secondAllJsonSet = allJsonSetBuilder.withOrigins([]).build();
+
+                const resultFromFirstIntersection = firstAllJsonSet.union(secondAllJsonSet);
+                const resultFromSecondIntersection = secondAllJsonSet.union(firstAllJsonSet);
+
+                expect(resultFromFirstIntersection).toBe(resultFromSecondIntersection);
             });
         });
 
@@ -149,7 +169,7 @@ describe('json-set', () => {
         describe('all and some', () => {
             it('should union all json set with some json set resulting in all json set', () => {
                 const allJsonSet = allJsonSetBuilder.withOrigins([]).build();
-                const someJsonSet = someJsonSetBuilder.withStringSet(createAllStringSetWithOrigins([])).build();
+                const someJsonSet = someJsonSetBuilder.withStringSet(allStringSetBuilder).build();
 
                 const result = allJsonSet.union(someJsonSet);
 
@@ -174,12 +194,12 @@ describe('json-set', () => {
                 ]).build();
 
                 const someJsonSet = someJsonSetBuilder
-                    .withStringSet(createAllStringSetWithOrigins([
+                    .withStringSet(allStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                         schemaOriginBuilder
                             .withType('destination')
                             .withPath(['definitions', 'otherSchema', 'type'])
                             .withValue('string')
-                    ]))
+                    ])))
                     .build();
 
                 const result = allJsonSet.union(someJsonSet);
@@ -263,7 +283,7 @@ describe('json-set', () => {
             it('should union empty json set with some json set resulting in some json set', () => {
                 const emptyJsonSet = emptyJsonSetBuilder.withOrigins([]).build();
 
-                const jsonSetOfStrings = someJsonSetBuilder.withStringSet(createAllStringSetWithOrigins([])).build();
+                const jsonSetOfStrings = someJsonSetBuilder.withStringSet(allStringSetBuilder).build();
 
                 const result = emptyJsonSet.union(jsonSetOfStrings);
 
@@ -282,12 +302,12 @@ describe('json-set', () => {
                 ]).build();
 
                 const jsonSetOfStrings = someJsonSetBuilder
-                    .withStringSet(createAllStringSetWithOrigins([
+                    .withStringSet(allStringSetBuilder.withType(parsedTypeKeywordBuilder.withOrigins([
                         schemaOriginBuilder
                             .withType('destination')
                             .withPath(['definitions', 'otherSchema', 'type'])
                             .withValue('string')
-                    ]))
+                    ])))
                     .build();
 
                 const result = emptyJsonSet.union(jsonSetOfStrings);
@@ -312,8 +332,8 @@ describe('json-set', () => {
 
                 const someJsonSet = someJsonSetOfStrings.build();
 
-                const resultSomeAndEmpty = someJsonSet.intersect(emptyJsonSet);
-                const resultEmptyAndSome = emptyJsonSet.intersect(someJsonSet);
+                const resultSomeAndEmpty = someJsonSet.union(emptyJsonSet);
+                const resultEmptyAndSome = emptyJsonSet.union(someJsonSet);
 
                 expect(resultSomeAndEmpty.toRepresentations())
                     .toContainRepresentations(resultEmptyAndSome.toRepresentations());
@@ -323,23 +343,23 @@ describe('json-set', () => {
         describe('some and some', () => {
             it('should return another some json set with unioned subsets', () => {
                 const firstSomeJsonSet = someJsonSetBuilder
-                    .withArraySet(createAllArraySetWithOrigins([]))
-                    .withBooleanSet(createAllBooleanSetWithOrigins([]))
-                    .withIntegerSet(createAllIntegerSetWithOrigins([]))
-                    .withNullSet(createAllNullSetWithOrigins([]))
-                    .withNumberSet(createAllNumberSetWithOrigins([]))
-                    .withObjectSet(createEmptyObjectSetWithOrigins([]))
-                    .withStringSet(createAllStringSetWithOrigins([]))
+                    .withArraySet(allArraySetBuilder)
+                    .withBooleanSet(allBooleanSetBuilder)
+                    .withIntegerSet(allIntegerSetBuilder)
+                    .withNullSet(allNullSetBuilder)
+                    .withNumberSet(allNumberSetBuilder)
+                    .withObjectSet(emptyObjectSetBuilder)
+                    .withStringSet(allStringSetBuilder)
                     .build();
 
                 const secondSomeJsonSet = someJsonSetBuilder
-                    .withArraySet(createAllArraySetWithOrigins([]))
-                    .withBooleanSet(createAllBooleanSetWithOrigins([]))
-                    .withIntegerSet(createAllIntegerSetWithOrigins([]))
-                    .withNullSet(createAllNullSetWithOrigins([]))
-                    .withNumberSet(createAllNumberSetWithOrigins([]))
-                    .withObjectSet(createEmptyObjectSetWithOrigins([]))
-                    .withStringSet(createEmptyStringSetWithOrigins([]))
+                    .withArraySet(allArraySetBuilder)
+                    .withBooleanSet(allBooleanSetBuilder)
+                    .withIntegerSet(allIntegerSetBuilder)
+                    .withNullSet(allNullSetBuilder)
+                    .withNumberSet(allNumberSetBuilder)
+                    .withObjectSet(emptyObjectSetBuilder)
+                    .withStringSet(emptyStringSetBuilder)
                     .build();
 
                 const result = firstSomeJsonSet.union(secondSomeJsonSet);
