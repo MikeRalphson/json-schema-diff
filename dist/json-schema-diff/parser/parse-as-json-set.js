@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const util_1 = require("util");
-const json_set_1 = require("./json-set/json-set");
-const create_json_set_1 = require("./json-set/json-subset/create-json-set");
 const set_1 = require("./json-set/set");
 const schema_location_1 = require("./schema-location");
+const create_json_set_1 = require("./set-factories/create-json-set");
 const toSimpleTypeArray = (type) => {
     if (!type) {
         return set_1.allSchemaTypes;
@@ -14,15 +13,12 @@ const toSimpleTypeArray = (type) => {
     }
     return type;
 };
-const parseSchemaProperties = (schema, location) => {
+const parseSchemaProperties = (schemaProperties = {}, location) => {
     const objectSetProperties = {};
-    if (schema.properties) {
-        const propertiesLocation = location.child('properties');
-        for (const propertyName of Object.keys(schema.properties)) {
-            const propertySchema = schema.properties[propertyName];
-            const propertyLocation = propertiesLocation.child(propertyName);
-            objectSetProperties[propertyName] = parseWithLocation(propertySchema, propertyLocation);
-        }
+    for (const propertyName of Object.keys(schemaProperties)) {
+        const propertySchema = schemaProperties[propertyName];
+        const propertyLocation = location.child(propertyName);
+        objectSetProperties[propertyName] = parseWithLocation(propertySchema, propertyLocation);
     }
     return objectSetProperties;
 };
@@ -37,15 +33,16 @@ const parseType = (schema, location) => {
 };
 const parseSubsets = (schema, location) => {
     const type = parseType(schema, location);
-    let additionalProperties = parseWithLocation(schema.additionalProperties, location.child('additionalProperties'));
-    additionalProperties = additionalProperties.withAdditionalOrigins(type.origins);
+    const additionalProperties = parseWithLocation(schema.additionalProperties, location.child('additionalProperties'));
+    const properties = parseSchemaProperties(schema.properties, location.child('properties'));
     const parsedSchemaKeywords = {
         additionalProperties,
-        properties: parseSchemaProperties(schema, location),
+        properties,
         type
     };
     return create_json_set_1.createJsonSet(parsedSchemaKeywords);
 };
+// tslint:disable-next-line
 const parseCoreSchemaMetaSchema = (schema, location) => {
     return parseSubsets(schema, location);
 };
@@ -55,8 +52,8 @@ const parseBooleanSchema = (schema, location) => {
             type: location.schemaOriginType,
             value: schema
         }];
-    const schemaValue = util_1.isUndefined(schema) ? true : schema;
-    return schemaValue ? json_set_1.createAllJsonSet(schemaOrigins) : json_set_1.createEmptyJsonSet(schemaOrigins);
+    const allowsAllJsonValues = util_1.isUndefined(schema) ? true : schema;
+    return allowsAllJsonValues ? create_json_set_1.createAllJsonSet(schemaOrigins) : create_json_set_1.createEmptyJsonSet(schemaOrigins);
 };
 const parseWithLocation = (schema, location) => {
     return (util_1.isBoolean(schema) || util_1.isUndefined(schema))

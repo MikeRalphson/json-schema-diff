@@ -2,11 +2,11 @@
 // tslint:disable:max-classes-per-file
 Object.defineProperty(exports, "__esModule", { value: true });
 const set_1 = require("../set");
-const is_type_supported_1 = require("./is-type-supported");
 class AllStringSet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
         this.setType = 'string';
+        this.type = 'all';
     }
     intersect(otherSet) {
         return otherSet.intersectWithAll(this);
@@ -30,25 +30,24 @@ class AllStringSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new AllStringSet(mergedSchemaOrigins);
     }
-    withAdditionalOrigins(origins) {
-        return new AllStringSet(this.schemaOrigins.concat(origins));
-    }
     complement() {
         return new EmptyStringSet(this.schemaOrigins);
     }
     toRepresentations() {
         return [{
-                destinationValues: set_1.Set.toDestinationRepresentationValues(this.schemaOrigins),
-                sourceValues: set_1.Set.toSourceRepresentationValues(this.schemaOrigins),
+                destinationValues: set_1.toDestinationRepresentationValues(this.schemaOrigins),
+                sourceValues: set_1.toSourceRepresentationValues(this.schemaOrigins),
                 type: 'type',
                 value: 'string'
             }];
     }
 }
+exports.AllStringSet = AllStringSet;
 class EmptyStringSet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
         this.setType = 'string';
+        this.type = 'empty';
     }
     intersect(otherSet) {
         return otherSet.intersectWithEmpty(this);
@@ -72,9 +71,6 @@ class EmptyStringSet {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
         return new EmptyStringSet(mergedSchemaOrigins);
     }
-    withAdditionalOrigins(origins) {
-        return new EmptyStringSet(this.schemaOrigins.concat(origins));
-    }
     complement() {
         return new AllStringSet(this.schemaOrigins);
     }
@@ -82,6 +78,4 @@ class EmptyStringSet {
         return [];
     }
 }
-exports.createStringSet = (parsedSchemaKeywords) => is_type_supported_1.isTypeSupported(parsedSchemaKeywords, 'string')
-    ? new AllStringSet(parsedSchemaKeywords.type.origins)
-    : new EmptyStringSet(parsedSchemaKeywords.type.origins);
+exports.EmptyStringSet = EmptyStringSet;

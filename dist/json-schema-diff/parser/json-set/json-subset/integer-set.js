@@ -2,11 +2,11 @@
 // tslint:disable:max-classes-per-file
 Object.defineProperty(exports, "__esModule", { value: true });
 const set_1 = require("../set");
-const is_type_supported_1 = require("./is-type-supported");
 class AllIntegerSet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
         this.setType = 'integer';
+        this.type = 'all';
     }
     intersect(otherSet) {
         return otherSet.intersectWithAll(this);
@@ -15,7 +15,7 @@ class AllIntegerSet {
         return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
     }
     intersectWithEmpty(otherEmptySet) {
-        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
+        return new EmptyIntegerSet(this.schemaOrigins.concat(otherEmptySet.schemaOrigins));
     }
     union(otherSet) {
         return otherSet.unionWithAll(this);
@@ -29,22 +29,24 @@ class AllIntegerSet {
     complement() {
         return new EmptyIntegerSet(this.schemaOrigins);
     }
-    withAdditionalOrigins(origins) {
-        return new AllIntegerSet(this.schemaOrigins.concat(origins));
-    }
     toRepresentations() {
         return [{
-                destinationValues: set_1.Set.toDestinationRepresentationValues(this.schemaOrigins),
-                sourceValues: set_1.Set.toSourceRepresentationValues(this.schemaOrigins),
+                destinationValues: set_1.toDestinationRepresentationValues(this.schemaOrigins),
+                sourceValues: set_1.toSourceRepresentationValues(this.schemaOrigins),
                 type: 'type',
                 value: 'integer'
             }];
     }
+    withAdditionalOrigins(origins) {
+        return new AllIntegerSet(this.schemaOrigins.concat(origins));
+    }
 }
+exports.AllIntegerSet = AllIntegerSet;
 class EmptyIntegerSet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
         this.setType = 'integer';
+        this.type = 'empty';
     }
     intersect(otherSet) {
         return otherSet.intersectWithEmpty(this);
@@ -59,7 +61,7 @@ class EmptyIntegerSet {
         return otherSet.unionWithEmpty(this);
     }
     unionWithAll(otherAllSet) {
-        return otherAllSet.withAdditionalOrigins(this.schemaOrigins);
+        return new AllIntegerSet(this.schemaOrigins.concat(otherAllSet.schemaOrigins));
     }
     unionWithEmpty(otherEmptySet) {
         return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
@@ -67,13 +69,11 @@ class EmptyIntegerSet {
     complement() {
         return new AllIntegerSet(this.schemaOrigins);
     }
-    withAdditionalOrigins(origins) {
-        return new EmptyIntegerSet(this.schemaOrigins.concat(origins));
-    }
     toRepresentations() {
         return [];
     }
+    withAdditionalOrigins(origins) {
+        return new EmptyIntegerSet(this.schemaOrigins.concat(origins));
+    }
 }
-exports.createIntegerSet = (parsedSchemaKeywords) => is_type_supported_1.isTypeSupported(parsedSchemaKeywords, 'integer')
-    ? new AllIntegerSet(parsedSchemaKeywords.type.origins)
-    : new EmptyIntegerSet(parsedSchemaKeywords.type.origins);
+exports.EmptyIntegerSet = EmptyIntegerSet;

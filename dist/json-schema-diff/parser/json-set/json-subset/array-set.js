@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:max-classes-per-file
 const set_1 = require("../set");
-const is_type_supported_1 = require("./is-type-supported");
 class AllArraySet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
         this.setType = 'array';
+        this.type = 'all';
     }
     intersect(otherSet) {
         return otherSet.intersectWithAll(this);
@@ -15,7 +15,7 @@ class AllArraySet {
         return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
     }
     intersectWithEmpty(otherEmptySet) {
-        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
+        return new EmptyArraySet(this.schemaOrigins.concat(otherEmptySet.schemaOrigins));
     }
     union(otherSet) {
         return otherSet.unionWithAll(this);
@@ -29,22 +29,24 @@ class AllArraySet {
     complement() {
         return new EmptyArraySet(this.schemaOrigins);
     }
-    withAdditionalOrigins(origins) {
-        return new AllArraySet(this.schemaOrigins.concat(origins));
-    }
     toRepresentations() {
         return [{
-                destinationValues: set_1.Set.toDestinationRepresentationValues(this.schemaOrigins),
-                sourceValues: set_1.Set.toSourceRepresentationValues(this.schemaOrigins),
+                destinationValues: set_1.toDestinationRepresentationValues(this.schemaOrigins),
+                sourceValues: set_1.toSourceRepresentationValues(this.schemaOrigins),
                 type: 'type',
                 value: 'array'
             }];
     }
+    withAdditionalOrigins(origins) {
+        return new AllArraySet(this.schemaOrigins.concat(origins));
+    }
 }
+exports.AllArraySet = AllArraySet;
 class EmptyArraySet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
         this.setType = 'array';
+        this.type = 'empty';
     }
     intersect(otherSet) {
         return otherSet.intersectWithEmpty(this);
@@ -59,7 +61,7 @@ class EmptyArraySet {
         return otherSet.unionWithEmpty(this);
     }
     unionWithAll(otherAllArraySet) {
-        return otherAllArraySet.withAdditionalOrigins(this.schemaOrigins);
+        return new AllArraySet(this.schemaOrigins.concat(otherAllArraySet.schemaOrigins));
     }
     unionWithEmpty(otherEmptySet) {
         return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
@@ -67,13 +69,11 @@ class EmptyArraySet {
     complement() {
         return new AllArraySet(this.schemaOrigins);
     }
-    withAdditionalOrigins(origins) {
-        return new EmptyArraySet(this.schemaOrigins.concat(origins));
-    }
     toRepresentations() {
         return [];
     }
+    withAdditionalOrigins(origins) {
+        return new EmptyArraySet(this.schemaOrigins.concat(origins));
+    }
 }
-exports.createArraySet = (parsedSchemaKeywords) => is_type_supported_1.isTypeSupported(parsedSchemaKeywords, 'array')
-    ? new AllArraySet(parsedSchemaKeywords.type.origins)
-    : new EmptyArraySet(parsedSchemaKeywords.type.origins);
+exports.EmptyArraySet = EmptyArraySet;

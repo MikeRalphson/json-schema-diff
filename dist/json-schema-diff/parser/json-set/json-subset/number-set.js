@@ -2,11 +2,11 @@
 // tslint:disable:max-classes-per-file
 Object.defineProperty(exports, "__esModule", { value: true });
 const set_1 = require("../set");
-const is_type_supported_1 = require("./is-type-supported");
 class AllNumberSet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
         this.setType = 'number';
+        this.type = 'all';
     }
     intersect(otherSet) {
         return otherSet.intersectWithAll(this);
@@ -31,22 +31,24 @@ class AllNumberSet {
     complement() {
         return new EmptyNumberSet(this.schemaOrigins);
     }
-    withAdditionalOrigins(origins) {
-        return new AllNumberSet(this.schemaOrigins.concat(origins));
-    }
     toRepresentations() {
         return [{
-                destinationValues: set_1.Set.toDestinationRepresentationValues(this.schemaOrigins),
-                sourceValues: set_1.Set.toSourceRepresentationValues(this.schemaOrigins),
+                destinationValues: set_1.toDestinationRepresentationValues(this.schemaOrigins),
+                sourceValues: set_1.toSourceRepresentationValues(this.schemaOrigins),
                 type: 'type',
                 value: 'number'
             }];
     }
+    withAdditionalOrigins(origins) {
+        return new AllNumberSet(this.schemaOrigins.concat(origins));
+    }
 }
+exports.AllNumberSet = AllNumberSet;
 class EmptyNumberSet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
         this.setType = 'number';
+        this.type = 'empty';
     }
     intersect(otherSet) {
         return otherSet.intersectWithEmpty(this);
@@ -61,7 +63,7 @@ class EmptyNumberSet {
         return otherSet.unionWithEmpty(this);
     }
     unionWithAll(otherAllSet) {
-        return otherAllSet.withAdditionalOrigins(this.schemaOrigins);
+        return new AllNumberSet(this.schemaOrigins.concat(otherAllSet.schemaOrigins));
     }
     unionWithEmpty(otherEmptySet) {
         return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
@@ -69,13 +71,11 @@ class EmptyNumberSet {
     complement() {
         return new AllNumberSet(this.schemaOrigins);
     }
-    withAdditionalOrigins(origins) {
-        return new EmptyNumberSet(this.schemaOrigins.concat(origins));
-    }
     toRepresentations() {
         return [];
     }
+    withAdditionalOrigins(origins) {
+        return new EmptyNumberSet(this.schemaOrigins.concat(origins));
+    }
 }
-exports.createNumberSet = (parsedSchemaKeywords) => is_type_supported_1.isTypeSupported(parsedSchemaKeywords, 'number')
-    ? new AllNumberSet(parsedSchemaKeywords.type.origins)
-    : new EmptyNumberSet(parsedSchemaKeywords.type.origins);
+exports.EmptyNumberSet = EmptyNumberSet;

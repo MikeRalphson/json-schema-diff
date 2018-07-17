@@ -2,11 +2,11 @@
 // tslint:disable:max-classes-per-file
 Object.defineProperty(exports, "__esModule", { value: true });
 const set_1 = require("../set");
-const is_type_supported_1 = require("./is-type-supported");
 class AllBooleanSet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
         this.setType = 'boolean';
+        this.type = 'all';
     }
     intersect(otherSet) {
         return otherSet.intersectWithAll(this);
@@ -15,7 +15,7 @@ class AllBooleanSet {
         return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
     }
     intersectWithEmpty(otherEmptySet) {
-        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
+        return new EmptyBooleanSet(this.schemaOrigins.concat(otherEmptySet.schemaOrigins));
     }
     union(otherSet) {
         return otherSet.unionWithAll(this);
@@ -29,22 +29,24 @@ class AllBooleanSet {
     complement() {
         return new EmptyBooleanSet(this.schemaOrigins);
     }
-    withAdditionalOrigins(origins) {
-        return new AllBooleanSet(this.schemaOrigins.concat(origins));
-    }
     toRepresentations() {
         return [{
-                destinationValues: set_1.Set.toDestinationRepresentationValues(this.schemaOrigins),
-                sourceValues: set_1.Set.toSourceRepresentationValues(this.schemaOrigins),
+                destinationValues: set_1.toDestinationRepresentationValues(this.schemaOrigins),
+                sourceValues: set_1.toSourceRepresentationValues(this.schemaOrigins),
                 type: 'type',
                 value: 'boolean'
             }];
     }
+    withAdditionalOrigins(origins) {
+        return new AllBooleanSet(this.schemaOrigins.concat(origins));
+    }
 }
+exports.AllBooleanSet = AllBooleanSet;
 class EmptyBooleanSet {
     constructor(schemaOrigins) {
         this.schemaOrigins = schemaOrigins;
         this.setType = 'boolean';
+        this.type = 'empty';
     }
     intersect(otherSet) {
         return otherSet.intersectWithEmpty(this);
@@ -59,7 +61,7 @@ class EmptyBooleanSet {
         return otherSet.unionWithEmpty(this);
     }
     unionWithAll(otherAllSet) {
-        return otherAllSet.withAdditionalOrigins(this.schemaOrigins);
+        return new AllBooleanSet(this.schemaOrigins.concat(otherAllSet.schemaOrigins));
     }
     unionWithEmpty(otherEmptySet) {
         return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
@@ -67,13 +69,11 @@ class EmptyBooleanSet {
     complement() {
         return new AllBooleanSet(this.schemaOrigins);
     }
-    withAdditionalOrigins(origins) {
-        return new EmptyBooleanSet(this.schemaOrigins.concat(origins));
-    }
     toRepresentations() {
         return [];
     }
+    withAdditionalOrigins(origins) {
+        return new EmptyBooleanSet(this.schemaOrigins.concat(origins));
+    }
 }
-exports.createBooleanSet = (parsedSchemaKeywords) => is_type_supported_1.isTypeSupported(parsedSchemaKeywords, 'boolean')
-    ? new AllBooleanSet(parsedSchemaKeywords.type.origins)
-    : new EmptyBooleanSet(parsedSchemaKeywords.type.origins);
+exports.EmptyBooleanSet = EmptyBooleanSet;

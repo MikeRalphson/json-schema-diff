@@ -1,3 +1,13 @@
+<a name="0.8.1"></a>
+## [0.8.1](https://bitbucket.org/atlassian/json-schema-diff/compare/0.8.0...0.8.1) (2018-07-17)
+
+
+### Bug Fixes
+
+* throw an error when schema contains circular references instead of overflowing the stack ([60d4db1](https://bitbucket.org/atlassian/json-schema-diff/commits/60d4db1))
+
+
+
 <a name="0.8.0"></a>
 # [0.8.0](https://bitbucket.org/atlassian/json-schema-diff/compare/0.7.0...0.8.0) (2018-07-16)
 

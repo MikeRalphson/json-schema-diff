@@ -32,7 +32,7 @@ exports.dereferenceSchema = (schema) => __awaiter(this, void 0, void 0, function
     const refParser = new RefParser();
     return util_1.isBoolean(schema)
         ? schema
-        : yield refParser.dereference(schema);
+        : yield refParser.dereference(schema, { dereference: { circular: false } });
 });
 exports.diffSchemas = (sourceSchema, destinationSchema) => __awaiter(this, void 0, void 0, function* () {
     const [dereferencedSourceSchema, dereferencedDestinationSchema] = yield Promise.all([

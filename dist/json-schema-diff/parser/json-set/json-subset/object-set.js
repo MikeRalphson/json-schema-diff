@@ -2,139 +2,145 @@
 // tslint:disable:max-classes-per-file
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
-const json_set_1 = require("../json-set");
 const set_1 = require("../set");
-const is_type_supported_1 = require("./is-type-supported");
 const getUniquePropertyNames = (thisPropertyNames, otherPropertyNames) => _.uniq(thisPropertyNames.concat(otherPropertyNames));
 class AllObjectSet {
-    constructor(schemaOrigins) {
+    constructor(schemaOrigins, properties, additionalProperties) {
         this.schemaOrigins = schemaOrigins;
+        this.properties = properties;
+        this.additionalProperties = additionalProperties;
         this.setType = 'object';
+        this.type = 'all';
     }
     intersect(otherSet) {
         return otherSet.intersectWithAll(this);
     }
     intersectWithSome(otherSomeObjectSet) {
-        return otherSomeObjectSet.withAdditionalOrigins(this.schemaOrigins);
+        return intersectAllAndSome(this, otherSomeObjectSet);
     }
     intersectWithAll(otherAllSet) {
-        return otherAllSet.withAdditionalOrigins(this.schemaOrigins);
+        return new AllObjectSet(this.schemaOrigins.concat(otherAllSet.schemaOrigins), intersectProperties(this, otherAllSet), this.additionalProperties.intersect(otherAllSet.additionalProperties));
     }
     intersectWithEmpty(otherEmptySet) {
-        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
+        return intersectEmptyWithOtherObjectSet(otherEmptySet, this);
     }
     union(otherSet) {
         return otherSet.unionWithAll(this);
     }
-    unionWithAll(otherAllObjectSet) {
-        return this.withAdditionalOrigins(otherAllObjectSet.schemaOrigins);
+    unionWithAll(otherAllSet) {
+        return unionAllWithOtherObjectSet(otherAllSet, this);
     }
     unionWithEmpty(otherEmptySet) {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+        return new AllObjectSet(this.schemaOrigins.concat(otherEmptySet.schemaOrigins), unionProperties(this, otherEmptySet), this.additionalProperties.union(otherEmptySet.additionalProperties));
     }
     unionWithSome(otherSomeSet) {
-        return this.withAdditionalOrigins(otherSomeSet.getAllSchemaOrigins());
-    }
-    withAdditionalOrigins(origins) {
-        return new AllObjectSet(this.schemaOrigins.concat(origins));
+        return unionAllWithOtherObjectSet(this, otherSomeSet);
     }
     complement() {
-        return new EmptyObjectSet(this.schemaOrigins);
+        return new EmptyObjectSet(this.schemaOrigins, complementProperties(this), this.additionalProperties.complement());
     }
     toRepresentations() {
         return [{
-                destinationValues: set_1.Set.toDestinationRepresentationValues(this.schemaOrigins),
-                sourceValues: set_1.Set.toSourceRepresentationValues(this.schemaOrigins),
+                destinationValues: set_1.toDestinationRepresentationValues(this.schemaOrigins),
+                sourceValues: set_1.toSourceRepresentationValues(this.schemaOrigins),
                 type: 'type',
                 value: 'object'
             }];
     }
+    getPropertyNames() {
+        return Object.keys(this.properties);
+    }
+    getProperty(propertyName) {
+        return this.properties[propertyName] ? this.properties[propertyName] : this.additionalProperties;
+    }
 }
+exports.AllObjectSet = AllObjectSet;
 class EmptyObjectSet {
-    constructor(schemaOrigins) {
+    constructor(schemaOrigins, properties, additionalProperties) {
         this.schemaOrigins = schemaOrigins;
+        this.properties = properties;
+        this.additionalProperties = additionalProperties;
         this.setType = 'object';
+        this.type = 'empty';
     }
     intersect(otherSet) {
         return otherSet.intersectWithEmpty(this);
     }
     intersectWithAll(otherAllSet) {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
+        return intersectEmptyWithOtherObjectSet(this, otherAllSet);
     }
     intersectWithSome(otherSomeSet) {
-        return this.withAdditionalOrigins(otherSomeSet.getAllSchemaOrigins());
+        return intersectEmptyWithOtherObjectSet(this, otherSomeSet);
     }
     intersectWithEmpty(otherEmptySet) {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+        return intersectEmptyWithOtherObjectSet(this, otherEmptySet);
     }
     union(otherSet) {
         return otherSet.unionWithEmpty(this);
     }
     unionWithAll(otherAllSet) {
-        return otherAllSet.withAdditionalOrigins(this.schemaOrigins);
+        return unionAllWithOtherObjectSet(otherAllSet, this);
     }
     unionWithEmpty(otherEmptySet) {
-        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
+        return new EmptyObjectSet(this.schemaOrigins.concat(otherEmptySet.schemaOrigins), unionProperties(this, otherEmptySet), this.additionalProperties.intersect(otherEmptySet.additionalProperties));
     }
     unionWithSome(otherSomeSet) {
-        return otherSomeSet.withAdditionalOrigins(this.schemaOrigins);
-    }
-    withAdditionalOrigins(origins) {
-        return new EmptyObjectSet(this.schemaOrigins.concat(origins));
+        return unionSomeAndEmpty(otherSomeSet, this);
     }
     complement() {
-        return new AllObjectSet(this.schemaOrigins);
+        return new AllObjectSet(this.schemaOrigins, complementProperties(this), this.additionalProperties.complement());
     }
     toRepresentations() {
         return [];
     }
+    getProperty(propertyName) {
+        return this.properties[propertyName] ? this.properties[propertyName] : this.additionalProperties;
+    }
+    getPropertyNames() {
+        return Object.keys(this.properties);
+    }
 }
+exports.EmptyObjectSet = EmptyObjectSet;
 class SomeObjectSet {
     constructor(schemaOrigins, properties, additionalProperties) {
         this.schemaOrigins = schemaOrigins;
         this.properties = properties;
         this.additionalProperties = additionalProperties;
         this.setType = 'object';
+        this.type = 'some';
     }
     intersect(otherSet) {
         return otherSet.intersectWithSome(this);
     }
     intersectWithSome(otherSomeSet) {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherSomeSet.schemaOrigins);
-        const mergedProperties = this.intersectPropertiesWithOtherSomeSetProperties(otherSomeSet);
+        const mergedProperties = intersectProperties(this, otherSomeSet);
         const mergedAdditionalProperties = this.additionalProperties.intersect(otherSomeSet.additionalProperties);
         return new SomeObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
     }
     intersectWithAll(otherAllSet) {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
+        return intersectAllAndSome(otherAllSet, this);
     }
     intersectWithEmpty(otherEmptySet) {
-        return otherEmptySet.withAdditionalOrigins(this.getAllSchemaOrigins());
+        return intersectEmptyWithOtherObjectSet(otherEmptySet, this);
     }
     union(otherSet) {
         return otherSet.unionWithSome(this);
     }
     unionWithAll(otherAllSet) {
-        return otherAllSet.withAdditionalOrigins(this.getAllSchemaOrigins());
+        return unionAllWithOtherObjectSet(otherAllSet, this);
     }
     unionWithEmpty(otherEmptySet) {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+        return unionSomeAndEmpty(this, otherEmptySet);
     }
     unionWithSome(otherSomeSet) {
         const mergedSchemaOrigins = this.schemaOrigins.concat(otherSomeSet.schemaOrigins);
-        const mergedProperties = this.unionPropertiesWithOtherSomeSetProperties(otherSomeSet);
+        const mergedProperties = unionProperties(this, otherSomeSet);
         const mergedAdditionalProperties = this.additionalProperties.union(otherSomeSet.additionalProperties);
         return new SomeObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
     }
-    withAdditionalOrigins(schemaOrigins) {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(schemaOrigins);
-        const mergedProperties = this.getPropertiesWithAdditionalSchemaOrigins(schemaOrigins);
-        const mergedAdditionalProperties = this.additionalProperties.withAdditionalOrigins(schemaOrigins);
-        return new SomeObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
-    }
     complement() {
-        const complementedProperties = this.complementProperties();
-        return new SomeObjectSet(this.schemaOrigins, complementedProperties, this.additionalProperties.complement());
+        return new SomeObjectSet(this.schemaOrigins, complementProperties(this), this.additionalProperties.complement());
     }
     toRepresentations() {
         const representations = [];
@@ -143,64 +149,68 @@ class SomeObjectSet {
         });
         representations.push(...this.additionalProperties.toRepresentations());
         representations.push({
-            destinationValues: set_1.Set.toDestinationRepresentationValues(this.schemaOrigins),
-            sourceValues: set_1.Set.toSourceRepresentationValues(this.schemaOrigins),
+            destinationValues: set_1.toDestinationRepresentationValues(this.schemaOrigins),
+            sourceValues: set_1.toSourceRepresentationValues(this.schemaOrigins),
             type: 'type',
             value: 'object'
         });
         return representations;
     }
-    getAllSchemaOrigins() {
-        const propertiesOrigins = this.getPropertyNames()
-            .reduce((acc, propName) => acc.concat(this.properties[propName].schemaOrigins), []);
-        return this.schemaOrigins.concat(propertiesOrigins).concat(this.additionalProperties.schemaOrigins);
-    }
     getProperty(propertyName) {
         return this.properties[propertyName] ? this.properties[propertyName] : this.additionalProperties;
-    }
-    complementProperties() {
-        const complementedProperties = {};
-        this.getPropertyNames().forEach((property) => {
-            complementedProperties[property] = this.properties[property].complement();
-        });
-        return complementedProperties;
     }
     getPropertyNames() {
         return Object.keys(this.properties);
     }
-    intersectPropertiesWithOtherSomeSetProperties(otherSomeSet) {
-        const mergedProperties = {};
-        const allPropertyNames = getUniquePropertyNames(this.getPropertyNames(), otherSomeSet.getPropertyNames());
-        allPropertyNames.forEach((propertyName) => {
-            mergedProperties[propertyName] = this.getProperty(propertyName)
-                .intersect(otherSomeSet.getProperty(propertyName));
-        });
-        return mergedProperties;
-    }
-    unionPropertiesWithOtherSomeSetProperties(otherSomeSet) {
-        const mergedProperties = {};
-        const allPropertyNames = getUniquePropertyNames(this.getPropertyNames(), otherSomeSet.getPropertyNames());
-        allPropertyNames.forEach((propertyName) => {
-            mergedProperties[propertyName] = this.getProperty(propertyName)
-                .union(otherSomeSet.getProperty(propertyName));
-        });
-        return mergedProperties;
-    }
-    getPropertiesWithAdditionalSchemaOrigins(schemaOrigins) {
-        const mergedProperties = {};
-        this.getPropertyNames().forEach((property) => {
-            mergedProperties[property] = this.properties[property].withAdditionalOrigins(schemaOrigins);
-        });
-        return mergedProperties;
-    }
 }
-const supportsAllObjects = (parsedSchemaKeywords) => Object.keys(parsedSchemaKeywords.properties).length === 0
-    && parsedSchemaKeywords.additionalProperties instanceof json_set_1.AllJsonSet;
-exports.createObjectSet = (parsedSchemaKeywords) => {
-    if (is_type_supported_1.isTypeSupported(parsedSchemaKeywords, 'object')) {
-        return supportsAllObjects(parsedSchemaKeywords)
-            ? new AllObjectSet(parsedSchemaKeywords.type.origins.concat(parsedSchemaKeywords.additionalProperties.schemaOrigins))
-            : new SomeObjectSet(parsedSchemaKeywords.type.origins, parsedSchemaKeywords.properties, parsedSchemaKeywords.additionalProperties);
-    }
-    return new EmptyObjectSet(parsedSchemaKeywords.type.origins);
+exports.SomeObjectSet = SomeObjectSet;
+const unionProperties = (objectSet1, objectSet2) => {
+    const mergedProperties = {};
+    const allPropertyNames = getUniquePropertyNames(objectSet1.getPropertyNames(), objectSet2.getPropertyNames());
+    allPropertyNames.forEach((propertyName) => {
+        mergedProperties[propertyName] = objectSet1.getProperty(propertyName)
+            .union(objectSet2.getProperty(propertyName));
+    });
+    return mergedProperties;
+};
+const intersectProperties = (objectSet1, objectSet2) => {
+    const mergedProperties = {};
+    const allPropertyNames = getUniquePropertyNames(objectSet1.getPropertyNames(), objectSet2.getPropertyNames());
+    allPropertyNames.forEach((propertyName) => {
+        mergedProperties[propertyName] = objectSet1.getProperty(propertyName)
+            .intersect(objectSet2.getProperty(propertyName));
+    });
+    return mergedProperties;
+};
+const intersectAllAndSome = (allObjectSet, someObjectSet) => {
+    const mergedSchemaOrigins = allObjectSet.schemaOrigins.concat(someObjectSet.schemaOrigins);
+    const mergedProperties = intersectProperties(allObjectSet, someObjectSet);
+    const mergedAdditionalProperties = allObjectSet.additionalProperties.intersect(someObjectSet.additionalProperties);
+    return new SomeObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
+};
+const intersectEmptyWithOtherObjectSet = (emptyObjectSet, otherObjectSet) => {
+    const mergedSchemaOrigins = emptyObjectSet.schemaOrigins.concat(otherObjectSet.schemaOrigins);
+    const mergedProperties = intersectProperties(emptyObjectSet, otherObjectSet);
+    const mergedAdditionalProperties = emptyObjectSet.additionalProperties
+        .intersect(otherObjectSet.additionalProperties);
+    return new EmptyObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
+};
+const unionAllWithOtherObjectSet = (allObjectSet, otherObjectSet) => {
+    const mergedSchemaOrigins = allObjectSet.schemaOrigins.concat(otherObjectSet.schemaOrigins);
+    const mergedProperties = unionProperties(allObjectSet, otherObjectSet);
+    const mergedAdditionalProperties = allObjectSet.additionalProperties.union(otherObjectSet.additionalProperties);
+    return new AllObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
+};
+const unionSomeAndEmpty = (someObjectSet, emptyObjectSet) => {
+    const mergedSchemaOrigins = someObjectSet.schemaOrigins.concat(emptyObjectSet.schemaOrigins);
+    const mergedProperties = unionProperties(someObjectSet, emptyObjectSet);
+    const mergedAdditionalProperties = someObjectSet.additionalProperties.union(emptyObjectSet.additionalProperties);
+    return new SomeObjectSet(mergedSchemaOrigins, mergedProperties, mergedAdditionalProperties);
+};
+const complementProperties = (objectSet) => {
+    const complementedProperties = {};
+    objectSet.getPropertyNames().forEach((property) => {
+        complementedProperties[property] = objectSet.properties[property].complement();
+    });
+    return complementedProperties;
 };
