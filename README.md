@@ -15,6 +15,7 @@ npm install json-schema-diff --save-dev
 ## Usage
 
 This tool identifies differences between two json schema files.
+[KEYWORDS.md](KEYWORDS.md) contains the details of what json schema keywords are supported.
 Differences are classified into two broad groups, added and removed.
 
 Added differences are areas where the destination schema has become more permissive relative to the source schema. For example `{"type": "string"}` -> `{"type": ["string", "number"]}`.
@@ -25,7 +26,7 @@ Removed differences are areas where the destination schema has become more restr
 ### Usage as a cli tool
 
 Invoke the tool with a file path to the source schema file and the destination schema file. 
-These files should be in JSON format and be valid according to the JSON Schema draft-07 specification.
+These files should be in JSON format and be valid according to the json schema draft-07 specification.
 
 ```
 json-schema-diff /path/to/source-spec.json /path/to/destination-spec.json
@@ -38,7 +39,7 @@ The tool will fail if any removed differences are detected.
 ### Usage as a nodejs api
 
 Invoke the library with the source schema and the destination schema. 
-These objects should be simple javascript objects and we valid according to the JSON Schema draft-07 specification.
+These objects should be simple javascript objects and we valid according to the json schema draft-07 specification.
 
 ```
 const jsonSchemaDiff = require('json-schema-diff');
