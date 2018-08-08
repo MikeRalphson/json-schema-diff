@@ -1,3 +1,13 @@
+<a name="0.8.2"></a>
+## [0.8.2](https://bitbucket.org/atlassian/json-schema-diff/compare/0.8.1...0.8.2) (2018-08-08)
+
+
+### Bug Fixes
+
+* declare lodash as production dependency ([2e7aa69](https://bitbucket.org/atlassian/json-schema-diff/commits/2e7aa69))
+
+
+
 <a name="0.8.1"></a>
 ## [0.8.1](https://bitbucket.org/atlassian/json-schema-diff/compare/0.8.0...0.8.1) (2018-07-17)
 
