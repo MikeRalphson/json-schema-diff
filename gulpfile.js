@@ -12,6 +12,7 @@ const minimist = require('minimist');
 const runSequence = require('run-sequence');
 const ts = require('gulp-typescript');
 const tslint = require('gulp-tslint');
+const filter = require('gulp-filter');
 
 const getVersion = () => JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
 
@@ -65,9 +66,13 @@ gulp.task('clean-copy-and-compile-build-output', (callback) => {
     )
 });
 
-gulp.task('compile-build-output', () => {
+const compileBuildOutput = () => {
     const tsResult = tsProjectBuildOutput.src().pipe(tsProjectBuildOutput());
     return tsResult.js.pipe(gulp.dest('build-output'));
+};
+
+gulp.task('compile-build-output', () => {
+    return compileBuildOutput();
 });
 
 gulp.task('compile-dist', () => {
@@ -128,9 +133,14 @@ gulp.task('test:unit', () => gulp.src([unitTestHelpers, unitTests]).pipe(jasmine
 
 gulp.task('test:e2e', () => gulp.src([e2eTests]).pipe(jasmine()));
 
+gulp.task('compile-and-unit-test', () => {
+    return compileBuildOutput()
+        .pipe(filter([unitTestHelpers, unitTests]))
+        .pipe(jasmine({includeStackTrace: true}));
+});
+
 gulp.task('watch', ['clean-copy-and-compile-build-output'], () => {
-    gulp.watch(['lib/**/*.ts', 'test/**/*.ts'], ['compile-build-output']);
-    gulp.watch(['build-output/lib/**/*', 'build-output/test/unit/**/*'], ['test:unit']);
+    gulp.watch(['lib/**/*.ts', 'test/**/*.ts'], ['compile-and-unit-test'])
 });
 
 gulp.task('watch-e2e', () => {
