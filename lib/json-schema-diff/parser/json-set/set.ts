@@ -46,7 +46,6 @@ export interface Set<T> {
     type: 'all' | 'empty' | 'some';
     schemaOrigins: SchemaOrigin[];
     intersect(otherSet: Set<T>): Set<T>;
-    union(otherSet: Set<T>): Set<T>;
     complement(): Set<T>;
     toRepresentations(): Representation[];
 }

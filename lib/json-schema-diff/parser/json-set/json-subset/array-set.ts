@@ -5,10 +5,8 @@ import {
 } from '../set';
 
 interface ArraySet extends Set<'array'> {
-    intersectWithAll(otherAllSet: AllArraySet): ArraySet;
-    intersectWithEmpty(otherEmptySet: EmptyArraySet): ArraySet;
-    unionWithAll(otherAllSet: AllArraySet): ArraySet;
-    unionWithEmpty(otherEmptySet: EmptyArraySet): ArraySet;
+    intersectWithAll(other: AllArraySet): ArraySet;
+    intersectWithEmpty(other: EmptyArraySet): ArraySet;
 }
 
 export class AllArraySet implements ArraySet {
@@ -18,28 +16,16 @@ export class AllArraySet implements ArraySet {
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {
     }
 
-    public intersect(otherSet: ArraySet): ArraySet {
-        return otherSet.intersectWithAll(this);
+    public intersect(other: ArraySet): ArraySet {
+        return other.intersectWithAll(this);
     }
 
-    public intersectWithAll(otherAllSet: ArraySet): ArraySet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
+    public intersectWithAll(other: ArraySet): ArraySet {
+        return new AllArraySet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
-    public intersectWithEmpty(otherEmptySet: EmptyArraySet): ArraySet {
-        return new EmptyArraySet(this.schemaOrigins.concat(otherEmptySet.schemaOrigins));
-    }
-
-    public union(otherSet: ArraySet): ArraySet {
-        return otherSet.unionWithAll(this);
-    }
-
-    public unionWithAll(otherAllArraySet: AllArraySet): ArraySet {
-        return this.withAdditionalOrigins(otherAllArraySet.schemaOrigins);
-    }
-
-    public unionWithEmpty(otherEmptySet: EmptyArraySet): ArraySet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+    public intersectWithEmpty(other: EmptyArraySet): ArraySet {
+        return new EmptyArraySet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public complement(): ArraySet {
@@ -54,10 +40,6 @@ export class AllArraySet implements ArraySet {
             value: 'array'
         }];
     }
-
-    private withAdditionalOrigins(origins: SchemaOrigin[]): ArraySet {
-        return new AllArraySet(this.schemaOrigins.concat(origins));
-    }
 }
 
 export class EmptyArraySet implements ArraySet {
@@ -67,28 +49,17 @@ export class EmptyArraySet implements ArraySet {
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {
     }
 
-    public intersect(otherSet: ArraySet): ArraySet {
-        return otherSet.intersectWithEmpty(this);
+    public intersect(other: ArraySet): ArraySet {
+        return other.intersectWithEmpty(this);
     }
 
-    public intersectWithAll(otherAllSet: ArraySet): ArraySet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
+    public intersectWithAll(other: ArraySet): ArraySet {
+        return new EmptyArraySet(other.schemaOrigins.concat(this.schemaOrigins));
     }
 
-    public intersectWithEmpty(otherEmptySet: EmptyArraySet): ArraySet {
-        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
-    }
-
-    public union(otherSet: ArraySet): ArraySet {
-        return otherSet.unionWithEmpty(this);
-    }
-
-    public unionWithAll(otherAllArraySet: AllArraySet): ArraySet {
-        return new AllArraySet(this.schemaOrigins.concat(otherAllArraySet.schemaOrigins));
-    }
-
-    public unionWithEmpty(otherEmptySet: ArraySet): ArraySet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+    public intersectWithEmpty(other: EmptyArraySet): ArraySet {
+        // TODO: this can't be asserted without keywords support
+        return new EmptyArraySet(other.schemaOrigins.concat(this.schemaOrigins));
     }
 
     public complement(): ArraySet {
@@ -97,9 +68,5 @@ export class EmptyArraySet implements ArraySet {
 
     public toRepresentations(): Representation[] {
         return [];
-    }
-
-    private withAdditionalOrigins(origins: SchemaOrigin[]): ArraySet {
-        return new EmptyArraySet(this.schemaOrigins.concat(origins));
     }
 }

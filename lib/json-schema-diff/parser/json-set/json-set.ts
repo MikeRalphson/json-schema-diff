@@ -1,24 +1,21 @@
 // tslint:disable:max-classes-per-file
 
-import {createAllObjectSet, createEmptyObjectSet} from '../set-factories/create-object-set';
-import {AllArraySet, EmptyArraySet} from './json-subset/array-set';
-import {AllBooleanSet, EmptyBooleanSet} from './json-subset/boolean-set';
-import {AllIntegerSet, EmptyIntegerSet} from './json-subset/integer-set';
-import {AllNullSet, EmptyNullSet} from './json-subset/null-set';
-import {AllNumberSet, EmptyNumberSet} from './json-subset/number-set';
-import {AllStringSet, EmptyStringSet} from './json-subset/string-set';
+import {createAllObjectSet} from '../set-factories/create-object-set';
+import {AllArraySet} from './json-subset/array-set';
+import {AllBooleanSet} from './json-subset/boolean-set';
+import {AllIntegerSet} from './json-subset/integer-set';
+import {AllNullSet} from './json-subset/null-set';
+import {AllNumberSet} from './json-subset/number-set';
+import {AllStringSet} from './json-subset/string-set';
 import {
     allSchemaTypes, Representation, SchemaOrigin, Set, toDestinationRepresentationValues,
     toSourceRepresentationValues
 } from './set';
 
 interface JsonSet extends Set<'json'> {
-    intersectWithAll(otherSet: AllJsonSet): JsonSet;
-    unionWithAll(otherSet: AllJsonSet): JsonSet;
-    intersectWithEmpty(otherSet: EmptyJsonSet): JsonSet;
-    unionWithEmpty(otherSet: EmptyJsonSet): JsonSet;
-    intersectWithSome(otherSet: SomeJsonSet): JsonSet;
-    unionWithSome(otherSet: SomeJsonSet): JsonSet;
+    intersectWithAll(other: AllJsonSet): JsonSet;
+    intersectWithEmpty(other: EmptyJsonSet): JsonSet;
+    intersectWithSome(other: SomeJsonSet): JsonSet;
 }
 
 export class AllJsonSet implements JsonSet {
@@ -28,6 +25,7 @@ export class AllJsonSet implements JsonSet {
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
     public complement(): JsonSet {
+        // TODO: can't be properly asserted without keywords support
         return new EmptyJsonSet(this.schemaOrigins);
     }
 
@@ -36,6 +34,7 @@ export class AllJsonSet implements JsonSet {
     }
 
     public intersectWithAll(other: AllJsonSet): JsonSet {
+        // TODO: mergedSchemaOrigins can't be properly asserted without keywords support
         return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
@@ -53,22 +52,6 @@ export class AllJsonSet implements JsonSet {
             object: other.subsets.object.intersect(createAllObjectSet(this)),
             string: other.subsets.string.intersect(new AllStringSet(this.schemaOrigins))
         });
-    }
-
-    public union(other: JsonSet): JsonSet {
-        return other.unionWithAll(this);
-    }
-
-    public unionWithSome(other: SomeJsonSet): JsonSet {
-        return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
-    }
-
-    public unionWithAll(other: AllJsonSet): JsonSet {
-        return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
-    }
-
-    public unionWithEmpty(other: EmptyJsonSet): JsonSet {
-        return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public toRepresentations(): Representation[] {
@@ -98,6 +81,7 @@ export class EmptyJsonSet implements JsonSet {
     }
 
     public intersectWithEmpty(other: EmptyJsonSet): JsonSet {
+        // TODO: can't be properly asserted without keywords support
         return new EmptyJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
@@ -107,22 +91,6 @@ export class EmptyJsonSet implements JsonSet {
 
     public intersectWithSome(other: SomeJsonSet): JsonSet {
         return new EmptyJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
-    }
-
-    public union(other: JsonSet): JsonSet {
-        return other.unionWithEmpty(this);
-    }
-
-    public unionWithEmpty(other: EmptyJsonSet): JsonSet {
-        return new EmptyJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
-    }
-
-    public unionWithSome(other: SomeJsonSet): JsonSet {
-        return other.unionWithEmpty(this);
-    }
-
-    public unionWithAll(other: AllJsonSet): JsonSet {
-        return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public toRepresentations(): Representation[] {
@@ -186,38 +154,6 @@ export class SomeJsonSet implements JsonSet {
             object: this.subsets.object.intersect(other.subsets.object),
             string: this.subsets.string.intersect(other.subsets.string)
         });
-    }
-
-    public union(other: JsonSet): JsonSet {
-        return other.unionWithSome(this);
-    }
-
-    public unionWithEmpty(other: EmptyJsonSet): JsonSet {
-        return new SomeJsonSet({
-            array: this.subsets.array.union(new EmptyArraySet(other.schemaOrigins)),
-            boolean: this.subsets.boolean.union(new EmptyBooleanSet(other.schemaOrigins)),
-            integer: this.subsets.integer.union(new EmptyIntegerSet(other.schemaOrigins)),
-            null: this.subsets.null.union(new EmptyNullSet(other.schemaOrigins)),
-            number: this.subsets.number.union(new EmptyNumberSet(other.schemaOrigins)),
-            object: this.subsets.object.union(createEmptyObjectSet(this)),
-            string: this.subsets.string.union(new EmptyStringSet(other.schemaOrigins))
-        });
-    }
-
-    public unionWithSome(other: SomeJsonSet): JsonSet {
-        return new SomeJsonSet({
-            array: this.subsets.array.union(other.subsets.array),
-            boolean: this.subsets.boolean.union(other.subsets.boolean),
-            integer: this.subsets.integer.union(other.subsets.integer),
-            null: this.subsets.null.union(other.subsets.null),
-            number: this.subsets.number.union(other.subsets.number),
-            object: this.subsets.object.union(other.subsets.object),
-            string: this.subsets.string.union(other.subsets.string)
-        });
-    }
-
-    public unionWithAll(other: AllJsonSet): JsonSet {
-        return new AllJsonSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public toRepresentations(): Representation[] {

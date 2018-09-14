@@ -378,7 +378,7 @@ describe('differ', () => {
     });
 
     describe('schema as boolean', () => {
-        it('should find an add difference when schema is changed to true', async () => {
+        it('should find an add difference when schema is changed to true (all but object)', async () => {
             const allTypesButObject: SimpleTypes[] = ['string', 'array', 'number', 'integer', 'boolean', 'null'];
             const sourceSchema: JsonSchema = {
                 type: allTypesButObject
@@ -406,6 +406,59 @@ describe('differ', () => {
         });
 
         it('should find a remove difference when schema is changed to false', async () => {
+            const sourceSchema: JsonSchema = {
+                type: 'string'
+            };
+            const destinationSchema: JsonSchema = false;
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const removeDifference = diffResultDifferenceBuilder
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withPath(['type'])
+                        .withValue('string')
+                )
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue(false)
+                        .withPath([])
+                )
+                .withValue('string')
+                .withTypeRemoveType()
+                .build();
+
+            expect(diffResult).toContainDifferences([removeDifference]);
+        });
+
+        it('should find an add difference when schema is changed to true (all but integer)', async () => {
+            const allTypesButInteger: SimpleTypes[] = ['string', 'array', 'number', 'object', 'boolean', 'null'];
+            const sourceSchema: JsonSchema = {
+                type: allTypesButInteger
+            };
+            const destinationSchema: JsonSchema = true;
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const addDifference = diffResultDifferenceBuilder
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withPath(['type'])
+                        .withValue(['string', 'array', 'number', 'object', 'boolean', 'null'])
+                )
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue(true)
+                        .withPath([])
+                )
+                .withValue('integer')
+                .withTypeAddType()
+                .build();
+
+            expect(diffResult).toContainDifferences([addDifference]);
+        });
+
+        it('should find a remove difference when schema is changed to false', async () => {
             const sourceSchema: JsonSchema = {type: 'integer'};
             const destinationSchema: JsonSchema = false;
 
@@ -421,6 +474,28 @@ describe('differ', () => {
                         .withValue(false)
                         .withPath([]))
                 .withTypeRemoveType()
+                .withValue('integer')
+                .build();
+
+            expect(diffResult).toContainDifferences([removeDifference]);
+        });
+
+        it('should find an add difference when schema is changed from false to some type', async () => {
+            const destinationSchema: JsonSchema = {type: 'integer'};
+            const sourceSchema: JsonSchema = false;
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const removeDifference = diffResultDifferenceBuilder
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue('integer')
+                        .withPath(['type']))
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withValue(false)
+                        .withPath([]))
+                .withTypeAddType()
                 .withValue('integer')
                 .build();
 
@@ -500,6 +575,76 @@ describe('differ', () => {
                 baseRemovedDifference.withValue('object').build(),
                 baseRemovedDifference.withValue('string').build()
             ]);
+        });
+
+        it('should find differences between schemas with properties and additionalProperties', async () => {
+            const sourceSchema: JsonSchema = {
+                additionalProperties: true,
+                type: 'object'
+            };
+            const destinationSchema: JsonSchema = {
+                additionalProperties: true,
+                properties: {
+                    name: {
+                        type: ['object', 'string', 'array', 'integer', 'number', 'boolean']
+                    }
+                },
+                type: 'object'
+            };
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const removedDifference = diffResultDifferenceBuilder
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withPath(['properties', 'name', 'type'])
+                        .withValue(['object', 'string', 'array', 'integer', 'number', 'boolean'])
+                )
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withPath(['additionalProperties'])
+                        .withValue(true)
+                )
+                .withValue('null')
+                .withTypeRemoveType()
+                .build();
+
+            expect(diffResult).toContainDifferences([removedDifference]);
+        });
+
+        it('should find differences between schemas with properties and non boolean additionalProperties', async () => {
+            const sourceSchema: JsonSchema = {
+                additionalProperties: {type: ['string', 'number']},
+                type: 'object'
+            };
+            const destinationSchema: JsonSchema = {
+                additionalProperties: {type: ['string', 'number']},
+                properties: {
+                    name: {
+                        type: 'string'
+                    }
+                },
+                type: 'object'
+            };
+
+            const diffResult = await invokeDiff(sourceSchema, destinationSchema);
+
+            const removedDifference = diffResultDifferenceBuilder
+                .withSourceValue(
+                    diffResultDifferenceValueBuilder
+                        .withPath(['additionalProperties', 'type'])
+                        .withValue(['string', 'number'])
+                )
+                .withDestinationValue(
+                    diffResultDifferenceValueBuilder
+                        .withPath(['properties', 'name', 'type'])
+                        .withValue('string')
+                )
+                .withValue('number')
+                .withTypeRemoveType()
+                .build();
+
+            expect(diffResult).toContainDifferences([removedDifference]);
         });
     });
 

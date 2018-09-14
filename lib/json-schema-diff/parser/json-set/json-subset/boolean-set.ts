@@ -6,10 +6,8 @@ import {
 } from '../set';
 
 interface BooleanSet extends Set<'boolean'> {
-    intersectWithAll(otherAllSet: AllBooleanSet): BooleanSet;
-    intersectWithEmpty(otherEmptySet: EmptyBooleanSet): BooleanSet;
-    unionWithAll(otherAllSet: AllBooleanSet): BooleanSet;
-    unionWithEmpty(otherEmptySet: EmptyBooleanSet): BooleanSet;
+    intersectWithAll(other: AllBooleanSet): BooleanSet;
+    intersectWithEmpty(other: EmptyBooleanSet): BooleanSet;
 }
 
 export class AllBooleanSet implements BooleanSet {
@@ -18,28 +16,16 @@ export class AllBooleanSet implements BooleanSet {
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
-    public intersect(otherSet: BooleanSet): BooleanSet {
-        return otherSet.intersectWithAll(this);
+    public intersect(other: BooleanSet): BooleanSet {
+        return other.intersectWithAll(this);
     }
 
-    public intersectWithAll(otherAllSet: AllBooleanSet): BooleanSet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
+    public intersectWithAll(other: AllBooleanSet): BooleanSet {
+        return new AllBooleanSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
-    public intersectWithEmpty(otherEmptySet: EmptyBooleanSet): BooleanSet {
-        return new EmptyBooleanSet(this.schemaOrigins.concat(otherEmptySet.schemaOrigins));
-    }
-
-    public union(otherSet: BooleanSet): BooleanSet {
-        return otherSet.unionWithAll(this);
-    }
-
-    public unionWithAll(otherAllSet: AllBooleanSet): BooleanSet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
-    }
-
-    public unionWithEmpty(otherEmptySet: BooleanSet): BooleanSet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+    public intersectWithEmpty(other: EmptyBooleanSet): BooleanSet {
+        return new EmptyBooleanSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public complement(): BooleanSet {
@@ -54,10 +40,6 @@ export class AllBooleanSet implements BooleanSet {
             value: 'boolean'
         }];
     }
-
-    private withAdditionalOrigins(origins: SchemaOrigin[]): BooleanSet {
-        return new AllBooleanSet(this.schemaOrigins.concat(origins));
-    }
 }
 
 export class EmptyBooleanSet implements BooleanSet {
@@ -66,28 +48,17 @@ export class EmptyBooleanSet implements BooleanSet {
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
-    public intersect(otherSet: BooleanSet): BooleanSet {
-        return otherSet.intersectWithEmpty(this);
+    public intersect(other: BooleanSet): BooleanSet {
+        return other.intersectWithEmpty(this);
     }
 
-    public intersectWithAll(otherAllSet: BooleanSet): BooleanSet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
+    public intersectWithAll(other: BooleanSet): BooleanSet {
+        return new EmptyBooleanSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
-    public intersectWithEmpty(otherEmptySet: BooleanSet): BooleanSet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
-    }
-
-    public union(otherSet: BooleanSet): BooleanSet {
-        return otherSet.unionWithEmpty(this);
-    }
-
-    public unionWithAll(otherAllSet: AllBooleanSet): BooleanSet {
-        return new AllBooleanSet(this.schemaOrigins.concat(otherAllSet.schemaOrigins));
-    }
-
-    public unionWithEmpty(otherEmptySet: BooleanSet): BooleanSet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+    public intersectWithEmpty(other: BooleanSet): BooleanSet {
+        // TODO: this can't be asserted without keywords support
+        return new EmptyBooleanSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public complement(): BooleanSet {
@@ -96,9 +67,5 @@ export class EmptyBooleanSet implements BooleanSet {
 
     public toRepresentations(): Representation[] {
         return [];
-    }
-
-    private withAdditionalOrigins(origins: SchemaOrigin[]): BooleanSet {
-        return new EmptyBooleanSet(this.schemaOrigins.concat(origins));
     }
 }

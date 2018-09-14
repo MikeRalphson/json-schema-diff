@@ -6,10 +6,8 @@ import {
 } from '../set';
 
 interface NumberSet extends Set<'number'> {
-    intersectWithAll(otherAllSet: AllNumberSet): NumberSet;
-    intersectWithEmpty(otherEmptySet: EmptyNumberSet): NumberSet;
-    unionWithAll(otherAllSet: AllNumberSet): NumberSet;
-    unionWithEmpty(otherEmptySet: EmptyNumberSet): NumberSet;
+    intersectWithAll(other: AllNumberSet): NumberSet;
+    intersectWithEmpty(other: EmptyNumberSet): NumberSet;
 }
 
 export class AllNumberSet implements NumberSet {
@@ -18,29 +16,16 @@ export class AllNumberSet implements NumberSet {
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
-    public intersect(otherSet: NumberSet): NumberSet {
-        return otherSet.intersectWithAll(this);
+    public intersect(other: NumberSet): NumberSet {
+        return other.intersectWithAll(this);
     }
 
-    public intersectWithAll(otherAllSet: NumberSet): NumberSet {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
-        return new AllNumberSet(mergedSchemaOrigins);
+    public intersectWithAll(other: NumberSet): NumberSet {
+        return new AllNumberSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
-    public intersectWithEmpty(otherEmptySet: NumberSet): NumberSet {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
-        return new EmptyNumberSet(mergedSchemaOrigins);
-    }
-    public union(otherSet: NumberSet): NumberSet {
-        return otherSet.unionWithAll(this);
-    }
-
-    public unionWithAll(otherAllSet: NumberSet): NumberSet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
-    }
-
-    public unionWithEmpty(otherEmptySet: NumberSet): NumberSet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+    public intersectWithEmpty(other: NumberSet): NumberSet {
+        return new EmptyNumberSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public complement(): NumberSet {
@@ -55,10 +40,6 @@ export class AllNumberSet implements NumberSet {
             value: 'number'
         }];
     }
-
-    private withAdditionalOrigins(origins: SchemaOrigin[]): NumberSet {
-        return new AllNumberSet(this.schemaOrigins.concat(origins));
-    }
 }
 
 export class EmptyNumberSet implements NumberSet {
@@ -67,28 +48,17 @@ export class EmptyNumberSet implements NumberSet {
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
-    public intersect(otherSet: NumberSet): NumberSet {
-        return otherSet.intersectWithEmpty(this);
+    public intersect(other: NumberSet): NumberSet {
+        return other.intersectWithEmpty(this);
     }
 
-    public intersectWithAll(otherAllSet: NumberSet): NumberSet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
+    public intersectWithAll(other: NumberSet): NumberSet {
+        return new EmptyNumberSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
-    public intersectWithEmpty(otherEmptySet: EmptyNumberSet): NumberSet {
-        return otherEmptySet.withAdditionalOrigins(this.schemaOrigins);
-    }
-
-    public union(otherSet: NumberSet): NumberSet {
-        return otherSet.unionWithEmpty(this);
-    }
-
-    public unionWithAll(otherAllSet: AllNumberSet): NumberSet {
-        return new AllNumberSet(this.schemaOrigins.concat(otherAllSet.schemaOrigins));
-    }
-
-    public unionWithEmpty(otherEmptySet: NumberSet): NumberSet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+    public intersectWithEmpty(other: EmptyNumberSet): NumberSet {
+        // TODO: this can't be asserted without keywords support
+        return new EmptyNumberSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public complement(): NumberSet {
@@ -97,9 +67,5 @@ export class EmptyNumberSet implements NumberSet {
 
     public toRepresentations(): Representation[] {
         return [];
-    }
-
-    private withAdditionalOrigins(origins: SchemaOrigin[]): NumberSet {
-        return new EmptyNumberSet(this.schemaOrigins.concat(origins));
     }
 }

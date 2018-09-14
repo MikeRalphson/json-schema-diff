@@ -7,10 +7,8 @@ import {
 
 interface IntegerSet extends  Set<'integer'> {
     readonly schemaOrigins: SchemaOrigin[];
-    intersectWithAll(otherAllSet: AllIntegerSet): IntegerSet;
-    intersectWithEmpty(otherEmptySet: EmptyIntegerSet): IntegerSet;
-    unionWithAll(otherAllSet: AllIntegerSet): IntegerSet;
-    unionWithEmpty(otherEmptySet: EmptyIntegerSet): IntegerSet;
+    intersectWithAll(other: AllIntegerSet): IntegerSet;
+    intersectWithEmpty(other: EmptyIntegerSet): IntegerSet;
 }
 
 export class AllIntegerSet implements IntegerSet {
@@ -19,28 +17,16 @@ export class AllIntegerSet implements IntegerSet {
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
-    public intersect(otherSet: IntegerSet): IntegerSet {
-        return otherSet.intersectWithAll(this);
+    public intersect(other: IntegerSet): IntegerSet {
+        return other.intersectWithAll(this);
     }
 
-    public intersectWithAll(otherAllSet: IntegerSet): IntegerSet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
+    public intersectWithAll(other: IntegerSet): IntegerSet {
+        return new AllIntegerSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
-    public intersectWithEmpty(otherEmptySet: EmptyIntegerSet): IntegerSet {
-        return new EmptyIntegerSet(this.schemaOrigins.concat(otherEmptySet.schemaOrigins));
-    }
-
-    public union(otherSet: IntegerSet): IntegerSet {
-        return otherSet.unionWithAll(this);
-    }
-
-    public unionWithAll(otherAllSet: IntegerSet): IntegerSet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
-    }
-
-    public unionWithEmpty(otherEmptySet: IntegerSet): IntegerSet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+    public intersectWithEmpty(other: EmptyIntegerSet): IntegerSet {
+        return new EmptyIntegerSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public complement(): IntegerSet {
@@ -55,10 +41,6 @@ export class AllIntegerSet implements IntegerSet {
             value: 'integer'
         }];
     }
-
-    private withAdditionalOrigins(origins: SchemaOrigin[]): IntegerSet {
-        return new AllIntegerSet(this.schemaOrigins.concat(origins));
-    }
 }
 
 export class EmptyIntegerSet implements IntegerSet {
@@ -67,28 +49,17 @@ export class EmptyIntegerSet implements IntegerSet {
 
     public constructor(public readonly schemaOrigins: SchemaOrigin[]) {}
 
-    public intersect(otherSet: IntegerSet): IntegerSet {
-        return otherSet.intersectWithEmpty(this);
+    public intersect(other: IntegerSet): IntegerSet {
+        return other.intersectWithEmpty(this);
     }
 
-    public intersectWithAll(otherAllSet: IntegerSet): IntegerSet {
-        return this.withAdditionalOrigins(otherAllSet.schemaOrigins);
+    public intersectWithAll(other: IntegerSet): IntegerSet {
+        return new EmptyIntegerSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
-    public intersectWithEmpty(otherEmptySet: IntegerSet): IntegerSet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
-    }
-
-    public union(otherSet: IntegerSet): IntegerSet {
-        return otherSet.unionWithEmpty(this);
-    }
-
-    public unionWithAll(otherAllSet: AllIntegerSet): IntegerSet {
-        return new AllIntegerSet(this.schemaOrigins.concat(otherAllSet.schemaOrigins));
-    }
-
-    public unionWithEmpty(otherEmptySet: IntegerSet): IntegerSet {
-        return this.withAdditionalOrigins(otherEmptySet.schemaOrigins);
+    public intersectWithEmpty(other: IntegerSet): IntegerSet {
+        // TODO: this can't be asserted without keywords support
+        return new EmptyIntegerSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public complement(): IntegerSet {
@@ -97,9 +68,5 @@ export class EmptyIntegerSet implements IntegerSet {
 
     public toRepresentations(): Representation[] {
         return [];
-    }
-
-    private withAdditionalOrigins(origins: SchemaOrigin[]): IntegerSet {
-        return new EmptyIntegerSet(this.schemaOrigins.concat(origins));
     }
 }

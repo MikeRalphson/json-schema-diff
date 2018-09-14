@@ -6,10 +6,8 @@ import {
 } from '../set';
 
 interface StringSet extends Set<'string'> {
-    intersectWithAll(otherAllSet: AllStringSet): StringSet;
-    intersectWithEmpty(otherEmptySet: EmptyStringSet): StringSet;
-    unionWithAll(otherAllSet: AllStringSet): StringSet;
-    unionWithEmpty(otherEmptySet: EmptyStringSet): StringSet;
+    intersectWithAll(other: AllStringSet): StringSet;
+    intersectWithEmpty(other: EmptyStringSet): StringSet;
 }
 
 export class AllStringSet implements StringSet {
@@ -22,28 +20,12 @@ export class AllStringSet implements StringSet {
         return otherSet.intersectWithAll(this);
     }
 
-    public intersectWithAll(otherAllSet: StringSet): StringSet {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
-        return new AllStringSet(mergedSchemaOrigins);
+    public intersectWithAll(other: StringSet): StringSet {
+        return new AllStringSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
-    public intersectWithEmpty(otherEmptySet: StringSet): StringSet {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
-        return new EmptyStringSet(mergedSchemaOrigins);
-    }
-
-    public union(otherSet: StringSet): StringSet {
-        return otherSet.unionWithAll(this);
-    }
-
-    public unionWithAll(otherAllSet: StringSet): StringSet {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
-        return new AllStringSet(mergedSchemaOrigins);
-    }
-
-    public unionWithEmpty(otherEmptySet: StringSet): StringSet {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
-        return new AllStringSet(mergedSchemaOrigins);
+    public intersectWithEmpty(other: StringSet): StringSet {
+        return new EmptyStringSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public complement(): StringSet {
@@ -70,28 +52,13 @@ export class EmptyStringSet implements StringSet {
         return otherSet.intersectWithEmpty(this);
     }
 
-    public intersectWithAll(otherAllSet: StringSet): StringSet {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
-        return new EmptyStringSet(mergedSchemaOrigins);
+    public intersectWithAll(other: StringSet): StringSet {
+        return new EmptyStringSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
-    public intersectWithEmpty(otherEmptySet: StringSet): StringSet {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
-        return new EmptyStringSet(mergedSchemaOrigins);
-    }
-
-    public union(otherSet: StringSet): StringSet {
-        return otherSet.unionWithEmpty(this);
-    }
-
-    public unionWithAll(otherAllSet: StringSet): StringSet {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherAllSet.schemaOrigins);
-        return new AllStringSet(mergedSchemaOrigins);
-    }
-
-    public unionWithEmpty(otherEmptySet: StringSet): StringSet {
-        const mergedSchemaOrigins = this.schemaOrigins.concat(otherEmptySet.schemaOrigins);
-        return new EmptyStringSet(mergedSchemaOrigins);
+    public intersectWithEmpty(other: StringSet): StringSet {
+        // TODO: this can't be asserted without keywords support
+        return new EmptyStringSet(this.schemaOrigins.concat(other.schemaOrigins));
     }
 
     public complement(): StringSet {
